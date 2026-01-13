@@ -1,0 +1,297 @@
+"""
+LangGraph agent for codebase onboarding.
+Uses tools + context + model intelligence (no RAG).
+Supports multiple LLM providers: OpenRouter (default), Groq.
+"""
+
+import os
+from typing import Annotated, TypedDict
+from pathlib import Path
+
+from langchain_core.messages import HumanMessage, SystemMessage, AIMessage
+from langchain_openai import ChatOpenAI
+from langgraph.graph import StateGraph, END
+from langgraph.graph.message import add_messages
+from langgraph.prebuilt import ToolNode
+
+from .tools import (
+    list_directory_structure,
+    read_file,
+    search_code,
+    find_files_by_pattern,
+    get_imports,
+    find_entry_points,
+    analyze_dependencies,
+    get_function_signatures,
+)
+from .prompts import SYSTEM_PROMPT, OVERVIEW_PROMPT, DEEP_DIVE_PROMPT
+
+
+# All available tools
+TOOLS = [
+    list_directory_structure,
+    read_file,
+    search_code,
+    find_files_by_pattern,
+    get_imports,
+    find_entry_points,
+    analyze_dependencies,
+    get_function_signatures,
+]
+
+# Default models per provider
+DEFAULT_MODELS = {
+    "openrouter": "xiaomi/mimo-v2-flash:free",  # FREE model, excellent for code
+    "groq": "llama-3.1-8b-instant",  # Free tier
+}
+
+
+class AgentState(TypedDict):
+    """State for the onboarding agent."""
+    messages: Annotated[list, add_messages]
+    repo_path: str
+
+
+def create_agent(
+    api_key: str | None = None,
+    model: str | None = None,
+    provider: str = "openrouter"
+):
+    """
+    Create the codebase onboarding agent.
+
+    Args:
+        api_key: API key (uses env var if not provided)
+        model: Model to use (defaults based on provider)
+        provider: LLM provider - "openrouter" or "groq"
+
+    Returns:
+        Compiled LangGraph agent
+    """
+    # Determine API key
+    if api_key is None:
+        if provider == "openrouter":
+            api_key = os.getenv("OPENROUTER_API_KEY")
+        else:
+            api_key = os.getenv("GROQ_API_KEY")
+
+    if not api_key:
+        raise ValueError(f"API key not provided and not found in environment for {provider}")
+
+    # Determine model
+    if model is None:
+        model = DEFAULT_MODELS.get(provider, DEFAULT_MODELS["openrouter"])
+
+    # Initialize LLM based on provider
+    if provider == "openrouter":
+        llm = ChatOpenAI(
+            api_key=api_key,
+            base_url="https://openrouter.ai/api/v1",
+            model=model,
+            temperature=0,
+        )
+    else:
+        # Groq uses OpenAI-compatible API too
+        llm = ChatOpenAI(
+            api_key=api_key,
+            base_url="https://api.groq.com/openai/v1",
+            model=model,
+            temperature=0,
+        )
+
+    llm_with_tools = llm.bind_tools(TOOLS)
+
+    def agent_node(state: AgentState) -> AgentState:
+        """Main agent reasoning node."""
+        messages = state["messages"]
+        repo_path = state["repo_path"]
+
+        # Add system prompt if not present
+        if not any(isinstance(m, SystemMessage) for m in messages):
+            system = SystemMessage(content=SYSTEM_PROMPT.format(repo_path=repo_path))
+            messages = [system] + messages
+
+        response = llm_with_tools.invoke(messages)
+        return {"messages": [response]}
+
+    def should_continue(state: AgentState) -> str:
+        """Determine if we should continue with tools or end."""
+        messages = state["messages"]
+        last_message = messages[-1]
+
+        # If the last message has tool calls, continue to tools
+        if hasattr(last_message, "tool_calls") and last_message.tool_calls:
+            return "tools"
+        return END
+
+    # Create the tool node
+    tool_node = ToolNode(TOOLS)
+
+    # Build the graph
+    graph = StateGraph(AgentState)
+
+    # Add nodes
+    graph.add_node("agent", agent_node)
+    graph.add_node("tools", tool_node)
+
+    # Set entry point
+    graph.set_entry_point("agent")
+
+    # Add edges
+    graph.add_conditional_edges(
+        "agent",
+        should_continue,
+        {
+            "tools": "tools",
+            END: END,
+        },
+    )
+    graph.add_edge("tools", "agent")
+
+    return graph.compile()
+
+
+class CodebaseOnboardingAgent:
+    """High-level interface for the codebase onboarding agent."""
+
+    def __init__(
+        self,
+        repo_path: str,
+        api_key: str | None = None,
+        model: str | None = None,
+        provider: str = "openrouter"
+    ):
+        """
+        Initialize the agent for a specific repository.
+
+        Args:
+            repo_path: Path to the repository to analyze
+            api_key: API key (uses env var if not provided)
+            model: Model to use (defaults based on provider)
+            provider: LLM provider - "openrouter" or "groq"
+        """
+        self.repo_path = str(Path(repo_path).resolve())
+        if not Path(self.repo_path).exists():
+            raise ValueError(f"Repository path does not exist: {self.repo_path}")
+
+        self.agent = create_agent(api_key, model, provider)
+        self.conversation_history: list = []
+        self.last_tool_calls: list[dict] = []  # Track tool calls from last run
+
+    def _run(self, user_message: str) -> str:
+        """Run a single interaction with the agent."""
+        self.conversation_history.append(HumanMessage(content=user_message))
+
+        state = {
+            "messages": self.conversation_history.copy(),
+            "repo_path": self.repo_path,
+        }
+
+        result = self.agent.invoke(state)
+
+        # Extract the final response and track tool calls
+        messages = result["messages"]
+        self.last_tool_calls = []  # Reset for this run
+
+        # Find the last AI message that isn't a tool call
+        final_response = None
+        for msg in messages:
+            # Extract tool calls from AIMessages
+            if isinstance(msg, AIMessage) and hasattr(msg, "tool_calls") and msg.tool_calls:
+                for tc in msg.tool_calls:
+                    self.last_tool_calls.append({
+                        "name": tc.get("name") or tc.get("function", {}).get("name"),
+                        "args": tc.get("args") or tc.get("function", {}).get("arguments"),
+                    })
+
+        # Find final response (last AIMessage without tool calls)
+        for msg in reversed(messages):
+            if isinstance(msg, AIMessage) and not (hasattr(msg, "tool_calls") and msg.tool_calls):
+                final_response = msg.content
+                break
+
+        if final_response:
+            self.conversation_history.append(AIMessage(content=final_response))
+
+        return final_response or "No response generated"
+
+    def get_overview(self) -> str:
+        """Generate a comprehensive overview of the codebase."""
+        return self._run(OVERVIEW_PROMPT)
+
+    def ask(self, question: str) -> str:
+        """Ask a specific question about the codebase."""
+        prompt = DEEP_DIVE_PROMPT.format(question=question)
+        return self._run(prompt)
+
+    def chat(self, message: str) -> str:
+        """General chat about the codebase."""
+        return self._run(message)
+
+    def reset_conversation(self):
+        """Reset the conversation history and tool call log."""
+        self.conversation_history = []
+        self.last_tool_calls = []
+
+    def get_tool_calls(self) -> list[dict]:
+        """Get the tool calls from the last run."""
+        return self.last_tool_calls
+
+    def get_tool_names(self) -> list[str]:
+        """Get unique tool names from the last run."""
+        return list(set(tc["name"] for tc in self.last_tool_calls if tc["name"]))
+
+
+def run_cli():
+    """Simple CLI for testing the agent."""
+    import argparse
+
+    parser = argparse.ArgumentParser(description="Codebase Onboarding Agent")
+    parser.add_argument("repo_path", help="Path to the repository to analyze")
+    parser.add_argument("--overview", action="store_true", help="Generate codebase overview")
+    parser.add_argument("--ask", type=str, help="Ask a specific question")
+    parser.add_argument("--provider", type=str, default="openrouter",
+                        choices=["openrouter", "groq"],
+                        help="LLM provider (default: openrouter)")
+    parser.add_argument("--model", type=str, help="Model to use (defaults based on provider)")
+    args = parser.parse_args()
+
+    agent = CodebaseOnboardingAgent(
+        args.repo_path,
+        provider=args.provider,
+        model=args.model
+    )
+
+    if args.overview:
+        print("\n🔍 Generating codebase overview...\n")
+        print(agent.get_overview())
+    elif args.ask:
+        print(f"\n🔍 Investigating: {args.ask}\n")
+        print(agent.ask(args.ask))
+    else:
+        # Interactive mode
+        print(f"\n📁 Analyzing: {args.repo_path}")
+        print("Type 'overview' for a full overview, 'quit' to exit, or ask any question.\n")
+
+        while True:
+            try:
+                user_input = input("You: ").strip()
+                if not user_input:
+                    continue
+                if user_input.lower() == "quit":
+                    break
+                if user_input.lower() == "overview":
+                    print("\n🔍 Generating overview...\n")
+                    print(agent.get_overview())
+                else:
+                    print("\n🤖 Agent:\n")
+                    print(agent.chat(user_input))
+                print()
+            except KeyboardInterrupt:
+                break
+
+    print("\nGoodbye! 👋")
+
+
+if __name__ == "__main__":
+    run_cli()

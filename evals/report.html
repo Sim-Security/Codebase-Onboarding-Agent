@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Codebase Onboarding Agent - Eval Report</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #e0e0e0;
+            min-height: 100vh;
+            padding: 2rem;
+        }
+        .container { max-width: 1200px; margin: 0 auto; }
+
+        h1 {
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(90deg, #00d9ff, #00ff88);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .subtitle { text-align: center; color: #888; margin-bottom: 2rem; }
+
+        .hero-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+        .stat-card {
+            background: rgba(255,255,255,0.05);
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: center;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .stat-value { font-size: 2.5rem; font-weight: bold; }
+        .stat-value.green { color: #00ff88; }
+        .stat-value.blue { color: #00d9ff; }
+        .stat-value.yellow { color: #ffd700; }
+        .stat-label { color: #888; margin-top: 0.5rem; }
+
+        .section { margin-bottom: 3rem; }
+        .section h2 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid rgba(255,255,255,0.1);
+        }
+
+        .eval-explainer {
+            background: rgba(0,217,255,0.1);
+            border-left: 4px solid #00d9ff;
+            padding: 1rem 1.5rem;
+            border-radius: 0 8px 8px 0;
+            margin-bottom: 2rem;
+        }
+        .eval-explainer h3 { color: #00d9ff; margin-bottom: 0.5rem; }
+        .eval-explainer p { color: #aaa; line-height: 1.6; }
+
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 0.75rem 1rem; text-align: left; }
+        th { background: rgba(255,255,255,0.05); color: #00d9ff; }
+        tr { border-bottom: 1px solid rgba(255,255,255,0.05); }
+        tr.pass { background: rgba(0,255,136,0.05); }
+        tr.partial { background: rgba(255,215,0,0.05); }
+        .status-cell { text-align: center; font-size: 1.2rem; }
+
+        .repo-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 1.5rem;
+        }
+        .repo-card {
+            background: rgba(255,255,255,0.03);
+            border-radius: 12px;
+            padding: 1.5rem;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .repo-card.pass { border-left: 4px solid #00ff88; }
+        .repo-card.fail { border-left: 4px solid #ff6b6b; }
+        .repo-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+        .repo-header h3 { color: #fff; }
+        .repo-meta { color: #888; font-size: 0.85rem; }
+        .repo-score {
+            background: rgba(0,255,136,0.2);
+            color: #00ff88;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-weight: bold;
+        }
+        .repo-card.fail .repo-score {
+            background: rgba(255,107,107,0.2);
+            color: #ff6b6b;
+        }
+
+        .repo-tests { display: flex; flex-direction: column; gap: 0.5rem; }
+        .test-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.5rem;
+            border-radius: 6px;
+            font-size: 0.9rem;
+        }
+        .test-pass { background: rgba(0,255,136,0.1); }
+        .test-fail { background: rgba(255,107,107,0.1); }
+        .test-icon { font-size: 1rem; }
+        .test-name { font-weight: 500; min-width: 140px; }
+        .test-details { color: #888; font-size: 0.8rem; }
+
+        .footer {
+            text-align: center;
+            padding: 2rem;
+            color: #666;
+            border-top: 1px solid rgba(255,255,255,0.05);
+            margin-top: 3rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 Codebase Onboarding Agent</h1>
+        <p class="subtitle">Comprehensive Evaluation Report</p>
+
+        <div class="hero-stats">
+            <div class="stat-card">
+                <div class="stat-value green">96.7%</div>
+                <div class="stat-label">Overall Pass Rate</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value blue">29/30</div>
+                <div class="stat-label">Tests Passed</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value yellow">10</div>
+                <div class="stat-label">Repos Tested</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value green">5</div>
+                <div class="stat-label">Languages</div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>📋 What We Test</h2>
+
+            <div class="eval-explainer">
+                <h3>1. Overview Accuracy</h3>
+                <p>Can the agent correctly identify the project type, tech stack, and architecture?
+                We check for <strong>hallucinations</strong> (mentioning technologies that aren't in the codebase)
+                and verify expected technologies are found. Every claim must be grounded in actual code.</p>
+            </div>
+
+            <div class="eval-explainer">
+                <h3>2. Deep Dive Questions</h3>
+                <p>When asked specific questions like "How does the entry point work?", does the agent
+                <strong>use tools to explore</strong> before answering? We count file:line citations and
+                verify the agent actually reads code rather than guessing.</p>
+            </div>
+
+            <div class="eval-explainer">
+                <h3>3. Language Detection</h3>
+                <p>A simple but important check: can the agent correctly identify what programming language
+                the project is written in? This validates basic code understanding.</p>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>📊 Results by Language</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Language</th>
+                        <th>Tests Passed</th>
+                        <th>Pass Rate</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    
+        <tr class="partial">
+            <td>Python</td>
+            <td>14/15</td>
+            <td>93.3%</td>
+            <td class="status-cell">⚠️</td>
+        </tr>
+        <tr class="pass">
+            <td>TypeScript</td>
+            <td>3/3</td>
+            <td>100.0%</td>
+            <td class="status-cell">✅</td>
+        </tr>
+        <tr class="pass">
+            <td>JavaScript</td>
+            <td>3/3</td>
+            <td>100.0%</td>
+            <td class="status-cell">✅</td>
+        </tr>
+        <tr class="pass">
+            <td>Go</td>
+            <td>6/6</td>
+            <td>100.0%</td>
+            <td class="status-cell">✅</td>
+        </tr>
+        <tr class="pass">
+            <td>Rust</td>
+            <td>3/3</td>
+            <td>100.0%</td>
+            <td class="status-cell">✅</td>
+        </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="section">
+            <h2>📁 Results by Category</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Category</th>
+                        <th>Tests Passed</th>
+                        <th>Pass Rate</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    
+        <tr class="pass">
+            <td>Framework</td>
+            <td>12/12</td>
+            <td>100.0%</td>
+            <td class="status-cell">✅</td>
+        </tr>
+        <tr class="partial">
+            <td>Library</td>
+            <td>8/9</td>
+            <td>88.9%</td>
+            <td class="status-cell">⚠️</td>
+        </tr>
+        <tr class="pass">
+            <td>Cli</td>
+            <td>9/9</td>
+            <td>100.0%</td>
+            <td class="status-cell">✅</td>
+        </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="section">
+            <h2>🔬 Individual Repository Results</h2>
+            <div class="repo-grid">
+                
+        <div class="repo-card pass">
+            <div class="repo-header">
+                <h3>flask</h3>
+                <span class="repo-meta">Python • framework</span>
+                <span class="repo-score">3/3</span>
+            </div>
+            <div class="repo-tests">
+                
+            <div class="test-item test-pass">
+                <span class="test-icon">✅</span>
+                <span class="test-name">Overview</span>
+                <span class="test-details">Tech accuracy: 100.0% | Citations: 6</span>
+            </div>
+            <div class="test-item test-pass">
+                <span class="test-icon">✅</span>
+                <span class="test-name">Deep Dive</span>
+                <span class="test-details">Citations: 18 | Tool calls: 16</span>
+            </div>
+            <div class="test-item test-pass">
+                <span class="test-icon">✅</span>
+                <span class="test-name">Language Detection</span>
+                <span class="test-details">Expected: Python</span>
+            </div>
+            </div>
+        </div>
+        <div class="repo-card fail">
+            <div class="repo-header">
+                <h3>httpx</h3>
+                <span class="repo-meta">Python • library</span>
+                <span class="repo-score">2/3</span>
+            </div>
+            <div class="repo-tests">
+                
+            <div class="test-item test-fail">
+                <span class="test-icon">❌</span>
+                <span class="test-name">Overview</span>
+                <span class="test-details">Tech accuracy: 100.0% | Hallucinations: requests | Citations: 12</span>
+            </div>
+            <div class="test-item test-pass">
+                <span class="test-icon">✅</span>
+                <span class="test-name">Deep Dive</span>
+                <span class="test-details">Citations: 27 | Tool calls: 20</span>
+            </div>
+            <div class="test-item test-pass">
+                <span class="test-icon">✅</span>
+                <span class="test-name">Language Detection</span>
+                <span class="test-details">Expected: Python</span>
+            </div>
+            </div>
+        </div>
+        <div class="repo-card pass">
+            <div class="repo-header">
+                <h3>click</h3>
+                <span class="repo-meta">Python • cli</span>
+                <span class="repo-score">3/3</span>
+            </div>
+            <div class="repo-tests">
+                
+            <div class="test-item test-pass">
+                <span class="test-icon">✅</span>
+                <span class="test-name">Overview</span>
+                <span class="test-details">Tech accuracy: 100.0% | Citations: 13</span>
+            </div>
+            <div class="test-item test-pass">
+                <span class="test-icon">✅</span>
+                <span class="test-name">Deep Dive</span>
+                <span class="test-details">Citations: 2 | Tool calls: 13</span>
+            </div>
+            <div class="test-item test-pass">
+                <span class="test-icon">✅</span>
+                <span class="test-name">Language Detection</span>
+                <span class="test-details">Expected: Python</span>
+            </div>
+            </div>
+        </div>
+        <div class="repo-card pass">
+            <div class="repo-header">
+                <h3>zustand</h3>
+                <span class="repo-meta">TypeScript • library</span>
+                <span class="repo-score">3/3</span>
+            </div>
+            <div class="repo-tests">
+                
+            <div class="test-item test-pass">
+                <span class="test-icon">✅</span>
+                <span class="test-name">Overview</span>
+                <span class="test-details">Tech accuracy: 75.0% | Citations: 18</span>
+            </div>
+            <div class="test-item test-pass">
+                <span class="test-icon">✅</span>
+                <span class="test-name">Deep Dive</span>
+                <span class="test-details">Citations: 16 | Tool calls: 18</span>
+            </div>
+            <div class="test-item test-pass">
+                <span class="test-icon">✅</span>
+                <span class="test-name">Language Detection</span>
+                <span class="test-details">Expected: TypeScript</span>
+            </div>
+            </div>
+        </div>
+        <div class="repo-card pass">
+            <div class="repo-header">
+                <h3>express</h3>
+                <span class="repo-meta">JavaScript • framework</span>
+                <span class="repo-score">3/3</span>
+            </div>
+            <div class="repo-tests">
+                
+            <div class="test-item test-pass">
+                <span class="test-icon">✅</span>
+                <span class="test-name">Overview</span>
+                <span class="test-details">Tech accuracy: 100.0% | Citations: 10</span>
+            </div>
+            <div class="test-item test-pass">
+                <span class="test-icon">✅</span>
+                <span class="test-name">Deep Dive</span>
+                <span class="test-details">Citations: 20 | Tool calls: 14</span>
+            </div>
+            <div class="test-item test-pass">
+                <span class="test-icon">✅</span>
+                <span class="test-name">Language Detection</span>
+                <span class="test-details">Expected: JavaScript</span>
+            </div>
+            </div>
+        </div>
+        <div class="repo-card pass">
+            <div class="repo-header">
+                <h3>gin</h3>
+                <span class="repo-meta">Go • framework</span>
+                <span class="repo-score">3/3</span>
+            </div>
+            <div class="repo-tests">
+                
+            <div class="test-item test-pass">
+                <span class="test-icon">✅</span>
+                <span class="test-name">Overview</span>
+                <span class="test-details">Tech accuracy: 100.0% | Citations: 14</span>
+            </div>
+            <div class="test-item test-pass">
+                <span class="test-icon">✅</span>
+                <span class="test-name">Deep Dive</span>
+                <span class="test-details">Citations: 30 | Tool calls: 16</span>
+            </div>
+            <div class="test-item test-pass">
+                <span class="test-icon">✅</span>
+                <span class="test-name">Language Detection</span>
+                <span class="test-details">Expected: Go</span>
+            </div>
+            </div>
+        </div>
+        <div class="repo-card pass">
+            <div class="repo-header">
+                <h3>cobra</h3>
+                <span class="repo-meta">Go • cli</span>
+                <span class="repo-score">3/3</span>
+            </div>
+            <div class="repo-tests">
+                
+            <div class="test-item test-pass">
+                <span class="test-icon">✅</span>
+                <span class="test-name">Overview</span>
+                <span class="test-details">Tech accuracy: 100.0% | Citations: 12</span>
+            </div>
+            <div class="test-item test-pass">
+                <span class="test-icon">✅</span>
+                <span class="test-name">Deep Dive</span>
+                <span class="test-details">Citations: 39 | Tool calls: 15</span>
+            </div>
+            <div class="test-item test-pass">
+                <span class="test-icon">✅</span>
+                <span class="test-name">Language Detection</span>
+                <span class="test-details">Expected: Go</span>
+            </div>
+            </div>
+        </div>
+        <div class="repo-card pass">
+            <div class="repo-header">
+                <h3>ripgrep</h3>
+                <span class="repo-meta">Rust • cli</span>
+                <span class="repo-score">3/3</span>
+            </div>
+            <div class="repo-tests">
+                
+            <div class="test-item test-pass">
+                <span class="test-icon">✅</span>
+                <span class="test-name">Overview</span>
+                <span class="test-details">Tech accuracy: 100.0% | Citations: 10</span>
+            </div>
+            <div class="test-item test-pass">
+                <span class="test-icon">✅</span>
+                <span class="test-name">Deep Dive</span>
+                <span class="test-details">Citations: 11 | Tool calls: 20</span>
+            </div>
+            <div class="test-item test-pass">
+                <span class="test-icon">✅</span>
+                <span class="test-name">Language Detection</span>
+                <span class="test-details">Expected: Rust</span>
+            </div>
+            </div>
+        </div>
+        <div class="repo-card pass">
+            <div class="repo-header">
+                <h3>langchain</h3>
+                <span class="repo-meta">Python • library</span>
+                <span class="repo-score">3/3</span>
+            </div>
+            <div class="repo-tests">
+                
+            <div class="test-item test-pass">
+                <span class="test-icon">✅</span>
+                <span class="test-name">Overview</span>
+                <span class="test-details">Tech accuracy: 100.0% | Citations: 9</span>
+            </div>
+            <div class="test-item test-pass">
+                <span class="test-icon">✅</span>
+                <span class="test-name">Deep Dive</span>
+                <span class="test-details">Citations: 18 | Tool calls: 20</span>
+            </div>
+            <div class="test-item test-pass">
+                <span class="test-icon">✅</span>
+                <span class="test-name">Language Detection</span>
+                <span class="test-details">Expected: Python</span>
+            </div>
+            </div>
+        </div>
+        <div class="repo-card pass">
+            <div class="repo-header">
+                <h3>fastapi</h3>
+                <span class="repo-meta">Python • framework</span>
+                <span class="repo-score">3/3</span>
+            </div>
+            <div class="repo-tests">
+                
+            <div class="test-item test-pass">
+                <span class="test-icon">✅</span>
+                <span class="test-name">Overview</span>
+                <span class="test-details">Tech accuracy: 100.0% | Citations: 12</span>
+            </div>
+            <div class="test-item test-pass">
+                <span class="test-icon">✅</span>
+                <span class="test-name">Deep Dive</span>
+                <span class="test-details">Citations: 3 | Tool calls: 17</span>
+            </div>
+            <div class="test-item test-pass">
+                <span class="test-icon">✅</span>
+                <span class="test-name">Language Detection</span>
+                <span class="test-details">Expected: Python</span>
+            </div>
+            </div>
+        </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>Generated on 2026-01-13 14:08:23</p>
+            <p>Model: x-ai/grok-4.1-fast | Eval timestamp: 2026-01-13T13:41:58.258414</p>
+        </div>
+    </div>
+</body>
+</html>

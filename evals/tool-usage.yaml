@@ -1,0 +1,42 @@
+id: tool-usage
+name: Tool Usage Before Answering
+description: Verify the agent uses tools to explore before providing answers
+version: "1.0.0"
+
+inputs:
+  - type: environment
+    setup:
+      - git clone --depth=1 https://github.com/pallets/flask /tmp/eval-flask
+    teardown:
+      - rm -rf /tmp/eval-flask
+  - type: prompt
+    content: |
+      Generate an overview of the codebase at /tmp/eval-flask
+
+expectedBehavior:
+  - type: trace_contains
+    description: Must call list_directory_structure
+    value: "list_directory_structure"
+  - type: trace_contains
+    description: Must call analyze_dependencies
+    value: "analyze_dependencies"
+  - type: trace_contains
+    description: Must call find_entry_points
+    value: "find_entry_points"
+  - type: trace_count
+    description: Should make at least 3 tool calls
+    min_count: 3
+
+graders:
+  - id: trace
+    config:
+      required_tools:
+        - list_directory_structure
+        - analyze_dependencies
+      min_tool_calls: 3
+
+timeout: 120000
+tags:
+  - tools
+  - exploration
+  - behavior
