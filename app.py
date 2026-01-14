@@ -320,4 +320,4 @@ with gr.Blocks(title="Codebase Onboarding Agent") as app:
 
 
 if __name__ == "__main__":
-    app.launch()
+    app.launch(server_name="0.0.0.0", server_port=7860, ssr_mode=False)
