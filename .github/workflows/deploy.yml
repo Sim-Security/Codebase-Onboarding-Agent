@@ -60,12 +60,10 @@ jobs:
           pip install ruff mypy
 
       - name: Run Ruff linter
-        run: ruff check . --output-format=github
-        continue-on-error: true
+        run: ruff check . --output-format=github --exit-zero
 
       - name: Run Ruff formatter check
-        run: ruff format --check .
-        continue-on-error: true
+        run: ruff format --check . --exit-zero
 
   # ===========================================================================
   # Job 2: Unit Tests
@@ -121,22 +119,12 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Extract metadata for Docker
-        id: meta
-        uses: docker/metadata-action@v5
-        with:
-          images: gcr.io/${{ secrets.GCP_PROJECT_ID }}/${{ env.SERVICE_NAME }}
-          tags: |
-            type=sha,prefix=
-            type=ref,event=branch
-            type=raw,value=latest,enable=${{ github.ref == 'refs/heads/main' }}
-
       - name: Build Docker image (test build)
         uses: docker/build-push-action@v5
         with:
           context: .
           push: false
-          tags: ${{ steps.meta.outputs.tags }}
+          tags: ${{ env.SERVICE_NAME }}:${{ github.sha }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
           platforms: linux/amd64
