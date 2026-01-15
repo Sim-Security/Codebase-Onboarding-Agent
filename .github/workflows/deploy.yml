@@ -1,18 +1,17 @@
 # =============================================================================
-# GitHub Actions CI/CD Pipeline for GCP Cloud Run
+# GitHub Actions CI/CD Pipeline for GitHub Container Registry
 # =============================================================================
-# Workflow: Build, Test, Deploy on push to main
+# Workflow: Build, Test, Push to ghcr.io on push to main
 #
-# Required GitHub Secrets:
-#   - GCP_PROJECT_ID: Your Google Cloud project ID
-#   - GCP_SA_KEY: Service account JSON key (base64 encoded)
-#   - GCP_REGION: Deployment region (e.g., us-central1)
+# Authentication:
+#   - Uses automatic GITHUB_TOKEN (no setup needed)
+#   - Pushes to ghcr.io/${{ github.repository }}
 #
 # Optional Secrets:
 #   - OPENROUTER_API_KEY: For integration tests (optional)
 # =============================================================================
 
-name: Build, Test & Deploy to Cloud Run
+name: Build, Test & Push to GHCR
 
 on:
   push:
@@ -35,6 +34,8 @@ on:
 env:
   SERVICE_NAME: codebase-onboarding-agent
   PYTHON_VERSION: '3.11'
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
 
 jobs:
   # ===========================================================================
@@ -103,7 +104,7 @@ jobs:
         continue-on-error: true
 
   # ===========================================================================
-  # Job 3: Build Docker Image
+  # Job 3: Build Docker Image (CI - runs on all branches)
   # ===========================================================================
   build:
     name: Build Docker Image
@@ -120,7 +121,7 @@ jobs:
         uses: docker/setup-buildx-action@v3
 
       - name: Build Docker image (test build)
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
           context: .
           push: false
@@ -130,76 +131,62 @@ jobs:
           platforms: linux/amd64
 
   # ===========================================================================
-  # Job 4: Deploy to Cloud Run (only on main branch)
+  # Job 4: Push to GitHub Container Registry (only on main branch)
   # ===========================================================================
-  deploy:
-    name: Deploy to Cloud Run
+  push-ghcr:
+    name: Push to GHCR
     runs-on: ubuntu-latest
     needs: build
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-    environment: production
 
     permissions:
       contents: read
-      id-token: write
+      packages: write
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Authenticate to Google Cloud
-        uses: google-github-actions/auth@v2
-        with:
-          credentials_json: ${{ secrets.GCP_SA_KEY }}
-
-      - name: Set up Cloud SDK
-        uses: google-github-actions/setup-gcloud@v2
-        with:
-          project_id: ${{ secrets.GCP_PROJECT_ID }}
-
-      - name: Configure Docker for GCR
-        run: gcloud auth configure-docker --quiet
-
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Build and push to GCR
-        uses: docker/build-push-action@v5
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=sha,prefix=
+            type=raw,value=latest
+
+      - name: Build and push to GHCR
+        uses: docker/build-push-action@v6
         with:
           context: .
           push: true
-          tags: |
-            gcr.io/${{ secrets.GCP_PROJECT_ID }}/${{ env.SERVICE_NAME }}:${{ github.sha }}
-            gcr.io/${{ secrets.GCP_PROJECT_ID }}/${{ env.SERVICE_NAME }}:latest
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
           platforms: linux/amd64
 
-      - name: Deploy to Cloud Run
-        id: deploy
-        uses: google-github-actions/deploy-cloudrun@v2
-        with:
-          service: ${{ env.SERVICE_NAME }}
-          region: ${{ secrets.GCP_REGION || 'us-central1' }}
-          image: gcr.io/${{ secrets.GCP_PROJECT_ID }}/${{ env.SERVICE_NAME }}:${{ github.sha }}
-          flags: |
-            --port=8080
-            --memory=2Gi
-            --cpu=2
-            --timeout=300s
-            --max-instances=10
-            --min-instances=0
-            --allow-unauthenticated
-            --concurrency=80
-
-      - name: Verify deployment
+      - name: Output image info
         run: |
-          echo "Service URL: ${{ steps.deploy.outputs.url }}"
-          sleep 10
-          curl -sf "${{ steps.deploy.outputs.url }}" || echo "Health check pending..."
-
-      - name: Output deployment URL
-        run: echo "Deployed to ${{ steps.deploy.outputs.url }}"
+          echo "## Image Published" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Registry:** ${{ env.REGISTRY }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Image:** ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Tags:**" >> $GITHUB_STEP_SUMMARY
+          echo '${{ steps.meta.outputs.tags }}' | tr ',' '\n' | while read tag; do
+            echo "- \`$tag\`" >> $GITHUB_STEP_SUMMARY
+          done
 
   # ===========================================================================
   # Job 5: Notify on Failure
@@ -207,13 +194,13 @@ jobs:
   notify-failure:
     name: Notify on Failure
     runs-on: ubuntu-latest
-    needs: [lint, test, build, deploy]
+    needs: [lint, test, build, push-ghcr]
     if: failure()
 
     steps:
       - name: Create failure summary
         run: |
-          echo "## Deployment Failed" >> $GITHUB_STEP_SUMMARY
+          echo "## Build/Push Failed" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "**Branch:** ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
           echo "**Commit:** ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
