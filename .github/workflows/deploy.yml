@@ -60,10 +60,10 @@ jobs:
           pip install ruff mypy
 
       - name: Run Ruff linter
-        run: ruff check . --output-format=github --exit-zero
+        run: ruff check . --output-format=github || true
 
       - name: Run Ruff formatter check
-        run: ruff format --check . --exit-zero
+        run: ruff format --check . || true
 
   # ===========================================================================
   # Job 2: Unit Tests
