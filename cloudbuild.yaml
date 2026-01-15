@@ -1,0 +1,117 @@
+# =============================================================================
+# Cloud Build Configuration for GCP Cloud Run Deployment
+# =============================================================================
+# Triggers: Push to main branch OR manual trigger via gcloud
+#
+# Prerequisites:
+#   1. Enable Cloud Build and Cloud Run APIs
+#   2. Grant Cloud Build service account Cloud Run Admin + Service Account User roles
+#   3. Set up substitution variables or use defaults
+#
+# Manual trigger:
+#   gcloud builds submit --config=cloudbuild.yaml \
+#     --substitutions=_SERVICE_NAME=codebase-onboarding-agent,_REGION=us-central1
+# =============================================================================
+
+substitutions:
+  _SERVICE_NAME: codebase-onboarding-agent
+  _REGION: us-central1
+  _MEMORY: 2Gi
+  _CPU: 2
+  _TIMEOUT: 300s
+  _MAX_INSTANCES: 10
+  _MIN_INSTANCES: 0
+
+options:
+  logging: CLOUD_LOGGING_ONLY
+  machineType: E2_HIGHCPU_8
+
+steps:
+  # Step 1: Build the Docker image with cache optimization
+  - name: 'gcr.io/cloud-builders/docker'
+    id: 'build'
+    args:
+      - 'build'
+      - '-t'
+      - 'gcr.io/$PROJECT_ID/${_SERVICE_NAME}:$COMMIT_SHA'
+      - '-t'
+      - 'gcr.io/$PROJECT_ID/${_SERVICE_NAME}:latest'
+      - '--cache-from'
+      - 'gcr.io/$PROJECT_ID/${_SERVICE_NAME}:latest'
+      - '.'
+    timeout: '600s'
+
+  # Step 2: Push image to Google Container Registry
+  - name: 'gcr.io/cloud-builders/docker'
+    id: 'push'
+    args:
+      - 'push'
+      - '--all-tags'
+      - 'gcr.io/$PROJECT_ID/${_SERVICE_NAME}'
+    waitFor:
+      - 'build'
+
+  # Step 3: Deploy to Cloud Run
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    id: 'deploy'
+    entrypoint: 'gcloud'
+    args:
+      - 'run'
+      - 'deploy'
+      - '${_SERVICE_NAME}'
+      - '--image'
+      - 'gcr.io/$PROJECT_ID/${_SERVICE_NAME}:$COMMIT_SHA'
+      - '--region'
+      - '${_REGION}'
+      - '--platform'
+      - 'managed'
+      - '--port'
+      - '8080'
+      - '--memory'
+      - '${_MEMORY}'
+      - '--cpu'
+      - '${_CPU}'
+      - '--timeout'
+      - '${_TIMEOUT}'
+      - '--max-instances'
+      - '${_MAX_INSTANCES}'
+      - '--min-instances'
+      - '${_MIN_INSTANCES}'
+      - '--allow-unauthenticated'
+      - '--set-env-vars'
+      - 'PYTHONUNBUFFERED=1'
+      - '--concurrency'
+      - '80'
+    waitFor:
+      - 'push'
+
+  # Step 4: Verify deployment health
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    id: 'verify'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        SERVICE_URL=$(gcloud run services describe ${_SERVICE_NAME} \
+          --region=${_REGION} \
+          --format='value(status.url)')
+        echo "Service deployed at: $${SERVICE_URL}"
+
+        # Wait for service to be ready
+        for i in {1..10}; do
+          if curl -sf "$${SERVICE_URL}" > /dev/null 2>&1; then
+            echo "Health check passed!"
+            exit 0
+          fi
+          echo "Waiting for service... attempt $i/10"
+          sleep 5
+        done
+        echo "Warning: Health check did not pass within timeout"
+    waitFor:
+      - 'deploy'
+
+images:
+  - 'gcr.io/$PROJECT_ID/${_SERVICE_NAME}:$COMMIT_SHA'
+  - 'gcr.io/$PROJECT_ID/${_SERVICE_NAME}:latest'
+
+timeout: '1800s'
