@@ -28,8 +28,49 @@ from .errors import (
     get_friendly_error,
     is_retryable_error,
 )
+from .memory import WorkingMemory
+from .tool_router import ToolRouter, ToolUsageTracker
 
 logger = logging.getLogger(__name__)
+
+# ORCH-005: Planning prompt for plan-then-execute pattern
+PLANNING_PROMPT = """You are planning how to explore a codebase to answer a question.
+
+QUESTION: {question}
+
+CURRENT KNOWLEDGE:
+{memory_context}
+
+Create a brief exploration plan (3-5 steps) to answer this question.
+Each step should be a specific action like:
+- "Search for authentication-related files"
+- "Read the main entry point"
+- "Check the database models"
+
+Return ONLY the numbered plan, nothing else.
+"""
+
+# SELF-001: Reflection prompt for evaluating exploration progress
+REFLECTION_PROMPT = """Evaluate your recent exploration:
+
+QUESTION: {question}
+ACTIONS TAKEN: {recent_actions}
+CURRENT FINDINGS: {memory_context}
+STATS: {stats}
+
+Reflect on:
+1. Am I making progress toward answering the question?
+2. Have I been repeating similar actions without new insights?
+3. Is there a more direct approach I'm missing?
+4. Do I have enough information to answer now?
+
+Based on your reflection, recommend ONE action:
+- CONTINUE: Keep exploring, making good progress
+- PIVOT: Change strategy, current approach isn't working
+- SYNTHESIZE: Have enough info, ready to answer
+
+Reply with ONLY: CONTINUE, PIVOT, or SYNTHESIZE
+"""
 
 from .prompts import DEEP_DIVE_PROMPT, OVERVIEW_PROMPT, SYSTEM_PROMPT
 from .tools import (
@@ -42,6 +83,7 @@ from .tools import (
     read_file,
     search_code,
 )
+from .tools.smart_discovery import get_important_files
 
 # All available tools
 TOOLS = [
@@ -53,11 +95,12 @@ TOOLS = [
     find_entry_points,
     analyze_dependencies,
     get_function_signatures,
+    get_important_files,
 ]
 
 # Default models per provider
 DEFAULT_MODELS = {
-    "openrouter": "xiaomi/mimo-v2-flash:free",  # FREE model, excellent for code
+    "openrouter": "x-ai/grok-4.1-fast",  # Fast, affordable, excellent for code
     "groq": "llama-3.1-8b-instant",  # Free tier
 }
 
@@ -236,9 +279,20 @@ class CodebaseOnboardingAgent:
         # EVAL-003: Context budget tracking
         self.context_tokens = 0
         self.context_warning_shown = False
+        # ORCH-002: Working memory for tracking exploration
+        self.working_memory = WorkingMemory()
+        # ORCH-005: Tool tracking for plan-then-execute
+        self.tool_router = ToolRouter()
+        self.tool_tracker = ToolUsageTracker()
 
     def _run(self, user_message: str) -> str:
         """Run a single interaction with the agent."""
+        # ORCH-006: Check circuit breaker before continuing
+        is_thrashing, reason = self.tool_tracker.check_thrashing()
+        if is_thrashing:
+            logger.warning(f"Circuit breaker: {reason}")
+            return self.tool_tracker.get_graceful_exit_message(user_message)
+
         self.conversation_history.append(HumanMessage(content=user_message))
 
         state = {
@@ -265,23 +319,41 @@ class CodebaseOnboardingAgent:
         final_response = None
         for msg in messages:
             # Extract tool calls from AIMessages
+            # ORCH-006: Track tool calls for circuit breaker
             if (
                 isinstance(msg, AIMessage)
                 and hasattr(msg, "tool_calls")
                 and msg.tool_calls
             ):
                 for tc in msg.tool_calls:
+                    tool_name = tc.get("name") or tc.get("function", {}).get("name")
+                    tool_args = tc.get("args") or tc.get("function", {}).get(
+                        "arguments"
+                    )
                     self.last_tool_calls.append(
                         {
-                            "name": tc.get("name")
-                            or tc.get("function", {}).get("name"),
-                            "args": tc.get("args")
-                            or tc.get("function", {}).get("arguments"),
+                            "name": tool_name,
+                            "args": tool_args,
                         }
                     )
+                    if tool_name:
+                        self.tool_router.record_tool_call(tool_name)
             # Capture tool outputs from ToolMessages (EVAL-005)
             elif isinstance(msg, ToolMessage) and hasattr(msg, "content"):
                 self.last_tool_outputs.append(msg.content)
+                # ORCH-006: Track tool output for circuit breaker
+                if self.last_tool_calls:
+                    last_tool_name = self.last_tool_calls[-1].get("name", "unknown")
+                    last_tool_input = str(self.last_tool_calls[-1].get("args", ""))
+                    self.tool_tracker.record_call(
+                        last_tool_name, last_tool_input, msg.content
+                    )
+                    # Update memory
+                    self._update_memory_from_tool_call(
+                        last_tool_name,
+                        self.last_tool_calls[-1].get("args", {}),
+                        msg.content,
+                    )
 
         # Find final response (last AIMessage without tool calls)
         for msg in reversed(messages):
@@ -303,8 +375,10 @@ class CodebaseOnboardingAgent:
         """Generate a comprehensive overview of the codebase."""
         return self._run(OVERVIEW_PROMPT)
 
-    def ask(self, question: str) -> str:
+    def ask(self, question: str, use_self_correction: bool = False) -> str:
         """Ask a specific question about the codebase."""
+        if use_self_correction:
+            return self.run_with_self_correction(question)
         prompt = DEEP_DIVE_PROMPT.format(question=question)
         return self._run(prompt)
 
@@ -313,10 +387,347 @@ class CodebaseOnboardingAgent:
         return self._run(message)
 
     def reset_conversation(self):
-        """Reset the conversation history and tool call log."""
+        """Reset conversation and memory."""
         self.conversation_history = []
         self.last_tool_calls = []
         self.last_tool_outputs = []
+        self.working_memory = WorkingMemory()
+        self.tool_router.reset()
+        self.tool_tracker.reset()
+
+    def _update_memory_from_tool_call(
+        self, tool_name: str, tool_input: dict, tool_output: str
+    ):
+        """Update working memory based on tool results."""
+        if tool_name == "read_file":
+            file_path = tool_input.get("file_path", "")
+            lines = tool_output.count("\n")
+            # Extract brief summary (first non-empty line of content)
+            output_lines = tool_output.split("\n")
+            summary = output_lines[2] if len(output_lines) > 2 else ""
+            self.working_memory.add_file_read(file_path, lines, summary[:100])
+
+        elif tool_name == "search_code":
+            pattern = tool_input.get("pattern", "")
+            # Count results
+            results = tool_output.count("\n") - 2  # Minus header lines
+            # Extract file paths from results
+            import re
+
+            files = re.findall(r"^([^:]+):", tool_output, re.MULTILINE)
+            self.working_memory.add_search(
+                pattern, max(0, results), list(set(files))[:5]
+            )
+
+        elif tool_name == "get_important_files":
+            # Extract architecture if present
+            if "Architecture:" in tool_output:
+                arch_line = [l for l in tool_output.split("\n") if "Architecture:" in l]
+                if arch_line:
+                    self.working_memory.architecture_pattern = arch_line[0]
+
+    def _should_skip_file_read(self, file_path: str) -> bool:
+        """Check if file was already read."""
+        return self.working_memory.was_file_read(file_path)
+
+    def get_memory_stats(self) -> dict:
+        """Get current memory statistics."""
+        return self.working_memory.get_stats()
+
+    def create_exploration_plan(self, question: str) -> list[str]:
+        """Create a plan for exploring the codebase."""
+        memory_context = self.working_memory.to_context_string()
+
+        prompt = PLANNING_PROMPT.format(
+            question=question,
+            memory_context=memory_context if memory_context else "No prior knowledge",
+        )
+
+        # Use synchronous call for planning
+        from langchain_core.messages import HumanMessage
+
+        response = self.agent.invoke(
+            {"messages": [HumanMessage(content=prompt)], "repo_path": self.repo_path}
+        )
+
+        # Extract plan from response
+        last_message = response["messages"][-1]
+        plan_text = (
+            last_message.content
+            if hasattr(last_message, "content")
+            else str(last_message)
+        )
+
+        # Parse numbered list
+        lines = plan_text.strip().split("\n")
+        plan = []
+        for line in lines:
+            # Remove numbering
+            cleaned = line.strip().lstrip("0123456789.-) ")
+            if cleaned and len(cleaned) > 5:  # Skip very short lines
+                plan.append(cleaned)
+
+        self.working_memory.exploration_plan = plan[:5]  # Limit to 5 steps
+        return plan[:5]
+
+    def reflection_checkpoint(self, question: str) -> str:
+        """
+        Reflect on exploration progress and decide next action.
+
+        Returns:
+            "CONTINUE", "PIVOT", or "SYNTHESIZE"
+        """
+        # Check circuit breaker first
+        is_thrashing, reason = self.tool_tracker.check_thrashing()
+        if is_thrashing:
+            logger.warning(f"Circuit breaker tripped: {reason}")
+            return "SYNTHESIZE"  # Force synthesis when thrashing
+
+        # Get context for reflection
+        memory_context = self.working_memory.to_context_string()
+        stats = self.get_tool_stats()
+
+        # Format recent actions
+        recent_actions = []
+        for tc in self.last_tool_calls[-5:]:
+            recent_actions.append(
+                f"- {tc.get('name', 'unknown')}: {str(tc.get('args', ''))[:50]}"
+            )
+
+        prompt = REFLECTION_PROMPT.format(
+            question=question,
+            recent_actions="\n".join(recent_actions) if recent_actions else "None yet",
+            memory_context=memory_context if memory_context else "No findings yet",
+            stats=f"Files read: {stats.get('files_read', 0)}, Tool calls: {stats.get('total_calls', 0)}",
+        )
+
+        # Use agent for reflection
+        try:
+            from langchain_core.messages import HumanMessage
+
+            response = self.agent.invoke(
+                {
+                    "messages": [HumanMessage(content=prompt)],
+                    "repo_path": self.repo_path,
+                }
+            )
+
+            last_message = response["messages"][-1]
+            reflection = (
+                last_message.content
+                if hasattr(last_message, "content")
+                else str(last_message)
+            )
+
+            # Parse recommendation
+            reflection_upper = reflection.upper()
+            if "SYNTHESIZE" in reflection_upper:
+                logger.info(f"Reflection checkpoint: SYNTHESIZE - {reflection[:100]}")
+                return "SYNTHESIZE"
+            elif "PIVOT" in reflection_upper:
+                logger.info(f"Reflection checkpoint: PIVOT - {reflection[:100]}")
+                return "PIVOT"
+            else:
+                logger.info(f"Reflection checkpoint: CONTINUE - {reflection[:100]}")
+                return "CONTINUE"
+
+        except Exception as e:
+            logger.warning(f"Reflection failed: {e}")
+            # Default based on stats
+            if stats.get("files_read", 0) >= 5 and stats.get("facts_confirmed", 0) >= 3:
+                return "SYNTHESIZE"
+            return "CONTINUE"
+
+    def get_tool_stats(self) -> dict:
+        """Get combined tool and memory statistics."""
+        memory_stats = self.working_memory.get_stats()
+        tracker_stats = self.tool_tracker.get_stats()
+        return {**memory_stats, **tracker_stats}
+
+    def detect_off_track(self, question: str) -> tuple[bool, str]:
+        """
+        Detect if exploration has gone off-track from the original question.
+
+        Returns:
+            (is_off_track, reason)
+        """
+        # Extract keywords from question (simple approach)
+        import re
+
+        question_words = set(re.findall(r"\b\w{4,}\b", question.lower()))
+        question_words -= {
+            "what",
+            "where",
+            "when",
+            "which",
+            "does",
+            "have",
+            "this",
+            "that",
+            "with",
+            "from",
+            "about",
+        }
+
+        if not question_words:
+            return False, "Cannot analyze - question too short"
+
+        # Check recent tool calls for relevance
+        recent_tools = self.last_tool_calls[-10:]
+        if len(recent_tools) < 5:
+            return False, "Not enough data yet"
+
+        # Analyze what we've been searching/reading
+        explored_content = []
+        for tc in recent_tools:
+            args = tc.get("args", {})
+            if isinstance(args, dict):
+                for v in args.values():
+                    if isinstance(v, str):
+                        explored_content.append(v.lower())
+            elif isinstance(args, str):
+                explored_content.append(args.lower())
+
+        explored_text = " ".join(explored_content)
+        explored_words = set(re.findall(r"\b\w{4,}\b", explored_text))
+
+        # Calculate overlap
+        overlap = question_words & explored_words
+        overlap_ratio = len(overlap) / len(question_words) if question_words else 0
+
+        # Check confirmed facts relevance
+        facts = self.working_memory.confirmed_facts
+        fact_text = " ".join(f.fact.lower() for f in facts) if facts else ""
+        fact_words = set(re.findall(r"\b\w{4,}\b", fact_text))
+        fact_overlap = question_words & fact_words
+
+        # Off-track if:
+        # 1. Low overlap with question keywords AND
+        # 2. Many tool calls without relevant findings
+        if overlap_ratio < 0.2 and len(fact_overlap) == 0:
+            if len(recent_tools) >= 8:
+                return (
+                    True,
+                    f"Explored content ({len(explored_words)} terms) has low overlap with question keywords ({len(question_words)} terms)",
+                )
+
+        # Check for scope creep (reading many files without pattern)
+        files_read = list(self.working_memory.files_read)[-10:]
+        if len(files_read) > 5:
+            # Check if files are scattered (many different directories)
+            dirs = set()
+            for f in files_read:
+                parts = f.split("/")
+                if len(parts) > 1:
+                    dirs.add(parts[0])
+            if len(dirs) > 4:
+                return (
+                    True,
+                    f"Scope creep: exploring {len(dirs)} different directories without focus",
+                )
+
+        return False, "On track"
+
+    def pivot_strategy(self, question: str, reason: str = "") -> list[str]:
+        """
+        Pivot exploration strategy when current approach isn't working.
+
+        Args:
+            question: The original question being explored
+            reason: Why we're pivoting (from reflection/off-track detection)
+
+        Returns:
+            New exploration plan
+        """
+        logger.info(f"Pivoting strategy: {reason}")
+
+        # Analyze what we've tried
+        tools_used = [tc.get("name") for tc in self.last_tool_calls[-10:]]
+        files_explored = list(self.working_memory.files_read)[-5:]
+
+        # Determine pivot type based on patterns
+        pivot_suggestions = []
+
+        # If we've been doing too much searching without reading
+        search_count = tools_used.count("search_code") + tools_used.count(
+            "find_files_by_pattern"
+        )
+        read_count = tools_used.count("read_file")
+
+        if search_count > 5 and read_count < 2:
+            pivot_suggestions.append("Read the files found instead of more searching")
+            pivot_suggestions.append("Focus on entry points: main.py, app.py, index.ts")
+
+        # If we've been reading many files without finding answers
+        if read_count > 5 and len(self.working_memory.confirmed_facts) < 2:
+            pivot_suggestions.append(
+                "Try searching for specific keywords from the question"
+            )
+            pivot_suggestions.append("Look at configuration files for hints")
+            pivot_suggestions.append("Check import statements to find related modules")
+
+        # If we seem stuck on one area
+        if len(set(tools_used[-5:])) < 2:  # Same tool repeated
+            pivot_suggestions.append("Try a different tool approach")
+            pivot_suggestions.append("Step back and look at directory structure")
+
+        # If exploring scattered files (scope creep)
+        if "Scope creep" in reason:
+            pivot_suggestions.append("Focus on one directory at a time")
+            pivot_suggestions.append("Start from entry point and follow imports")
+
+        # Default suggestions if no specific pattern detected
+        if not pivot_suggestions:
+            pivot_suggestions = [
+                "Use get_important_files to find key files",
+                "Search for keywords from the question",
+                "Check the README or documentation",
+                "Look at the main entry point",
+            ]
+
+        # Update working memory with new plan
+        self.working_memory.exploration_plan = pivot_suggestions[:5]
+
+        # Clear some state to allow fresh exploration
+        self.tool_tracker.circuit_breaker.calls_without_new_info = 0
+
+        logger.info(f"New strategy: {pivot_suggestions[:3]}")
+        return pivot_suggestions[:5]
+
+    def run_with_self_correction(self, question: str, max_iterations: int = 3) -> str:
+        """Run exploration with self-correction capabilities."""
+        self.working_memory.current_question = question
+        for iteration in range(1, max_iterations + 1):
+            logger.info(f"Self-correction iteration {iteration}/{max_iterations}")
+            if iteration == 1:
+                try:
+                    self.create_exploration_plan(question)
+                except Exception as e:
+                    logger.warning(f"Planning failed: {e}")
+            result = self._run(question)
+            if (
+                "explored extensively" in result.lower()
+                or "couldn't find" in result.lower()
+            ):
+                return result
+            recommendation = self.reflection_checkpoint(question)
+            if recommendation == "SYNTHESIZE":
+                return result
+            elif recommendation == "PIVOT":
+                is_off_track, reason = self.detect_off_track(question)
+                if is_off_track:
+                    logger.warning(f"Off-track detected: {reason}")
+                new_plan = self.pivot_strategy(
+                    question, reason if is_off_track else "Reflection recommended pivot"
+                )
+                continue
+            else:
+                stats = self.get_tool_stats()
+                if stats.get("facts_confirmed", 0) >= 3:
+                    return result
+                continue
+        logger.warning(f"Max iterations ({max_iterations}) reached")
+        return self._run(f"Based on what you've learned, answer: {question}")
 
     def _prune_history(self):
         """

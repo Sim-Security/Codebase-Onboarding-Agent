@@ -22,6 +22,137 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+# Historical comparison - EVAL-003
+HISTORY_FILE = Path("evals/eval_history.json")
+
+
+def load_eval_history() -> list[dict]:
+    """Load historical eval results."""
+    if not HISTORY_FILE.exists():
+        return []
+
+    try:
+        with open(HISTORY_FILE) as f:
+            return json.load(f)
+    except Exception as e:
+        print(f"Warning: Could not load history: {e}")
+        return []
+
+
+def save_eval_result(result: dict) -> None:
+    """Save eval result to history."""
+    history = load_eval_history()
+
+    # Add timestamp
+    result["timestamp"] = datetime.now().isoformat()
+    result["version"] = "v3"
+
+    # Keep last 50 results
+    history.append(result)
+    history = history[-50:]
+
+    try:
+        HISTORY_FILE.parent.mkdir(parents=True, exist_ok=True)
+        with open(HISTORY_FILE, "w") as f:
+            json.dump(history, f, indent=2, default=str)
+    except Exception as e:
+        print(f"Warning: Could not save history: {e}")
+
+
+def get_previous_result() -> dict | None:
+    """Get the most recent previous result for comparison."""
+    history = load_eval_history()
+    if len(history) >= 1:
+        return history[-1]
+    return None
+
+
+def compare_with_previous(current: dict, previous: dict | None) -> str:
+    """
+    Compare current results with previous and format comparison.
+
+    Returns:
+        Formatted comparison string with improvement/regression indicators
+    """
+    if not previous:
+        return "No previous results to compare with."
+
+    lines = ["📊 Comparison with Previous Run:", "─" * 40]
+
+    # Compare key metrics
+    metrics_to_compare = [
+        ("pass_rate", "Pass Rate", "%"),
+        ("precision", "Precision", "%"),
+        ("recall", "Recall", "%"),
+        ("f1_score", "F1 Score", "%"),
+        ("grounding_rate", "Grounding Rate", "%"),
+    ]
+
+    for key, label, unit in metrics_to_compare:
+        current_val = current.get(key, current.get("quality_metrics", {}).get(key, 0))
+        previous_val = previous.get(
+            key, previous.get("quality_metrics", {}).get(key, 0)
+        )
+
+        if current_val is None or previous_val is None:
+            continue
+
+        diff = current_val - previous_val
+
+        if diff > 0.5:
+            indicator = "🟢 ↑"  # Improvement
+        elif diff < -0.5:
+            indicator = "🔴 ↓"  # Regression
+        else:
+            indicator = "⚪ →"  # No change
+
+        lines.append(
+            f"  {label}: {current_val:.1f}{unit} {indicator} (was {previous_val:.1f}{unit}, diff: {diff:+.1f})"
+        )
+
+    # Compare test counts
+    current_passed = current.get("tests_passed", 0)
+    current_failed = current.get("tests_failed", 0)
+    previous_passed = previous.get("tests_passed", 0)
+    previous_failed = previous.get("tests_failed", 0)
+
+    if current_passed != previous_passed or current_failed != previous_failed:
+        lines.append(f"\n  Tests: {current_passed} passed, {current_failed} failed")
+        lines.append(f"  Previous: {previous_passed} passed, {previous_failed} failed")
+
+    # Add timestamp of previous
+    prev_time = previous.get("timestamp", "Unknown")
+    lines.append(f"\n  Previous run: {prev_time}")
+
+    return "\n".join(lines)
+
+
+def format_trend(history: list[dict], metric: str, last_n: int = 5) -> str:
+    """Format trend for a metric over last N runs."""
+    if len(history) < 2:
+        return ""
+
+    recent = history[-last_n:]
+    values = []
+
+    for run in recent:
+        val = run.get(metric) or run.get("quality_metrics", {}).get(metric)
+        if val is not None:
+            values.append(val)
+
+    if len(values) < 2:
+        return ""
+
+    # Simple trend direction
+    if values[-1] > values[0]:
+        trend = "📈 Improving"
+    elif values[-1] < values[0]:
+        trend = "📉 Declining"
+    else:
+        trend = "➡️ Stable"
+
+    return f"{metric}: {trend} ({values[0]:.1f} → {values[-1]:.1f})"
+
 
 def retry_on_error(func: Callable, max_retries: int = 3, delay: float = 5.0) -> Any:
     """Retry a function on transient errors (5xx, rate limits)."""
@@ -62,6 +193,10 @@ sys.path.insert(0, str(Path(__file__).parent))
 from src.agent import CodebaseOnboardingAgent
 from src.eval.verification import (
     calculate_citation_metrics,
+    extract_citations,
+    extract_claims,
+    ground_claims,
+    verify_citation,
 )
 
 
@@ -315,6 +450,283 @@ def test_adversarial_cases(agent: CodebaseOnboardingAgent, repo_path: str) -> di
     return results
 
 
+def calculate_quality_metrics(
+    total_citations: int,
+    valid_citations: int,
+    total_claims: int,
+    cited_claims: int,
+    grounded_claims: int,
+) -> dict:
+    """
+    Calculate quality metrics for agent responses.
+
+    Metrics:
+    - Precision: What fraction of citations are valid?
+    - Recall: What fraction of claims have citations?
+    - F1: Harmonic mean of precision and recall
+    - Grounding Rate: What fraction of claims are supported by evidence?
+
+    Args:
+        total_citations: Total number of citations in response
+        valid_citations: Number of citations that verified successfully
+        total_claims: Total number of factual claims extracted
+        cited_claims: Number of claims that have citations
+        grounded_claims: Number of claims supported by evidence
+
+    Returns:
+        Dictionary with all metrics (0-100 scale, capped)
+    """
+    # Precision: How accurate are the citations?
+    if total_citations > 0:
+        precision = (valid_citations / total_citations) * 100
+    else:
+        precision = 0.0  # No citations = 0 precision
+
+    # Recall: How many claims are cited?
+    if total_claims > 0:
+        recall = (cited_claims / total_claims) * 100
+    else:
+        recall = 0.0  # No claims = 0 recall
+
+    # F1 Score: Harmonic mean
+    if precision + recall > 0:
+        f1 = 2 * (precision * recall) / (precision + recall)
+    else:
+        f1 = 0.0
+
+    # Grounding rate
+    if total_claims > 0:
+        grounding_rate = (grounded_claims / total_claims) * 100
+    else:
+        grounding_rate = 0.0
+
+    # Cap all values at 100%
+    return {
+        "precision": min(precision, 100.0),
+        "recall": min(recall, 100.0),
+        "f1_score": min(f1, 100.0),
+        "grounding_rate": min(grounding_rate, 100.0),
+        "total_citations": total_citations,
+        "valid_citations": valid_citations,
+        "total_claims": total_claims,
+        "cited_claims": cited_claims,
+        "grounded_claims": grounded_claims,
+    }
+
+
+def format_metrics_summary(metrics: dict) -> str:
+    """Format metrics for display."""
+    return f"""
+Quality Metrics:
+  Precision (valid citations / total): {metrics["precision"]:.1f}%
+  Recall (cited claims / total claims): {metrics["recall"]:.1f}%
+  F1 Score: {metrics["f1_score"]:.1f}%
+  Grounding Rate: {metrics["grounding_rate"]:.1f}%
+
+Details:
+  Citations: {metrics["valid_citations"]}/{metrics["total_citations"]} valid
+  Claims: {metrics["cited_claims"]}/{metrics["total_claims"]} cited, {metrics["grounded_claims"]} grounded
+"""
+
+
+def format_eval_report(summary: dict, results: list[dict]) -> str:
+    """
+    Format a comprehensive evaluation report.
+
+    Args:
+        summary: Overall summary statistics
+        results: Per-repo results
+
+    Returns:
+        Formatted report string
+    """
+    lines = []
+
+    # Header
+    lines.append("=" * 60)
+    lines.append("📊 CODEBASE ONBOARDING AGENT - EVALUATION REPORT")
+    lines.append("=" * 60)
+    lines.append(f"Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+    lines.append("")
+
+    # Overall Summary
+    lines.append("┌" + "─" * 58 + "┐")
+    lines.append("│" + " OVERALL SUMMARY".center(58) + "│")
+    lines.append("├" + "─" * 58 + "┤")
+
+    pass_rate = summary.get("pass_rate", 0)
+    pass_indicator = "🟢" if pass_rate >= 80 else "🟡" if pass_rate >= 60 else "🔴"
+
+    lines.append(f"│  Pass Rate: {pass_indicator} {pass_rate:.1f}%".ljust(59) + "│")
+    lines.append(
+        f"│  Tests Passed: {summary.get('tests_passed', 0)}/{summary.get('total_tests', 0)}".ljust(
+            59
+        )
+        + "│"
+    )
+    lines.append(f"│  Repos Tested: {summary.get('repos_tested', 0)}".ljust(59) + "│")
+
+    lines.append("└" + "─" * 58 + "┘")
+    lines.append("")
+
+    # Quality Metrics
+    qm = summary.get("quality_metrics", {})
+    if qm:
+        lines.append("┌" + "─" * 58 + "┐")
+        lines.append("│" + " QUALITY METRICS".center(58) + "│")
+        lines.append("├" + "─" * 58 + "┤")
+
+        for metric, label in [
+            ("precision", "Citation Precision"),
+            ("recall", "Claim Recall"),
+            ("f1_score", "F1 Score"),
+            ("grounding_rate", "Grounding Rate"),
+        ]:
+            value = qm.get(metric, 0)
+            indicator = "🟢" if value >= 80 else "🟡" if value >= 60 else "🔴"
+            lines.append(f"│  {label}: {indicator} {value:.1f}%".ljust(59) + "│")
+
+        lines.append("└" + "─" * 58 + "┘")
+        lines.append("")
+
+    # Per-Repo Results
+    lines.append("┌" + "─" * 58 + "┐")
+    lines.append("│" + " PER-REPOSITORY RESULTS".center(58) + "│")
+    lines.append("├" + "─" * 29 + "┬" + "─" * 14 + "┬" + "─" * 13 + "┤")
+    lines.append(
+        "│"
+        + " Repository".ljust(29)
+        + "│"
+        + " Pass Rate".center(14)
+        + "│"
+        + " Status".center(13)
+        + "│"
+    )
+    lines.append("├" + "─" * 29 + "┼" + "─" * 14 + "┼" + "─" * 13 + "┤")
+
+    for result in results:
+        repo_name = result.get("repo", "Unknown")[:27]
+
+        # Calculate repo pass rate
+        tests = result.get("tests", {})
+        passed = sum(
+            1 for t in tests.values() if isinstance(t, dict) and t.get("passed", False)
+        )
+        total = len(tests)
+        repo_pass_rate = (passed / total * 100) if total > 0 else 0
+
+        status = (
+            "✅ PASS"
+            if repo_pass_rate >= 80
+            else "⚠️ WARN"
+            if repo_pass_rate >= 50
+            else "❌ FAIL"
+        )
+
+        lines.append(
+            f"│ {repo_name.ljust(28)}│{f'{repo_pass_rate:.0f}%'.center(14)}│{status.center(13)}│"
+        )
+
+    lines.append("└" + "─" * 29 + "┴" + "─" * 14 + "┴" + "─" * 13 + "┘")
+    lines.append("")
+
+    # Footer
+    lines.append("─" * 60)
+    lines.append("Report generated by Codebase Onboarding Agent V3")
+    lines.append("=" * 60)
+
+    return "\n".join(lines)
+
+
+def save_report(
+    summary: dict, results: list[dict], output_dir: str = "evals"
+) -> tuple[str, str]:
+    """
+    Save evaluation report in both JSON and human-readable formats.
+
+    Returns:
+        (json_path, text_path)
+    """
+    output_path = Path(output_dir)
+    output_path.mkdir(parents=True, exist_ok=True)
+
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+
+    # Save JSON
+    json_path = output_path / f"eval_results_{timestamp}.json"
+    full_results = {
+        "summary": summary,
+        "results": results,
+        "timestamp": datetime.now().isoformat(),
+        "version": "v3",
+    }
+    with open(json_path, "w") as f:
+        json.dump(full_results, f, indent=2, default=str)
+
+    # Save human-readable
+    text_path = output_path / f"eval_report_{timestamp}.txt"
+    report = format_eval_report(summary, results)
+    with open(text_path, "w") as f:
+        f.write(report)
+
+    # Also save as latest
+    with open(output_path / "eval_results_latest.json", "w") as f:
+        json.dump(full_results, f, indent=2, default=str)
+    with open(output_path / "eval_report_latest.txt", "w") as f:
+        f.write(report)
+
+    return str(json_path), str(text_path)
+
+
+def verify_response_citations(response: str, tool_outputs: list[str]) -> dict:
+    """
+    Verify all citations in an agent response.
+
+    Args:
+        response: The agent's text response
+        tool_outputs: List of tool outputs from the agent run
+
+    Returns:
+        Citation verification metrics
+    """
+    # Extract and verify citations
+    citations = extract_citations(response)
+    citation_results = []
+
+    for citation in citations:
+        result = verify_citation(citation, tool_outputs)
+        citation_results.append(
+            {
+                "file": citation.get("file", ""),
+                "line": citation.get("line", 0),
+                "valid": result.valid,
+                "file_read": result.file_read,
+                "line_exists": result.line_exists,
+                "error": result.error,
+            }
+        )
+
+    # Extract and ground claims
+    claims = extract_claims(response)
+    grounding = ground_claims(claims, tool_outputs)
+
+    valid_citations = sum(1 for r in citation_results if r["valid"])
+    total_citations = len(citation_results)
+
+    return {
+        "total_citations": total_citations,
+        "valid_citations": valid_citations,
+        "invalid_citations": total_citations - valid_citations,
+        "citation_precision": valid_citations / total_citations
+        if total_citations > 0
+        else 0.0,
+        "total_claims": grounding["total_claims"],
+        "grounded_claims": grounding["grounded_claims"],
+        "grounding_rate": grounding["grounding_rate"],
+        "citation_details": citation_results[:10],  # First 10 for debugging
+    }
+
+
 def check_hallucinations(text: str, forbidden: list[str]) -> list[str]:
     """
     Check for hallucinations, but filter out comparison contexts.
@@ -524,6 +936,12 @@ def main():
         "tests_failed": 0,
         "by_language": {},
         "by_category": {},
+        # Quality metrics aggregation
+        "total_citations": 0,
+        "valid_citations": 0,
+        "total_claims": 0,
+        "cited_claims": 0,
+        "grounded_claims": 0,
     }
 
     for i, repo in enumerate(TEST_REPOS, 1):
@@ -584,6 +1002,30 @@ def main():
         summary["tests_passed"] += result["passed"]
         summary["tests_failed"] += result["failed"]
 
+        # Aggregate quality metrics from test results
+        for test_name, test_result in result.get("tests", {}).items():
+            if isinstance(test_result, dict) and "citations" in test_result:
+                summary["total_citations"] += test_result.get("citations", 0)
+                summary["valid_citations"] += test_result.get("verified_citations", 0)
+                summary["total_claims"] += test_result.get("claims", 0)
+                # For cited_claims, use recall percentage to estimate if available
+                if (
+                    test_result.get("recall") is not None
+                    and test_result.get("claims", 0) > 0
+                ):
+                    # Reverse-calculate cited_claims from recall percentage
+                    cited = int(test_result["recall"] * test_result["claims"] / 100)
+                    summary["cited_claims"] += cited
+                # Grounded claims - estimate from claims if precision is high
+                if (
+                    test_result.get("precision", 0) > 50
+                    and test_result.get("claims", 0) > 0
+                ):
+                    summary["grounded_claims"] += min(
+                        test_result.get("verified_citations", 0),
+                        test_result.get("claims", 0),
+                    )
+
         if result["failed"] == 0:
             summary["repos_passed"] += 1
             print(f"  ✅ All tests passed ({result['passed']}/3)")
@@ -638,6 +1080,33 @@ def main():
         status = "✅" if stats["failed"] == 0 else "⚠️"
         print(f"   {status} {cat}: {stats['passed']}/{total} ({pct:.1f}%)")
 
+    # Quality Metrics Summary
+    quality_metrics = calculate_quality_metrics(
+        total_citations=summary["total_citations"],
+        valid_citations=summary["valid_citations"],
+        total_claims=summary["total_claims"],
+        cited_claims=summary["cited_claims"],
+        grounded_claims=summary["grounded_claims"],
+    )
+    print(format_metrics_summary(quality_metrics))
+
+    # Add quality metrics to summary dict for JSON output
+    summary["quality_metrics"] = quality_metrics
+    summary["pass_rate"] = pass_rate
+
+    # EVAL-003: Historical comparison
+    # Get previous result before saving (so we compare with actual previous)
+    previous = get_previous_result()
+
+    # Save current result to history
+    save_eval_result(summary.copy())
+
+    # Compare with previous run
+    if previous:
+        print("\n" + compare_with_previous(summary, previous))
+    else:
+        print("\nNo previous results to compare with.")
+
     # Detailed failures
     failures = [r for r in all_results if r.get("failed", 0) > 0]
     if failures:
@@ -667,7 +1136,7 @@ def main():
                                 f"Failed (citations: {test_result.get('citations', 0)}, tools: {test_result.get('tool_calls', 0)})"
                             )
 
-    # Save results
+    # Save results (legacy format)
     results_file = Path(__file__).parent / "evals" / "multi_repo_results.json"
     report = {
         "timestamp": datetime.now().isoformat(),
@@ -678,6 +1147,11 @@ def main():
 
     with open(results_file, "w") as f:
         json.dump(report, f, indent=2)
+
+    # EVAL-004: Save and print improved report
+    json_path, text_path = save_report(summary, all_results)
+    print(format_eval_report(summary, all_results))
+    print(f"\nResults saved to:\n  JSON: {json_path}\n  Text: {text_path}")
 
     print(f"\n📁 Results saved to: {results_file}")
     print("\n✅ Multi-repo eval complete!")

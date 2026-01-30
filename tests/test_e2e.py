@@ -96,7 +96,7 @@ class TestEndToEnd:
 
         agent = CodebaseOnboardingAgent(
             repo_path=str(simple_repo),
-            model="xiaomi/mimo-v2-flash:free",  # Use free model for tests
+            model="x-ai/grok-4.1-fast",  # Use free model for tests
         )
 
         overview = agent.get_overview()
@@ -111,7 +111,7 @@ class TestEndToEnd:
         from src.agent import CodebaseOnboardingAgent
 
         agent = CodebaseOnboardingAgent(
-            repo_path=str(simple_repo), model="xiaomi/mimo-v2-flash:free"
+            repo_path=str(simple_repo), model="x-ai/grok-4.1-fast"
         )
 
         agent.get_overview()
@@ -125,7 +125,7 @@ class TestEndToEnd:
         from src.agent import CodebaseOnboardingAgent
 
         agent = CodebaseOnboardingAgent(
-            repo_path=str(simple_repo), model="xiaomi/mimo-v2-flash:free"
+            repo_path=str(simple_repo), model="x-ai/grok-4.1-fast"
         )
 
         # Ask about the main function
@@ -142,7 +142,7 @@ class TestEndToEnd:
         from src.agent import CodebaseOnboardingAgent
 
         agent = CodebaseOnboardingAgent(
-            repo_path=str(simple_repo), model="xiaomi/mimo-v2-flash:free"
+            repo_path=str(simple_repo), model="x-ai/grok-4.1-fast"
         )
 
         # First message
@@ -161,7 +161,7 @@ class TestEndToEnd:
         from src.agent import CodebaseOnboardingAgent
 
         agent = CodebaseOnboardingAgent(
-            repo_path=str(simple_repo), model="xiaomi/mimo-v2-flash:free"
+            repo_path=str(simple_repo), model="x-ai/grok-4.1-fast"
         )
 
         # Build some history
@@ -186,7 +186,7 @@ class TestToolVerification:
         from src.agent import CodebaseOnboardingAgent
 
         agent = CodebaseOnboardingAgent(
-            repo_path=str(simple_repo), model="xiaomi/mimo-v2-flash:free"
+            repo_path=str(simple_repo), model="x-ai/grok-4.1-fast"
         )
 
         # Ask about a specific file
@@ -201,7 +201,7 @@ class TestToolVerification:
         from src.agent import CodebaseOnboardingAgent
 
         agent = CodebaseOnboardingAgent(
-            repo_path=str(simple_repo), model="xiaomi/mimo-v2-flash:free"
+            repo_path=str(simple_repo), model="x-ai/grok-4.1-fast"
         )
 
         # Ask about project structure

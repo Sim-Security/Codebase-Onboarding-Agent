@@ -1,255 +1,506 @@
-"""
-EVAL-001: Semantic Citation Verification
+"""Citation verification for grounded responses."""
 
-Verifies that citations in agent responses actually reference content
-that was read by tools during the conversation.
-"""
-
-import logging
 import re
+from dataclasses import dataclass
+from typing import Optional
 
-logger = logging.getLogger(__name__)
+
+@dataclass
+class CitationResult:
+    """Result of citation verification."""
+
+    valid: bool
+    file_read: bool
+    line_exists: bool
+    file_path: str
+    line_number: Optional[int]
+    actual_content: Optional[str] = None
+    error: Optional[str] = None
+
+
+@dataclass
+class Claim:
+    """A factual claim extracted from a response."""
+
+    text: str
+    claim_type: str  # "code_location", "functionality", "structure", "dependency"
+    has_citation: bool
+    citation: Optional[dict] = None  # {"file": str, "line": int} if cited
+
+
+@dataclass
+class GroundingResult:
+    """Result of grounding verification for a claim."""
+
+    claim: Claim
+    is_grounded: bool
+    citation_result: Optional[CitationResult] = None
+    relevance_score: float = 0.0  # 0-1, how relevant citation is to claim
+    error: Optional[str] = None
 
 
 def extract_citations(text: str) -> list[dict]:
     """
-    Extract file:line citations from text.
+    Extract citations from response text.
 
-    Args:
-        text: Response text containing citations
-
-    Returns:
-        List of {"file": "path.py", "line": 42} dicts
-    """
-    # Match patterns like: file.py:42, src/utils.py:123, path/to/file.ts:17
-    pattern = r"([a-zA-Z0-9_/.-]+\.(?:py|ts|js|tsx|jsx|go|rs|java|rb|toml|json|md|yaml|yml)):(\d+)"
-    matches = re.findall(pattern, text)
-    return [{"file": m[0], "line": int(m[1])} for m in matches]
-
-
-def verify_citation(citation: dict, tool_outputs: list[str]) -> dict:
-    """
-    Verify a single citation against actual tool outputs.
-
-    A citation is valid if:
-    1. The file was read by a tool (file name appears in output)
-    2. The line number exists in the tool output
-
-    Args:
-        citation: {"file": "path.py", "line": 42}
-        tool_outputs: List of tool output strings
+    Supports formats:
+    - file.py:42
+    - `file.py:42`
+    - (file.py:42)
+    - [file.py:42]
 
     Returns:
-        {
-            "citation": "file.py:42",
-            "valid": bool,
-            "file_read": bool,
-            "line_exists": bool,
-            "reason": str
-        }
+        List of {"file": str, "line": int}
     """
-    file_path = citation["file"]
-    line_num = citation["line"]
-    file_name = file_path.split("/")[-1]  # Get just filename
+    # Pattern for file:line citations
+    pattern = r"[`\[\(]?([a-zA-Z0-9_/.-]+\.[a-zA-Z]+):(\d+)[`\]\)]?"
 
-    result = {
-        "citation": f"{file_path}:{line_num}",
-        "valid": False,
-        "file_read": False,
-        "line_exists": False,
-        "reason": "",
-    }
+    citations = []
+    for match in re.finditer(pattern, text):
+        file_path = match.group(1)
+        line_num = int(match.group(2))
+        citations.append({"file": file_path, "line": line_num})
 
-    # Check if file was read by any tool
+    return citations
+
+
+def verify_citation(citation: dict, tool_outputs: list[str]) -> CitationResult:
+    """
+    Verify a citation against actual tool outputs.
+
+    This performs SEMANTIC verification, not soft verification:
+    1. File must have been actually read (appears in tool output)
+    2. Line number must exist in the output
+    3. Returns detailed result with actual content
+
+    Args:
+        citation: {"file": str, "line": int}
+        tool_outputs: List of tool output strings from the agent run
+
+    Returns:
+        CitationResult with verification details
+    """
+    file_path = citation.get("file", "")
+    line_num = citation.get("line")
+
+    if not file_path:
+        return CitationResult(
+            valid=False,
+            file_read=False,
+            line_exists=False,
+            file_path=file_path,
+            line_number=line_num,
+            error="No file path in citation",
+        )
+
+    if line_num is None:
+        return CitationResult(
+            valid=False,
+            file_read=False,
+            line_exists=False,
+            file_path=file_path,
+            line_number=None,
+            error="No line number in citation",
+        )
+
+    # Search through tool outputs
     for output in tool_outputs:
-        # Check for filename in tool output
-        if file_name in output or file_path in output:
-            result["file_read"] = True
+        # Check if this output contains the file
+        # Look for patterns like "📄 filename.py" or "filename.py ("
+        file_name = file_path.split("/")[-1]  # Get just the filename
 
-            # Check if line number exists in the output
-            # Tool outputs typically have format: "  42 | code here" or "42: code"
-            line_patterns = [
-                rf"^\s*{line_num}\s*\|",  # "  42 | code"
-                rf"^\s*{line_num}:\s",  # "42: code"
-                rf"{file_name}:{line_num}",  # "file.py:42"
-                rf"line\s+{line_num}\b",  # "line 42"
-            ]
+        if file_name not in output and file_path not in output:
+            continue
 
-            for pattern in line_patterns:
-                if re.search(pattern, output, re.MULTILINE | re.IGNORECASE):
-                    result["line_exists"] = True
-                    result["valid"] = True
-                    result["reason"] = "Verified: file read and line found"
-                    return result
+        # File was in output - mark as read
+        file_read = True
 
-            # File was read but line not found - still partially valid
-            # The agent may be referencing something it saw
-            result["reason"] = f"File read but line {line_num} not in visible output"
-            # Mark as valid if file was read (soft verification)
-            result["valid"] = True
-            return result
+        # Check if line number exists in output
+        # Tool outputs format lines as: "   42 | code here"
+        line_pattern = rf"^\s*{line_num}\s*\|"
 
-    result["reason"] = "File was not read by any tool"
-    return result
+        if re.search(line_pattern, output, re.MULTILINE):
+            # Line exists - extract content
+            actual_content = extract_line_content(output, line_num)
+
+            return CitationResult(
+                valid=True,
+                file_read=True,
+                line_exists=True,
+                file_path=file_path,
+                line_number=line_num,
+                actual_content=actual_content,
+            )
+        else:
+            # File was read but line doesn't exist
+            return CitationResult(
+                valid=False,
+                file_read=True,
+                line_exists=False,
+                file_path=file_path,
+                line_number=line_num,
+                error=f"Line {line_num} not found in file output",
+            )
+
+    # File was never read
+    return CitationResult(
+        valid=False,
+        file_read=False,
+        line_exists=False,
+        file_path=file_path,
+        line_number=line_num,
+        error="File was not read by any tool",
+    )
 
 
-def verify_all_citations(response: str, tool_outputs: list[str]) -> dict:
+def extract_line_content(output: str, line_num: int) -> Optional[str]:
+    """Extract the content of a specific line from tool output."""
+    pattern = rf"^\s*{line_num}\s*\|\s*(.*)$"
+    match = re.search(pattern, output, re.MULTILINE)
+    if match:
+        return match.group(1).strip()
+    return None
+
+
+def verify_all_citations(text: str, tool_outputs: list[str]) -> dict:
     """
-    Verify all citations in a response against tool outputs.
-
-    Args:
-        response: Agent response text
-        tool_outputs: List of tool output strings from agent.get_tool_outputs()
+    Verify all citations in a response.
 
     Returns:
         {
+            "citations": list[CitationResult],
             "total": int,
-            "verified": int,
-            "unverified": int,
-            "precision": float (0-1),
-            "details": list[dict]
+            "valid": int,
+            "invalid": int,
+            "precision": float
         }
     """
-    citations = extract_citations(response)
-
-    results = {
-        "total": len(citations),
-        "verified": 0,
-        "unverified": 0,
-        "precision": 0.0,
-        "details": [],
-    }
+    citations = extract_citations(text)
+    results = []
 
     for citation in citations:
-        verification = verify_citation(citation, tool_outputs)
-        results["details"].append(verification)
+        result = verify_citation(citation, tool_outputs)
+        results.append(result)
 
-        if verification["valid"]:
-            results["verified"] += 1
-        else:
-            results["unverified"] += 1
+    valid_count = sum(1 for r in results if r.valid)
+    total = len(results)
 
-    if results["total"] > 0:
-        results["precision"] = results["verified"] / results["total"]
+    return {
+        "citations": results,
+        "total": total,
+        "valid": valid_count,
+        "invalid": total - valid_count,
+        "precision": valid_count / total if total > 0 else 0.0,
+    }
 
-    return results
 
-
-def count_technical_claims(text: str) -> int:
+def extract_claims(text: str) -> list[Claim]:
     """
-    EVAL-004: Improved claim counting using sentence analysis.
+    Extract factual claims from agent response.
 
-    A claim is a sentence that makes a factual assertion about the code.
-    This replaces the naive keyword-based counting.
+    Identifies statements that make claims about:
+    - Code location ("X is defined in file.py")
+    - Functionality ("The function does Y")
+    - Structure ("The project uses Z architecture")
+    - Dependencies ("Uses library X")
+
+    Filters out:
+    - Questions
+    - Opinions/hedging ("might", "probably", "seems")
+    - Meta-statements ("I found", "Let me check")
 
     Args:
-        text: Response text
+        text: Agent response text
 
     Returns:
-        Number of technical claims
+        List of Claim objects
     """
-    # Split into sentences (handle common patterns)
-    sentences = re.split(r"(?<=[.!?])\s+", text)
+    claims = []
 
-    claim_patterns = [
-        r"\b(is|are|uses?|contains?|has|have|provides?|implements?)\b",
-        r"\b(handles?|supports?|includes?|defines?|exports?|imports?)\b",
-        r"\b(calls?|returns?|takes?|accepts?|creates?|initializes?)\b",
-        r"\b(located|found|defined|declared|written)\b",
+    # Split into sentences
+    sentences = re.split(r"[.!?]\s+", text)
+
+    # Patterns for different claim types
+    code_location_patterns = [
+        r"(?:is |are )?(?:defined|located|found|implemented|declared) in [`\']?([^`\']+)[`\']?",
+        r"in [`\']?([a-zA-Z0-9_/.-]+\.[a-zA-Z]+)[`\']?(?::|,| at)",
+        r"file [`\']?([a-zA-Z0-9_/.-]+\.[a-zA-Z]+)[`\']?",
     ]
 
-    claims = 0
+    functionality_patterns = [
+        r"(?:function|method|class) [`\']?(\w+)[`\']? (?:does|handles|processes|returns|takes)",
+        r"(?:handles|processes|manages|creates|returns|validates)",
+        r"(?:is responsible for|is used to|is called when)",
+    ]
+
+    structure_patterns = [
+        r"(?:uses?|follows?|implements?) (?:the )?(\w+ (?:pattern|architecture|structure))",
+        r"(?:organized|structured) (?:as|into|using)",
+        r"(?:entry point|main file|configuration)",
+    ]
+
+    dependency_patterns = [
+        r"(?:uses?|requires?|depends on|imports?) [`\']?([a-zA-Z0-9_-]+)[`\']?",
+        r"(?:built with|powered by|based on)",
+    ]
+
+    # Patterns to filter out non-factual statements
+    filter_patterns = [
+        r"^(?:I |Let me |I\'ll |I\'m )",  # Meta-statements
+        r"\?$",  # Questions
+        r"(?:might|could|probably|possibly|perhaps|seems?|appears?)",  # Hedging
+        r"^(?:Note:|Warning:|Tip:)",  # Advisory statements
+    ]
+
     for sentence in sentences:
-        # Skip short sentences or markdown headers
-        if len(sentence) < 30 or sentence.strip().startswith("#"):
-            continue
-        # Skip code blocks
-        if sentence.strip().startswith("```") or "```" in sentence:
-            continue
-        # Skip bullet points that are just file references
-        if re.match(r"^[\-\*]\s*`[^`]+`\s*$", sentence.strip()):
+        sentence = sentence.strip()
+        if len(sentence) < 10:  # Skip very short fragments
             continue
 
-        # Check for claim patterns
-        for pattern in claim_patterns:
+        # Check if should be filtered
+        should_filter = False
+        for pattern in filter_patterns:
             if re.search(pattern, sentence, re.IGNORECASE):
-                claims += 1
+                should_filter = True
                 break
 
-    return max(claims, 1)  # At least 1 to avoid division by zero
+        if should_filter:
+            continue
+
+        # Determine claim type
+        claim_type = None
+
+        for pattern in code_location_patterns:
+            if re.search(pattern, sentence, re.IGNORECASE):
+                claim_type = "code_location"
+                break
+
+        if not claim_type:
+            for pattern in functionality_patterns:
+                if re.search(pattern, sentence, re.IGNORECASE):
+                    claim_type = "functionality"
+                    break
+
+        if not claim_type:
+            for pattern in structure_patterns:
+                if re.search(pattern, sentence, re.IGNORECASE):
+                    claim_type = "structure"
+                    break
+
+        if not claim_type:
+            for pattern in dependency_patterns:
+                if re.search(pattern, sentence, re.IGNORECASE):
+                    claim_type = "dependency"
+                    break
+
+        if claim_type:
+            # Check if sentence has a citation
+            citations = extract_citations(sentence)
+            has_citation = len(citations) > 0
+            citation = citations[0] if citations else None
+
+            claims.append(
+                Claim(
+                    text=sentence,
+                    claim_type=claim_type,
+                    has_citation=has_citation,
+                    citation=citation,
+                )
+            )
+
+    return claims
 
 
-def count_cited_claims(text: str) -> int:
+def ground_claims(claims: list[Claim], tool_outputs: list[str]) -> dict:
     """
-    Count claims that have associated citations.
+    Ground claims against tool outputs to verify they are supported.
 
-    A claim is cited if it's in the same paragraph/section as a citation.
+    For each claim:
+    1. If it has a citation, verify the citation
+    2. Check if the cited content supports the claim
+    3. For claims without citations, check if any tool output supports it
 
     Args:
-        text: Response text
+        claims: List of Claim objects from extract_claims()
+        tool_outputs: List of tool output strings from agent run
 
     Returns:
-        Number of claims with nearby citations
+        {
+            "results": list[GroundingResult],
+            "total_claims": int,
+            "grounded_claims": int,
+            "ungrounded_claims": int,
+            "grounding_rate": float,
+            "cited_claims": int,
+            "uncited_claims": int
+        }
     """
-    # Split into paragraphs
-    paragraphs = text.split("\n\n")
-    citation_pattern = r"[a-zA-Z0-9_/.-]+\.(?:py|ts|js|go|rs):\d+"
+    results = []
 
-    cited = 0
-    for para in paragraphs:
-        if re.search(citation_pattern, para):
-            cited += count_technical_claims(para)
+    for claim in claims:
+        if claim.has_citation and claim.citation:
+            # Verify the citation
+            citation_result = verify_citation(claim.citation, tool_outputs)
 
-    return cited
+            if citation_result.valid:
+                # Check if cited content is relevant to claim
+                relevance = compute_relevance(
+                    claim.text, citation_result.actual_content or ""
+                )
+                is_grounded = relevance > 0.3  # Threshold for relevance
+
+                results.append(
+                    GroundingResult(
+                        claim=claim,
+                        is_grounded=is_grounded,
+                        citation_result=citation_result,
+                        relevance_score=relevance,
+                    )
+                )
+            else:
+                # Citation invalid
+                results.append(
+                    GroundingResult(
+                        claim=claim,
+                        is_grounded=False,
+                        citation_result=citation_result,
+                        error=citation_result.error,
+                    )
+                )
+        else:
+            # No citation - check if any tool output supports the claim
+            found_support = False
+            best_relevance = 0.0
+
+            for output in tool_outputs:
+                relevance = compute_relevance(claim.text, output[:2000])
+                if relevance > best_relevance:
+                    best_relevance = relevance
+                if relevance > 0.4:  # Higher threshold for uncited claims
+                    found_support = True
+                    break
+
+            results.append(
+                GroundingResult(
+                    claim=claim,
+                    is_grounded=found_support,
+                    relevance_score=best_relevance,
+                    error="No citation provided" if not found_support else None,
+                )
+            )
+
+    # Compute statistics
+    grounded = sum(1 for r in results if r.is_grounded)
+    cited = sum(1 for c in claims if c.has_citation)
+    total = len(claims)
+
+    return {
+        "results": results,
+        "total_claims": total,
+        "grounded_claims": grounded,
+        "ungrounded_claims": total - grounded,
+        "grounding_rate": grounded / total if total > 0 else 0.0,
+        "cited_claims": cited,
+        "uncited_claims": total - cited,
+    }
+
+
+def compute_relevance(claim_text: str, content: str) -> float:
+    """
+    Compute relevance score between claim and content.
+
+    Uses keyword overlap as a simple heuristic.
+    Higher scores = more relevant.
+
+    Args:
+        claim_text: The claim being verified
+        content: Content that should support the claim
+
+    Returns:
+        Relevance score 0-1
+    """
+    if not claim_text or not content:
+        return 0.0
+
+    # Extract keywords (words 4+ chars, excluding common words)
+    stopwords = {
+        "that",
+        "this",
+        "with",
+        "from",
+        "have",
+        "which",
+        "there",
+        "their",
+        "about",
+        "would",
+        "could",
+        "should",
+    }
+
+    claim_words = set(re.findall(r"\b\w{4,}\b", claim_text.lower())) - stopwords
+    content_words = set(re.findall(r"\b\w{4,}\b", content.lower())) - stopwords
+
+    if not claim_words:
+        return 0.5  # Can't determine, give benefit of doubt
+
+    overlap = claim_words & content_words
+    relevance = len(overlap) / len(claim_words)
+
+    return min(relevance, 1.0)
 
 
 def calculate_citation_metrics(response: str, tool_outputs: list[str]) -> dict:
     """
-    EVAL-004: Calculate meaningful citation metrics (precision/recall/F1).
+    Calculate comprehensive citation metrics for a response.
 
-    Replaces the meaningless 250%+ citation rates.
+    Combines citation verification with claim grounding to produce
+    precision, recall, and F1 metrics.
 
     Args:
-        response: Agent response text
-        tool_outputs: List of tool output strings
+        response: The agent's text response
+        tool_outputs: List of tool output strings from the agent run
 
     Returns:
         {
-            "precision": float (0-100),
-            "recall": float (0-100),
-            "f1": float (0-100),
             "total_citations": int,
             "verified_citations": int,
+            "invalid_citations": int,
+            "precision": float,  # valid citations / total citations
             "total_claims": int,
-            "cited_claims": int
+            "grounded_claims": int,
+            "grounding_rate": float,  # grounded / total claims
+            "recall": float,  # same as grounding_rate
+            "f1": float  # harmonic mean of precision and recall
         }
     """
-    # Verify citations
-    verification = verify_all_citations(response, tool_outputs)
+    # Verify all citations
+    citation_results = verify_all_citations(response, tool_outputs)
 
-    # Count claims
-    total_claims = count_technical_claims(response)
-    cited_claims = count_cited_claims(response)
+    # Extract and ground claims
+    claims = extract_claims(response)
+    grounding = ground_claims(claims, tool_outputs)
 
-    # Calculate metrics
-    precision = verification["precision"] * 100  # % of citations that are valid
-    recall = (
-        (cited_claims / total_claims * 100) if total_claims > 0 else 0
-    )  # % of claims with citations
+    # Precision: valid citations / total citations
+    precision = citation_results["precision"]
 
-    # F1 score
+    # Recall: grounded claims / total claims (how well are claims supported)
+    recall = grounding["grounding_rate"]
+
+    # F1: harmonic mean
     if precision + recall > 0:
         f1 = 2 * (precision * recall) / (precision + recall)
     else:
-        f1 = 0
+        f1 = 0.0
 
     return {
-        "precision": round(precision, 1),
-        "recall": round(recall, 1),
-        "f1": round(f1, 1),
-        "total_citations": verification["total"],
-        "verified_citations": verification["verified"],
-        "total_claims": total_claims,
-        "cited_claims": cited_claims,
-        "verification_details": verification["details"],
+        "total_citations": citation_results["total"],
+        "verified_citations": citation_results["valid"],
+        "invalid_citations": citation_results["invalid"],
+        "precision": round(precision, 3),
+        "total_claims": grounding["total_claims"],
+        "grounded_claims": grounding["grounded_claims"],
+        "grounding_rate": round(grounding["grounding_rate"], 3),
+        "recall": round(recall, 3),
+        "f1": round(f1, 3),
     }

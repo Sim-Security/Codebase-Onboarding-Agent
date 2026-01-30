@@ -21,12 +21,12 @@ from src.errors import get_friendly_error
 
 # Available models - users can also type any OpenRouter model ID
 MODEL_OPTIONS = [
+    # Default - fast and affordable
+    "x-ai/grok-4.1-fast",
     # Free models
-    "xiaomi/mimo-v2-flash:free",
     "google/gemma-3-4b-it:free",
     "meta-llama/llama-3.1-8b-instruct:free",
     # Paid but affordable
-    "x-ai/grok-4.1-fast",
     "anthropic/claude-sonnet-4",
     "openai/gpt-4o-mini",
     "google/gemini-2.0-flash-001",
@@ -50,7 +50,7 @@ def get_model_display(model: str, provider: str = "openrouter") -> str:
     if not model:
         if provider == "groq":
             return "Llama 3.1 8B (FREE via Groq)"
-        return "xiaomi/mimo-v2-flash:free (FREE)"
+        return "x-ai/grok-4.1-fast (default)"
 
     if ":free" in model.lower():
         return f"{model} (FREE)"
@@ -376,7 +376,7 @@ with gr.Blocks(title="Codebase Onboarding Agent") as app:
             model_input = gr.Dropdown(
                 label="Model",
                 choices=MODEL_OPTIONS,
-                value="xiaomi/mimo-v2-flash:free",
+                value="x-ai/grok-4.1-fast",
                 allow_custom_value=True,
                 info="Select a model or type any OpenRouter model ID. Models with ':free' are FREE.",
             )
