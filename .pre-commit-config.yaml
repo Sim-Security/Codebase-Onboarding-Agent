@@ -1,0 +1,49 @@
+# Pre-commit hooks for Codebase Onboarding Agent
+# Install: pip install pre-commit && pre-commit install
+
+repos:
+  # Ruff - Fast Python linter and formatter
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.9.0
+    hooks:
+      # Run the linter
+      - id: ruff
+        args: [--fix, --exit-non-zero-on-fix]
+      # Run the formatter
+      - id: ruff-format
+
+  # General file checks
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      # Check for files that would conflict in case-insensitive filesystems
+      - id: check-case-conflict
+      # Check for merge conflict markers
+      - id: check-merge-conflict
+      # Check YAML syntax
+      - id: check-yaml
+        args: [--unsafe]
+      # Check JSON syntax
+      - id: check-json
+      # Check TOML syntax
+      - id: check-toml
+      # Ensure files end with newline
+      - id: end-of-file-fixer
+        exclude: ^(.*\.json)$
+      # Trim trailing whitespace
+      - id: trailing-whitespace
+        exclude: ^(.*\.md)$
+      # Don't commit to main directly
+      - id: no-commit-to-branch
+        args: [--branch, main]
+      # Check for private keys
+      - id: detect-private-key
+
+  # Security checks - disabled until baseline is created
+  # To enable: run `detect-secrets scan > .secrets.baseline`
+  # - repo: https://github.com/Yelp/detect-secrets
+  #   rev: v1.5.0
+  #   hooks:
+  #     - id: detect-secrets
+  #       args: ['--baseline', '.secrets.baseline']
+  #       exclude: package.lock.json

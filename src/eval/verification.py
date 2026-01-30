@@ -5,9 +5,8 @@ Verifies that citations in agent responses actually reference content
 that was read by tools during the conversation.
 """
 
-import re
 import logging
-from typing import Optional
+import re
 
 logger = logging.getLogger(__name__)
 
@@ -23,7 +22,7 @@ def extract_citations(text: str) -> list[dict]:
         List of {"file": "path.py", "line": 42} dicts
     """
     # Match patterns like: file.py:42, src/utils.py:123, path/to/file.ts:17
-    pattern = r'([a-zA-Z0-9_/.-]+\.(?:py|ts|js|tsx|jsx|go|rs|java|rb|toml|json|md|yaml|yml)):(\d+)'
+    pattern = r"([a-zA-Z0-9_/.-]+\.(?:py|ts|js|tsx|jsx|go|rs|java|rb|toml|json|md|yaml|yml)):(\d+)"
     matches = re.findall(pattern, text)
     return [{"file": m[0], "line": int(m[1])} for m in matches]
 
@@ -58,7 +57,7 @@ def verify_citation(citation: dict, tool_outputs: list[str]) -> dict:
         "valid": False,
         "file_read": False,
         "line_exists": False,
-        "reason": ""
+        "reason": "",
     }
 
     # Check if file was read by any tool
@@ -70,10 +69,10 @@ def verify_citation(citation: dict, tool_outputs: list[str]) -> dict:
             # Check if line number exists in the output
             # Tool outputs typically have format: "  42 | code here" or "42: code"
             line_patterns = [
-                rf'^\s*{line_num}\s*\|',           # "  42 | code"
-                rf'^\s*{line_num}:\s',              # "42: code"
-                rf'{file_name}:{line_num}',         # "file.py:42"
-                rf'line\s+{line_num}\b',            # "line 42"
+                rf"^\s*{line_num}\s*\|",  # "  42 | code"
+                rf"^\s*{line_num}:\s",  # "42: code"
+                rf"{file_name}:{line_num}",  # "file.py:42"
+                rf"line\s+{line_num}\b",  # "line 42"
             ]
 
             for pattern in line_patterns:
@@ -118,7 +117,7 @@ def verify_all_citations(response: str, tool_outputs: list[str]) -> dict:
         "verified": 0,
         "unverified": 0,
         "precision": 0.0,
-        "details": []
+        "details": [],
     }
 
     for citation in citations:
@@ -150,25 +149,25 @@ def count_technical_claims(text: str) -> int:
         Number of technical claims
     """
     # Split into sentences (handle common patterns)
-    sentences = re.split(r'(?<=[.!?])\s+', text)
+    sentences = re.split(r"(?<=[.!?])\s+", text)
 
     claim_patterns = [
-        r'\b(is|are|uses?|contains?|has|have|provides?|implements?)\b',
-        r'\b(handles?|supports?|includes?|defines?|exports?|imports?)\b',
-        r'\b(calls?|returns?|takes?|accepts?|creates?|initializes?)\b',
-        r'\b(located|found|defined|declared|written)\b',
+        r"\b(is|are|uses?|contains?|has|have|provides?|implements?)\b",
+        r"\b(handles?|supports?|includes?|defines?|exports?|imports?)\b",
+        r"\b(calls?|returns?|takes?|accepts?|creates?|initializes?)\b",
+        r"\b(located|found|defined|declared|written)\b",
     ]
 
     claims = 0
     for sentence in sentences:
         # Skip short sentences or markdown headers
-        if len(sentence) < 30 or sentence.strip().startswith('#'):
+        if len(sentence) < 30 or sentence.strip().startswith("#"):
             continue
         # Skip code blocks
-        if sentence.strip().startswith('```') or '```' in sentence:
+        if sentence.strip().startswith("```") or "```" in sentence:
             continue
         # Skip bullet points that are just file references
-        if re.match(r'^[\-\*]\s*`[^`]+`\s*$', sentence.strip()):
+        if re.match(r"^[\-\*]\s*`[^`]+`\s*$", sentence.strip()):
             continue
 
         # Check for claim patterns
@@ -193,8 +192,8 @@ def count_cited_claims(text: str) -> int:
         Number of claims with nearby citations
     """
     # Split into paragraphs
-    paragraphs = text.split('\n\n')
-    citation_pattern = r'[a-zA-Z0-9_/.-]+\.(?:py|ts|js|go|rs):\d+'
+    paragraphs = text.split("\n\n")
+    citation_pattern = r"[a-zA-Z0-9_/.-]+\.(?:py|ts|js|go|rs):\d+"
 
     cited = 0
     for para in paragraphs:
@@ -234,7 +233,9 @@ def calculate_citation_metrics(response: str, tool_outputs: list[str]) -> dict:
 
     # Calculate metrics
     precision = verification["precision"] * 100  # % of citations that are valid
-    recall = (cited_claims / total_claims * 100) if total_claims > 0 else 0  # % of claims with citations
+    recall = (
+        (cited_claims / total_claims * 100) if total_claims > 0 else 0
+    )  # % of claims with citations
 
     # F1 score
     if precision + recall > 0:
@@ -250,5 +251,5 @@ def calculate_citation_metrics(response: str, tool_outputs: list[str]) -> dict:
         "verified_citations": verification["verified"],
         "total_claims": total_claims,
         "cited_claims": cited_claims,
-        "verification_details": verification["details"]
+        "verification_details": verification["details"],
     }

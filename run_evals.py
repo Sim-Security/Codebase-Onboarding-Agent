@@ -4,21 +4,22 @@ Simple eval runner for the Codebase Onboarding Agent.
 Tests the agent against defined eval tasks and reports metrics.
 """
 
+import json
 import os
 import re
-import json
-import subprocess
-import tempfile
 import shutil
-from pathlib import Path
+import subprocess
 from datetime import datetime
+from pathlib import Path
 
 # Load .env file
 from dotenv import load_dotenv
+
 load_dotenv()
 
 # Add src to path
 import sys
+
 sys.path.insert(0, str(Path(__file__).parent))
 
 from src.agent import CodebaseOnboardingAgent
@@ -29,16 +30,14 @@ def clone_test_repo(url: str, target: str) -> bool:
     if Path(target).exists():
         shutil.rmtree(target)
     result = subprocess.run(
-        ["git", "clone", "--depth=1", url, target],
-        capture_output=True,
-        text=True
+        ["git", "clone", "--depth=1", url, target], capture_output=True, text=True
     )
     return result.returncode == 0
 
 
 def count_citations(text: str) -> int:
     """Count file:line citations in text."""
-    pattern = r'[a-zA-Z0-9_/.-]+\.(py|ts|js|tsx|jsx|go|rs|java|rb):\d+'
+    pattern = r"[a-zA-Z0-9_/.-]+\.(py|ts|js|tsx|jsx|go|rs|java|rb):\d+"
     matches = re.findall(pattern, text)
     return len(matches)
 
@@ -46,12 +45,22 @@ def count_citations(text: str) -> int:
 def count_claims(text: str) -> int:
     """Rough estimate of claims (sentences with technical content)."""
     # Count lines that look like they're making claims
-    lines = text.split('\n')
+    lines = text.split("\n")
     claim_count = 0
     for line in lines:
         line = line.strip()
-        if len(line) > 20 and any(kw in line.lower() for kw in
-            ['is', 'uses', 'contains', 'has', 'provides', 'implements', 'handles']):
+        if len(line) > 20 and any(
+            kw in line.lower()
+            for kw in [
+                "is",
+                "uses",
+                "contains",
+                "has",
+                "provides",
+                "implements",
+                "handles",
+            ]
+        ):
             claim_count += 1
     return max(claim_count, 1)
 
@@ -103,7 +112,7 @@ def run_overview_accuracy_eval(agent: CodebaseOnboardingAgent) -> dict:
         "required_found": f"{found}/{total}",
         "hallucination_score": hallucination_score,
         "accuracy_score": accuracy_score,
-        "output_preview": output[:500] + "..." if len(output) > 500 else output
+        "output_preview": output[:500] + "..." if len(output) > 500 else output,
     }
 
     print(f"  Hallucinations: {hallucinations if hallucinations else 'None ✓'}")
@@ -132,7 +141,7 @@ def run_citation_rate_eval(agent: CodebaseOnboardingAgent) -> dict:
         "citations_found": citations,
         "estimated_claims": claims,
         "citation_rate": round(citation_rate * 100, 1),
-        "output_preview": output[:500] + "..." if len(output) > 500 else output
+        "output_preview": output[:500] + "..." if len(output) > 500 else output,
     }
 
     print(f"  Citations found: {citations}")
@@ -234,6 +243,7 @@ def main():
     except Exception as e:
         print(f"\n❌ Eval failed with error: {e}")
         import traceback
+
         traceback.print_exc()
 
     # Summary
@@ -255,20 +265,30 @@ def main():
         print("\n📊 KPI Measurements (from TELOS.md):")
 
         # K1: Hallucination rate
-        overview_result = next((r for r in results if r["task"] == "overview-accuracy"), None)
+        overview_result = next(
+            (r for r in results if r["task"] == "overview-accuracy"), None
+        )
         if overview_result:
-            hallucination_rate = 0 if overview_result["hallucination_score"] == 1.0 else 100
+            hallucination_rate = (
+                0 if overview_result["hallucination_score"] == 1.0 else 100
+            )
             print(f"  K1 Hallucination rate: {hallucination_rate}% (target: <5%)")
 
         # K2: Citation rate
-        citation_result = next((r for r in results if r["task"] == "citation-rate"), None)
+        citation_result = next(
+            (r for r in results if r["task"] == "citation-rate"), None
+        )
         if citation_result:
-            print(f"  K2 Citation rate: {citation_result['citation_rate']}% (target: >80%)")
+            print(
+                f"  K2 Citation rate: {citation_result['citation_rate']}% (target: >80%)"
+            )
 
         # K3: Tool usage rate
         tool_result = next((r for r in results if r["task"] == "tool-usage"), None)
         if tool_result:
-            print(f"  K3 Tool usage rate: {tool_result['tool_usage_rate']}% (target: >90%)")
+            print(
+                f"  K3 Tool usage rate: {tool_result['tool_usage_rate']}% (target: >90%)"
+            )
 
     # Save results
     results_file = Path(__file__).parent / "evals" / "results.json"
@@ -282,8 +302,8 @@ def main():
         "summary": {
             "passed": passed,
             "total": total,
-            "pass_rate": round(passed / total * 100, 1) if total > 0 else 0
-        }
+            "pass_rate": round(passed / total * 100, 1) if total > 0 else 0,
+        },
     }
 
     with open(results_file, "w") as f:

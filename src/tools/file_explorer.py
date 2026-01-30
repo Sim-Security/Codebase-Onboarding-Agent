@@ -4,13 +4,12 @@ Deterministic, CLI-first operations - no AI, just file system operations.
 """
 
 import logging
-import os
 import re
 import subprocess
 from pathlib import Path
 from typing import Optional
-from langchain_core.tools import tool
 
+from langchain_core.tools import tool
 
 # =============================================================================
 # SEC-002: Prompt Injection Patterns
@@ -55,19 +54,35 @@ def sanitize_content(content: str, file_path: str = "") -> tuple[str, bool]:
 # =============================================================================
 SENSITIVE_FILES = {
     # Environment files
-    ".env", ".env.local", ".env.development", ".env.production",
-    ".env.test", ".env.staging",
+    ".env",
+    ".env.local",
+    ".env.development",
+    ".env.production",
+    ".env.test",
+    ".env.staging",
     # Credential files
-    "credentials.json", "credentials.yaml", "credentials.yml",
-    "secrets.json", "secrets.yaml", "secrets.yml",
-    "service-account.json", "service_account.json",
+    "credentials.json",
+    "credentials.yaml",
+    "credentials.yml",
+    "secrets.json",
+    "secrets.yaml",
+    "secrets.yml",
+    "service-account.json",
+    "service_account.json",
     # SSH/Auth keys
-    "id_rsa", "id_rsa.pub", "id_ed25519", "id_ed25519.pub",
-    "id_dsa", "id_ecdsa",
+    "id_rsa",
+    "id_rsa.pub",
+    "id_ed25519",
+    "id_ed25519.pub",
+    "id_dsa",
+    "id_ecdsa",
     # Package manager auth
-    ".npmrc", ".pypirc", ".netrc",
+    ".npmrc",
+    ".pypirc",
+    ".netrc",
     # Cloud credentials
-    ".aws/credentials", ".gcloud/credentials",
+    ".aws/credentials",
+    ".gcloud/credentials",
 }
 
 SENSITIVE_EXTENSIONS = {".pem", ".key", ".p12", ".pfx"}
@@ -100,6 +115,7 @@ def is_sensitive_file(file_path: str) -> bool:
         return True
 
     return False
+
 
 # Directories to always skip
 IGNORE_DIRS = {
@@ -209,7 +225,9 @@ def list_directory_structure(repo_path: str, max_depth: int = 4) -> str:
             return
 
         try:
-            entries = sorted(current.iterdir(), key=lambda x: (x.is_file(), x.name.lower()))
+            entries = sorted(
+                current.iterdir(), key=lambda x: (x.is_file(), x.name.lower())
+            )
         except PermissionError:
             return
 
@@ -305,7 +323,12 @@ def read_file(file_path: str, max_lines: int = 500) -> str:
 
 
 @tool
-def search_code(repo_path: str, pattern: str, file_extension: Optional[str] = None, max_results: int = 20) -> str:
+def search_code(
+    repo_path: str,
+    pattern: str,
+    file_extension: Optional[str] = None,
+    max_results: int = 20,
+) -> str:
     """
     Search for a pattern in the codebase using grep/ripgrep.
 
@@ -339,7 +362,14 @@ def search_code(repo_path: str, pattern: str, file_extension: Optional[str] = No
             exclude_args.extend(["--exclude-dir", d])
 
     if use_rg:
-        cmd = ["rg", "--line-number", "--no-heading", "--color=never", "-m", str(max_results)]
+        cmd = [
+            "rg",
+            "--line-number",
+            "--no-heading",
+            "--color=never",
+            "-m",
+            str(max_results),
+        ]
         cmd.extend(exclude_args)
         if file_extension:
             cmd.extend(["--glob", f"*{file_extension}"])

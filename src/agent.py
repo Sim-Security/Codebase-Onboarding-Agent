@@ -4,40 +4,44 @@ Uses tools + context + model intelligence (no RAG).
 Supports multiple LLM providers: OpenRouter (default), Groq.
 """
 
-import os
 import logging
-from typing import Annotated, TypedDict, AsyncIterator
+import os
 from pathlib import Path
+from typing import Annotated, AsyncIterator, TypedDict
 
-from langchain_core.messages import HumanMessage, SystemMessage, AIMessage, ToolMessage
+from langchain_core.messages import AIMessage, HumanMessage, SystemMessage, ToolMessage
 from langchain_openai import ChatOpenAI
-from langgraph.graph import StateGraph, END
+from langgraph.graph import END, StateGraph
 from langgraph.graph.message import add_messages
 from langgraph.prebuilt import ToolNode
 from tenacity import (
+    before_sleep_log,
     retry,
+    retry_if_exception_type,
     stop_after_attempt,
     wait_exponential,
-    retry_if_exception_type,
-    before_sleep_log,
 )
 
-from .errors import RetryableError, ContextLimitError, is_retryable_error, get_friendly_error
+from .errors import (
+    ContextLimitError,
+    RetryableError,
+    get_friendly_error,
+    is_retryable_error,
+)
 
 logger = logging.getLogger(__name__)
 
+from .prompts import DEEP_DIVE_PROMPT, OVERVIEW_PROMPT, SYSTEM_PROMPT
 from .tools import (
+    analyze_dependencies,
+    find_entry_points,
+    find_files_by_pattern,
+    get_function_signatures,
+    get_imports,
     list_directory_structure,
     read_file,
     search_code,
-    find_files_by_pattern,
-    get_imports,
-    find_entry_points,
-    analyze_dependencies,
-    get_function_signatures,
 )
-from .prompts import SYSTEM_PROMPT, OVERVIEW_PROMPT, DEEP_DIVE_PROMPT
-
 
 # All available tools
 TOOLS = [
@@ -68,14 +72,13 @@ CONTEXT_SUMMARY_THRESHOLD = 0.95  # Truncate at 95%
 
 class AgentState(TypedDict):
     """State for the onboarding agent."""
+
     messages: Annotated[list, add_messages]
     repo_path: str
 
 
 def create_agent(
-    api_key: str | None = None,
-    model: str | None = None,
-    provider: str = "openrouter"
+    api_key: str | None = None, model: str | None = None, provider: str = "openrouter"
 ):
     """
     Create the codebase onboarding agent.
@@ -96,7 +99,9 @@ def create_agent(
             api_key = os.getenv("GROQ_API_KEY")
 
     if not api_key:
-        raise ValueError(f"API key not provided and not found in environment for {provider}")
+        raise ValueError(
+            f"API key not provided and not found in environment for {provider}"
+        )
 
     # Determine model
     if model is None:
@@ -207,7 +212,7 @@ class CodebaseOnboardingAgent:
         repo_path: str,
         api_key: str | None = None,
         model: str | None = None,
-        provider: str = "openrouter"
+        provider: str = "openrouter",
     ):
         """
         Initialize the agent for a specific repository.
@@ -225,7 +230,9 @@ class CodebaseOnboardingAgent:
         self.agent = create_agent(api_key, model, provider)
         self.conversation_history: list = []
         self.last_tool_calls: list[dict] = []  # Track tool calls from last run
-        self.last_tool_outputs: list[str] = []  # Track tool outputs for citation verification (EVAL-005)
+        self.last_tool_outputs: list[
+            str
+        ] = []  # Track tool outputs for citation verification (EVAL-005)
         # EVAL-003: Context budget tracking
         self.context_tokens = 0
         self.context_warning_shown = False
@@ -258,19 +265,29 @@ class CodebaseOnboardingAgent:
         final_response = None
         for msg in messages:
             # Extract tool calls from AIMessages
-            if isinstance(msg, AIMessage) and hasattr(msg, "tool_calls") and msg.tool_calls:
+            if (
+                isinstance(msg, AIMessage)
+                and hasattr(msg, "tool_calls")
+                and msg.tool_calls
+            ):
                 for tc in msg.tool_calls:
-                    self.last_tool_calls.append({
-                        "name": tc.get("name") or tc.get("function", {}).get("name"),
-                        "args": tc.get("args") or tc.get("function", {}).get("arguments"),
-                    })
+                    self.last_tool_calls.append(
+                        {
+                            "name": tc.get("name")
+                            or tc.get("function", {}).get("name"),
+                            "args": tc.get("args")
+                            or tc.get("function", {}).get("arguments"),
+                        }
+                    )
             # Capture tool outputs from ToolMessages (EVAL-005)
             elif isinstance(msg, ToolMessage) and hasattr(msg, "content"):
                 self.last_tool_outputs.append(msg.content)
 
         # Find final response (last AIMessage without tool calls)
         for msg in reversed(messages):
-            if isinstance(msg, AIMessage) and not (hasattr(msg, "tool_calls") and msg.tool_calls):
+            if isinstance(msg, AIMessage) and not (
+                hasattr(msg, "tool_calls") and msg.tool_calls
+            ):
                 final_response = msg.content
                 break
 
@@ -311,8 +328,12 @@ class CodebaseOnboardingAgent:
             return
 
         # Separate system messages from others
-        system_msgs = [m for m in self.conversation_history if isinstance(m, SystemMessage)]
-        other_msgs = [m for m in self.conversation_history if not isinstance(m, SystemMessage)]
+        system_msgs = [
+            m for m in self.conversation_history if isinstance(m, SystemMessage)
+        ]
+        other_msgs = [
+            m for m in self.conversation_history if not isinstance(m, SystemMessage)
+        ]
 
         # Keep last (MAX - len(system_msgs)) non-system messages
         keep_count = MAX_HISTORY_MESSAGES - len(system_msgs)
@@ -320,7 +341,9 @@ class CodebaseOnboardingAgent:
             other_msgs = other_msgs[-keep_count:]
 
         self.conversation_history = system_msgs + other_msgs
-        logger.info(f"Pruned conversation history to {len(self.conversation_history)} messages")
+        logger.info(
+            f"Pruned conversation history to {len(self.conversation_history)} messages"
+        )
 
     def _estimate_tokens(self, content: str) -> int:
         """
@@ -360,7 +383,9 @@ class CodebaseOnboardingAgent:
 
         if usage_pct >= CONTEXT_WARNING_THRESHOLD and not self.context_warning_shown:
             self.context_warning_shown = True
-            logger.warning(f"Context usage at {usage_pct:.1%} of {MAX_CONTEXT_TOKENS:,} tokens")
+            logger.warning(
+                f"Context usage at {usage_pct:.1%} of {MAX_CONTEXT_TOKENS:,} tokens"
+            )
 
         return content
 
@@ -374,7 +399,7 @@ class CodebaseOnboardingAgent:
         return {
             "tokens_used": self.context_tokens,
             "limit": MAX_CONTEXT_TOKENS,
-            "percentage": round(self.context_tokens / MAX_CONTEXT_TOKENS * 100, 1)
+            "percentage": round(self.context_tokens / MAX_CONTEXT_TOKENS * 100, 1),
         }
 
     def get_tool_calls(self) -> list[dict]:
@@ -425,15 +450,13 @@ class CodebaseOnboardingAgent:
                 elif kind == "on_tool_start":
                     tool_name = event.get("name", "unknown")
                     tool_input = event.get("data", {}).get("input", {})
-                    self.last_tool_calls.append({
-                        "name": tool_name,
-                        "args": tool_input,
-                    })
-                    yield {
-                        "type": "tool_start",
-                        "name": tool_name,
-                        "input": tool_input
-                    }
+                    self.last_tool_calls.append(
+                        {
+                            "name": tool_name,
+                            "args": tool_input,
+                        }
+                    )
+                    yield {"type": "tool_start", "name": tool_name, "input": tool_input}
 
                 elif kind == "on_tool_end":
                     tool_name = event.get("name", "unknown")
@@ -443,7 +466,7 @@ class CodebaseOnboardingAgent:
                     yield {
                         "type": "tool_end",
                         "name": tool_name,
-                        "output": tool_output[:500]  # Truncate for display
+                        "output": tool_output[:500],  # Truncate for display
                     }
 
         except Exception as e:
@@ -477,18 +500,24 @@ def run_cli():
 
     parser = argparse.ArgumentParser(description="Codebase Onboarding Agent")
     parser.add_argument("repo_path", help="Path to the repository to analyze")
-    parser.add_argument("--overview", action="store_true", help="Generate codebase overview")
+    parser.add_argument(
+        "--overview", action="store_true", help="Generate codebase overview"
+    )
     parser.add_argument("--ask", type=str, help="Ask a specific question")
-    parser.add_argument("--provider", type=str, default="openrouter",
-                        choices=["openrouter", "groq"],
-                        help="LLM provider (default: openrouter)")
-    parser.add_argument("--model", type=str, help="Model to use (defaults based on provider)")
+    parser.add_argument(
+        "--provider",
+        type=str,
+        default="openrouter",
+        choices=["openrouter", "groq"],
+        help="LLM provider (default: openrouter)",
+    )
+    parser.add_argument(
+        "--model", type=str, help="Model to use (defaults based on provider)"
+    )
     args = parser.parse_args()
 
     agent = CodebaseOnboardingAgent(
-        args.repo_path,
-        provider=args.provider,
-        model=args.model
+        args.repo_path, provider=args.provider, model=args.model
     )
 
     if args.overview:
@@ -500,7 +529,9 @@ def run_cli():
     else:
         # Interactive mode
         print(f"\n📁 Analyzing: {args.repo_path}")
-        print("Type 'overview' for a full overview, 'quit' to exit, or ask any question.\n")
+        print(
+            "Type 'overview' for a full overview, 'quit' to exit, or ask any question.\n"
+        )
 
         while True:
             try:

@@ -22,6 +22,8 @@ tags:
 [![Test Pass Rate](https://img.shields.io/badge/Test%20Pass%20Rate-73.3%25-yellow)](evals/)
 [![Repos Tested](https://img.shields.io/badge/Repos%20Tested-10-blue)](evals/)
 [![Languages](https://img.shields.io/badge/Languages-5-blue)](evals/)
+[![Code Coverage](https://img.shields.io/codecov/c/github/Sim-Security/Codebase-Onboarding-Agent?label=Coverage)](https://codecov.io/gh/Sim-Security/Codebase-Onboarding-Agent)
+[![CI](https://github.com/Sim-Security/Codebase-Onboarding-Agent/actions/workflows/deploy.yml/badge.svg)](https://github.com/Sim-Security/Codebase-Onboarding-Agent/actions)
 [![License](https://img.shields.io/badge/License-MIT-yellow)](LICENSE)
 
 A LangGraph-powered AI agent that helps developers quickly understand unfamiliar codebases through intelligent exploration — no RAG, no embeddings, just smart tools and model reasoning.

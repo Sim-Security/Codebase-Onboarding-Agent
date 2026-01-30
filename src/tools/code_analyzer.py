@@ -6,9 +6,8 @@ Deterministic operations - parsing, not AI inference.
 import json
 import re
 from pathlib import Path
-from typing import Optional
-from langchain_core.tools import tool
 
+from langchain_core.tools import tool
 
 # Entry point patterns by language
 ENTRY_POINT_PATTERNS = {
@@ -122,12 +121,44 @@ def get_imports(file_path: str) -> str:
         elif suffix == ".py":
             # Python standard library check (simplified)
             if imp.split(".")[0] in {
-                "os", "sys", "re", "json", "typing", "pathlib", "collections",
-                "datetime", "time", "logging", "subprocess", "asyncio", "functools",
-                "itertools", "dataclasses", "abc", "enum", "copy", "io", "math",
-                "random", "string", "tempfile", "shutil", "glob", "argparse",
-                "unittest", "threading", "multiprocessing", "socket", "http",
-                "urllib", "email", "html", "xml", "sqlite3", "hashlib", "secrets",
+                "os",
+                "sys",
+                "re",
+                "json",
+                "typing",
+                "pathlib",
+                "collections",
+                "datetime",
+                "time",
+                "logging",
+                "subprocess",
+                "asyncio",
+                "functools",
+                "itertools",
+                "dataclasses",
+                "abc",
+                "enum",
+                "copy",
+                "io",
+                "math",
+                "random",
+                "string",
+                "tempfile",
+                "shutil",
+                "glob",
+                "argparse",
+                "unittest",
+                "threading",
+                "multiprocessing",
+                "socket",
+                "http",
+                "urllib",
+                "email",
+                "html",
+                "xml",
+                "sqlite3",
+                "hashlib",
+                "secrets",
             }:
                 stdlib.append(imp)
             else:
@@ -178,7 +209,10 @@ def find_entry_points(repo_path: str) -> str:
             for match in matches:
                 # Skip if in ignored directories
                 parts = match.relative_to(repo).parts
-                if any(p in {"node_modules", ".git", "__pycache__", "venv", ".venv"} for p in parts):
+                if any(
+                    p in {"node_modules", ".git", "__pycache__", "venv", ".venv"}
+                    for p in parts
+                ):
                     continue
                 found_entries.append((str(match.relative_to(repo)), lang, pattern))
 
@@ -193,9 +227,13 @@ def find_entry_points(repo_path: str) -> str:
             if "scripts" in pkg:
                 scripts = pkg["scripts"]
                 if "start" in scripts:
-                    found_entries.append(("npm start", "javascript", f"runs: {scripts['start']}"))
+                    found_entries.append(
+                        ("npm start", "javascript", f"runs: {scripts['start']}")
+                    )
                 if "dev" in scripts:
-                    found_entries.append(("npm run dev", "javascript", f"runs: {scripts['dev']}"))
+                    found_entries.append(
+                        ("npm run dev", "javascript", f"runs: {scripts['dev']}")
+                    )
         except Exception:
             pass
 
@@ -206,17 +244,23 @@ def find_entry_points(repo_path: str) -> str:
             with open(pyproject) as f:
                 content = f.read()
             # Simple regex for scripts
-            matches = re.findall(r'\[project\.scripts\]\s*\n((?:\s*\w+\s*=.*\n?)+)', content)
+            matches = re.findall(
+                r"\[project\.scripts\]\s*\n((?:\s*\w+\s*=.*\n?)+)", content
+            )
             for match in matches:
                 for line in match.strip().split("\n"):
                     if "=" in line:
                         name, target = line.split("=", 1)
-                        found_entries.append((name.strip(), "python", f"CLI: {target.strip()}"))
+                        found_entries.append(
+                            (name.strip(), "python", f"CLI: {target.strip()}")
+                        )
         except Exception:
             pass
 
     if not found_entries:
-        return "No obvious entry points found. Check for main functions or start scripts."
+        return (
+            "No obvious entry points found. Check for main functions or start scripts."
+        )
 
     result = ["🚀 Entry Points Found:", "─" * 50]
     for path, lang, note in found_entries:
@@ -253,7 +297,9 @@ def analyze_dependencies(repo_path: str) -> str:
                 deps = [
                     line.strip().split("==")[0].split(">=")[0].split("<=")[0]
                     for line in f
-                    if line.strip() and not line.startswith("#") and not line.startswith("-")
+                    if line.strip()
+                    and not line.startswith("#")
+                    and not line.startswith("-")
                 ]
             for dep in deps[:20]:
                 results.append(f"  - {dep}")
@@ -271,11 +317,13 @@ def analyze_dependencies(repo_path: str) -> str:
                 content = f.read()
             # Extract dependencies section (simplified)
             if "dependencies" in content:
-                match = re.search(r'dependencies\s*=\s*\[(.*?)\]', content, re.DOTALL)
+                match = re.search(r"dependencies\s*=\s*\[(.*?)\]", content, re.DOTALL)
                 if match:
                     deps = re.findall(r'"([^"]+)"', match.group(1))
                     for dep in deps[:20]:
-                        dep_name = dep.split(">=")[0].split("==")[0].split("<")[0].strip()
+                        dep_name = (
+                            dep.split(">=")[0].split("==")[0].split("<")[0].strip()
+                        )
                         results.append(f"  - {dep_name}")
         except Exception as e:
             results.append(f"  Error reading: {e}")
@@ -312,7 +360,7 @@ def analyze_dependencies(repo_path: str) -> str:
                 for line in f:
                     if line.strip().startswith("require"):
                         continue
-                    match = re.match(r'\s+(\S+)\s+v', line)
+                    match = re.match(r"\s+(\S+)\s+v", line)
                     if match:
                         results.append(f"  - {match.group(1)}")
         except Exception as e:
@@ -340,7 +388,9 @@ def analyze_dependencies(repo_path: str) -> str:
             results.append(f"  Error reading: {e}")
 
     if len(results) == 2:
-        results.append("\nNo dependency files found (requirements.txt, package.json, go.mod, Cargo.toml)")
+        results.append(
+            "\nNo dependency files found (requirements.txt, package.json, go.mod, Cargo.toml)"
+        )
 
     return "\n".join(results)
 
@@ -372,7 +422,9 @@ def get_function_signatures(file_path: str) -> str:
     # Python patterns
     if suffix == ".py":
         class_pattern = re.compile(r"^class\s+(\w+)(?:\(.*?\))?:")
-        func_pattern = re.compile(r"^(\s*)(?:async\s+)?def\s+(\w+)\s*\((.*?)\)(?:\s*->.*?)?:")
+        func_pattern = re.compile(
+            r"^(\s*)(?:async\s+)?def\s+(\w+)\s*\((.*?)\)(?:\s*->.*?)?:"
+        )
 
         current_class = None
         for i, line in enumerate(lines, 1):
@@ -386,10 +438,20 @@ def get_function_signatures(file_path: str) -> str:
             if func_match:
                 indent, name, params = func_match.groups()
                 if indent and current_class:
-                    signatures.append((i, f"  {current_class}.{name}({params[:50]}{'...' if len(params) > 50 else ''})"))
+                    signatures.append(
+                        (
+                            i,
+                            f"  {current_class}.{name}({params[:50]}{'...' if len(params) > 50 else ''})",
+                        )
+                    )
                 else:
                     current_class = None
-                    signatures.append((i, f"def {name}({params[:50]}{'...' if len(params) > 50 else ''})"))
+                    signatures.append(
+                        (
+                            i,
+                            f"def {name}({params[:50]}{'...' if len(params) > 50 else ''})",
+                        )
+                    )
 
     # TypeScript/JavaScript patterns
     elif suffix in {".ts", ".tsx", ".js", ".jsx"}:

@@ -5,20 +5,19 @@ Deployable to Hugging Face Spaces.
 
 # Load .env BEFORE any LangChain imports (required for LangSmith tracing)
 from dotenv import load_dotenv
+
 load_dotenv()
 
 import os
-import asyncio
-import tempfile
 import shutil
 import subprocess
+import tempfile
 from pathlib import Path
 
 import gradio as gr
 
 from src.agent import CodebaseOnboardingAgent
 from src.errors import get_friendly_error
-
 
 # Available models - users can also type any OpenRouter model ID
 MODEL_OPTIONS = [
@@ -90,7 +89,7 @@ def clone_repo(repo_url: str) -> tuple[str, str]:
             shutil.rmtree(temp_dir, ignore_errors=True)
             return None, f"Failed to clone repository:\n{result.stderr}"
 
-        return temp_dir, f"✅ Cloned successfully to temporary directory"
+        return temp_dir, "✅ Cloned successfully to temporary directory"
 
     except subprocess.TimeoutExpired:
         shutil.rmtree(temp_dir, ignore_errors=True)
@@ -100,7 +99,9 @@ def clone_repo(repo_url: str) -> tuple[str, str]:
         return None, f"Error cloning repository: {e}"
 
 
-def initialize_agent(repo_url: str, api_key: str, model: str, state: dict, progress=gr.Progress()) -> tuple[str, dict]:
+def initialize_agent(
+    repo_url: str, api_key: str, model: str, state: dict, progress=gr.Progress()
+) -> tuple[str, dict]:
     """Initialize the agent for a repository.
 
     UX-005: Uses Gradio Progress API for visual feedback during initialization.
@@ -110,7 +111,8 @@ def initialize_agent(repo_url: str, api_key: str, model: str, state: dict, progr
 
     # User MUST provide their own API key - no default to avoid chargebacks
     if not api_key or not api_key.strip():
-        return ("""❌ **API Key Required**
+        return (
+            """❌ **API Key Required**
 
 Please provide your own API key (it's FREE!):
 
@@ -124,7 +126,9 @@ Please provide your own API key (it's FREE!):
 2. Sign up (free)
 3. Get your API key
 
-Both options are completely free with generous rate limits!""", state)
+Both options are completely free with generous rate limits!""",
+            state,
+        )
 
     # Detect provider from key format
     api_key = api_key.strip()
@@ -150,7 +154,9 @@ Both options are completely free with generous rate limits!""", state)
     progress(0.6, desc="Initializing agent...")
 
     try:
-        agent = CodebaseOnboardingAgent(repo_path, api_key=api_key, model=model, provider=provider)
+        agent = CodebaseOnboardingAgent(
+            repo_path, api_key=api_key, model=model, provider=provider
+        )
         progress(0.9, desc="Almost ready...")
         # Update session state (not global state)
         new_state = {"agent": agent, "repo_path": repo_path}
@@ -161,7 +167,10 @@ Both options are completely free with generous rate limits!""", state)
         # UX-008: Use get_model_display for consistent model info
         model_display = get_model_display(model, provider)
 
-        return (f"✅ Agent initialized for **{repo_name}**\n\n**Model:** {model_display}\n\n{message}\n\nYou can now:\n- Click 'Generate Overview' for a comprehensive analysis\n- Ask specific questions in the chat", new_state)
+        return (
+            f"✅ Agent initialized for **{repo_name}**\n\n**Model:** {model_display}\n\n{message}\n\nYou can now:\n- Click 'Generate Overview' for a comprehensive analysis\n- Ask specific questions in the chat",
+            new_state,
+        )
 
     except Exception as e:
         shutil.rmtree(repo_path, ignore_errors=True)
@@ -204,7 +213,10 @@ async def chat_stream(message: str, history: list, state: dict):
     if not state.get("agent"):
         history = history + [
             {"role": "user", "content": message},
-            {"role": "assistant", "content": "❌ Please initialize the agent first by entering a repository URL"}
+            {
+                "role": "assistant",
+                "content": "❌ Please initialize the agent first by entering a repository URL",
+            },
         ]
         yield history
         return
@@ -220,7 +232,7 @@ async def chat_stream(message: str, history: list, state: dict):
     # Add user message to history
     history = history + [
         {"role": "user", "content": message},
-        {"role": "assistant", "content": ""}
+        {"role": "assistant", "content": ""},
     ]
 
     try:
@@ -321,7 +333,6 @@ def clear_chat(state: dict) -> tuple[list, dict]:
 
 # Build the Gradio interface
 with gr.Blocks(title="Codebase Onboarding Agent") as app:
-
     # Per-session state for agent isolation (replaces global current_agent)
     agent_state = gr.State({"agent": None, "repo_path": None})
 
@@ -350,14 +361,14 @@ with gr.Blocks(title="Codebase Onboarding Agent") as app:
             repo_input = gr.Textbox(
                 label="GitHub Repository URL",
                 placeholder="https://github.com/username/repo or username/repo",
-                info="Enter any public GitHub repository"
+                info="Enter any public GitHub repository",
             )
         with gr.Column(scale=1):
             api_key_input = gr.Textbox(
                 label="API Key (FREE)",
                 placeholder="sk-or-... or gsk_...",
                 type="password",
-                info="Get FREE key: openrouter.ai or console.groq.com"
+                info="Get FREE key: openrouter.ai or console.groq.com",
             )
 
     with gr.Row():
@@ -367,7 +378,7 @@ with gr.Blocks(title="Codebase Onboarding Agent") as app:
                 choices=MODEL_OPTIONS,
                 value="xiaomi/mimo-v2-flash:free",
                 allow_custom_value=True,
-                info="Select a model or type any OpenRouter model ID. Models with ':free' are FREE."
+                info="Select a model or type any OpenRouter model ID. Models with ':free' are FREE.",
             )
         with gr.Column(scale=1):
             gr.Markdown(
@@ -394,15 +405,12 @@ with gr.Blocks(title="Codebase Onboarding Agent") as app:
         overview_output = gr.Markdown(label="Overview")
 
     with gr.Tab("💬 Chat"):
-        chatbot = gr.Chatbot(
-            label="Ask questions about the codebase",
-            height=400
-        )
+        chatbot = gr.Chatbot(label="Ask questions about the codebase", height=400)
         with gr.Row():
             chat_input = gr.Textbox(
                 label="Your question",
                 placeholder="How does authentication work? What's the database schema? Where are the API routes?",
-                scale=4
+                scale=4,
             )
             chat_btn = gr.Button("Ask", variant="primary", scale=1)
             # UX-007: Clear chat button
@@ -430,20 +438,16 @@ with gr.Blocks(title="Codebase Onboarding Agent") as app:
     init_btn.click(
         fn=initialize_agent,
         inputs=[repo_input, api_key_input, model_input, agent_state],
-        outputs=[status_output, agent_state]
+        outputs=[status_output, agent_state],
     )
 
     reset_btn.click(
-        fn=reset_agent,
-        inputs=[agent_state],
-        outputs=[status_output, agent_state]
+        fn=reset_agent, inputs=[agent_state], outputs=[status_output, agent_state]
     )
 
     # UX-002: Use streaming for overview generation
     overview_btn.click(
-        fn=overview_stream,
-        inputs=[agent_state],
-        outputs=[overview_output]
+        fn=overview_stream, inputs=[agent_state], outputs=[overview_output]
     )
 
     # UX-002: Streaming chat response function
@@ -461,20 +465,18 @@ with gr.Blocks(title="Codebase Onboarding Agent") as app:
     chat_btn.click(
         fn=respond_stream,
         inputs=[chat_input, chatbot, agent_state],
-        outputs=[chatbot, chat_input, agent_state]
+        outputs=[chatbot, chat_input, agent_state],
     )
 
     chat_input.submit(
         fn=respond_stream,
         inputs=[chat_input, chatbot, agent_state],
-        outputs=[chatbot, chat_input, agent_state]
+        outputs=[chatbot, chat_input, agent_state],
     )
 
     # UX-007: Clear chat button handler
     clear_chat_btn.click(
-        fn=clear_chat,
-        inputs=[agent_state],
-        outputs=[chatbot, agent_state]
+        fn=clear_chat, inputs=[agent_state], outputs=[chatbot, agent_state]
     )
 
 

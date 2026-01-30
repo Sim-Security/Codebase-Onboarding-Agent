@@ -5,15 +5,17 @@ Makes it easy for humans to understand what was tested and the outcomes.
 """
 
 import json
-from pathlib import Path
 from datetime import datetime
+from pathlib import Path
 
 
 def load_results():
     """Load the multi-repo eval results."""
     results_file = Path(__file__).parent / "evals" / "multi_repo_results.json"
     if not results_file.exists():
-        raise FileNotFoundError("No eval results found. Run `python run_multi_eval.py` first.")
+        raise FileNotFoundError(
+            "No eval results found. Run `python run_multi_eval.py` first."
+        )
     with open(results_file) as f:
         return json.load(f)
 
@@ -36,8 +38,20 @@ def compare_to_baseline(current: dict, baseline: dict) -> dict:
     curr_summary = current.get("summary", {})
     base_summary = baseline.get("summary", {})
 
-    curr_pass_rate = curr_summary.get("tests_passed", 0) / max(curr_summary.get("tests_passed", 0) + curr_summary.get("tests_failed", 1), 1) * 100
-    base_pass_rate = base_summary.get("tests_passed", 0) / max(base_summary.get("tests_passed", 0) + base_summary.get("tests_failed", 1), 1) * 100
+    curr_pass_rate = (
+        curr_summary.get("tests_passed", 0)
+        / max(
+            curr_summary.get("tests_passed", 0) + curr_summary.get("tests_failed", 1), 1
+        )
+        * 100
+    )
+    base_pass_rate = (
+        base_summary.get("tests_passed", 0)
+        / max(
+            base_summary.get("tests_passed", 0) + base_summary.get("tests_failed", 1), 1
+        )
+        * 100
+    )
 
     return {
         "available": True,
@@ -45,7 +59,7 @@ def compare_to_baseline(current: dict, baseline: dict) -> dict:
         "current_pass_rate": round(curr_pass_rate, 1),
         "baseline_pass_rate": round(base_pass_rate, 1),
         "change": round(curr_pass_rate - base_pass_rate, 1),
-        "improved": curr_pass_rate > base_pass_rate
+        "improved": curr_pass_rate > base_pass_rate,
     }
 
 
@@ -68,7 +82,7 @@ def generate_html_report(data: dict) -> str:
         lang_rows += f"""
         <tr class="{status}">
             <td>{lang}</td>
-            <td>{stats['passed']}/{total}</td>
+            <td>{stats["passed"]}/{total}</td>
             <td>{pct:.1f}%</td>
             <td class="status-cell">{"✅" if stats["failed"] == 0 else "⚠️"}</td>
         </tr>"""
@@ -82,7 +96,7 @@ def generate_html_report(data: dict) -> str:
         cat_rows += f"""
         <tr class="{status}">
             <td>{cat.title()}</td>
-            <td>{stats['passed']}/{total}</td>
+            <td>{stats["passed"]}/{total}</td>
             <td>{pct:.1f}%</td>
             <td class="status-cell">{"✅" if stats["failed"] == 0 else "⚠️"}</td>
         </tr>"""
@@ -121,18 +135,18 @@ def generate_html_report(data: dict) -> str:
                 details = f"Expected: {test_result.get('expected', 'N/A')}"
 
             tests_html += f"""
-            <div class="test-item {'test-pass' if passed else 'test-fail'}">
+            <div class="test-item {"test-pass" if passed else "test-fail"}">
                 <span class="test-icon">{icon}</span>
-                <span class="test-name">{test_name.replace('_', ' ').title()}</span>
+                <span class="test-name">{test_name.replace("_", " ").title()}</span>
                 <span class="test-details">{details}</span>
             </div>"""
 
         repo_cards += f"""
         <div class="repo-card {status_class}">
             <div class="repo-header">
-                <h3>{r['repo']}</h3>
-                <span class="repo-meta">{r['language']} • {r['category']}</span>
-                <span class="repo-score">{r['passed']}/{r['passed'] + r['failed']}</span>
+                <h3>{r["repo"]}</h3>
+                <span class="repo-meta">{r["language"]} • {r["category"]}</span>
+                <span class="repo-score">{r["passed"]}/{r["passed"] + r["failed"]}</span>
             </div>
             <div class="repo-tests">
                 {tests_html}
@@ -281,15 +295,15 @@ def generate_html_report(data: dict) -> str:
                 <div class="stat-label">Overall Pass Rate</div>
             </div>
             <div class="stat-card">
-                <div class="stat-value blue">{summary['tests_passed']}/{total_tests}</div>
+                <div class="stat-value blue">{summary["tests_passed"]}/{total_tests}</div>
                 <div class="stat-label">Tests Passed</div>
             </div>
             <div class="stat-card">
-                <div class="stat-value yellow">{summary['total_repos']}</div>
+                <div class="stat-value yellow">{summary["total_repos"]}</div>
                 <div class="stat-label">Repos Tested</div>
             </div>
             <div class="stat-card">
-                <div class="stat-value green">{len(summary['by_language'])}</div>
+                <div class="stat-value green">{len(summary["by_language"])}</div>
                 <div class="stat-label">Languages</div>
             </div>
         </div>
@@ -360,8 +374,8 @@ def generate_html_report(data: dict) -> str:
         </div>
 
         <div class="footer">
-            <p>Generated on {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}</p>
-            <p>Model: {data.get('model', 'Unknown')} | Eval timestamp: {data.get('timestamp', 'Unknown')}</p>
+            <p>Generated on {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}</p>
+            <p>Model: {data.get("model", "Unknown")} | Eval timestamp: {data.get("timestamp", "Unknown")}</p>
         </div>
     </div>
 </body>
@@ -382,9 +396,13 @@ def main():
     if comparison["available"]:
         print(f"📈 Comparing to baseline from {comparison['baseline_date'][:10]}")
         if comparison["improved"]:
-            print(f"   ✅ Improved: {comparison['baseline_pass_rate']}% → {comparison['current_pass_rate']}% (+{comparison['change']}%)")
+            print(
+                f"   ✅ Improved: {comparison['baseline_pass_rate']}% → {comparison['current_pass_rate']}% (+{comparison['change']}%)"
+            )
         elif comparison["change"] < 0:
-            print(f"   ⚠️  Regression: {comparison['baseline_pass_rate']}% → {comparison['current_pass_rate']}% ({comparison['change']}%)")
+            print(
+                f"   ⚠️  Regression: {comparison['baseline_pass_rate']}% → {comparison['current_pass_rate']}% ({comparison['change']}%)"
+            )
         else:
             print(f"   → No change: {comparison['current_pass_rate']}%")
 
