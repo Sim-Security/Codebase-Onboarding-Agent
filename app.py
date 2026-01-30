@@ -71,15 +71,14 @@ def clone_repo(repo_url: str) -> tuple[str, str]:
         return None, f"Error cloning repository: {e}"
 
 
-# Global state for the current agent
-current_agent = {"agent": None, "repo_path": None}
+def initialize_agent(repo_url: str, api_key: str, model: str, state: dict) -> tuple[str, dict]:
+    """Initialize the agent for a repository.
 
-
-def initialize_agent(repo_url: str, api_key: str, model: str) -> str:
-    """Initialize the agent for a repository."""
+    Uses per-session state instead of global state for session isolation.
+    """
     # User MUST provide their own API key - no default to avoid chargebacks
     if not api_key or not api_key.strip():
-        return """❌ **API Key Required**
+        return ("""❌ **API Key Required**
 
 Please provide your own API key (it's FREE!):
 
@@ -93,7 +92,7 @@ Please provide your own API key (it's FREE!):
 2. Sign up (free)
 3. Get your API key
 
-Both options are completely free with generous rate limits!"""
+Both options are completely free with generous rate limits!""", state)
 
     # Detect provider from key format
     api_key = api_key.strip()
@@ -105,19 +104,19 @@ Both options are completely free with generous rate limits!"""
     # Use selected model or default
     model = model.strip() if model else None
 
-    # Clean up previous temp directory if exists
-    if current_agent["repo_path"] and current_agent["repo_path"].startswith(tempfile.gettempdir()):
-        shutil.rmtree(current_agent["repo_path"], ignore_errors=True)
+    # Clean up previous temp directory if exists (from this session)
+    if state["repo_path"] and state["repo_path"].startswith(tempfile.gettempdir()):
+        shutil.rmtree(state["repo_path"], ignore_errors=True)
 
     # Clone the repository
     repo_path, message = clone_repo(repo_url)
     if not repo_path:
-        return message
+        return message, state
 
     try:
         agent = CodebaseOnboardingAgent(repo_path, api_key=api_key, model=model, provider=provider)
-        current_agent["agent"] = agent
-        current_agent["repo_path"] = repo_path
+        # Update session state (not global state)
+        new_state = {"agent": agent, "repo_path": repo_path}
 
         # Get repo name for display
         repo_name = Path(repo_url.rstrip("/")).name.replace(".git", "")
@@ -132,51 +131,52 @@ Both options are completely free with generous rate limits!"""
         else:
             model_display = "xiaomi/mimo-v2-flash:free (FREE)"
 
-        return f"✅ Agent initialized for **{repo_name}**\n\n**Model:** {model_display}\n\n{message}\n\nYou can now:\n- Click 'Generate Overview' for a comprehensive analysis\n- Ask specific questions in the chat"
+        return (f"✅ Agent initialized for **{repo_name}**\n\n**Model:** {model_display}\n\n{message}\n\nYou can now:\n- Click 'Generate Overview' for a comprehensive analysis\n- Ask specific questions in the chat", new_state)
 
     except Exception as e:
         shutil.rmtree(repo_path, ignore_errors=True)
-        return f"❌ Failed to initialize agent: {e}"
+        return f"❌ Failed to initialize agent: {e}", state
 
 
-def generate_overview() -> str:
-    """Generate a codebase overview."""
-    if not current_agent["agent"]:
+def generate_overview(state: dict) -> str:
+    """Generate a codebase overview using session state."""
+    if not state["agent"]:
         return "❌ Please initialize the agent first by entering a repository URL"
 
     try:
-        return current_agent["agent"].get_overview()
+        return state["agent"].get_overview()
     except Exception as e:
         return f"❌ Error generating overview: {e}"
 
 
-def chat(message: str, history: list) -> str:
-    """Chat with the agent about the codebase."""
-    if not current_agent["agent"]:
+def chat(message: str, history: list, state: dict) -> str:
+    """Chat with the agent about the codebase using session state."""
+    if not state["agent"]:
         return "❌ Please initialize the agent first by entering a repository URL"
 
     if not message.strip():
         return "Please enter a question"
 
     try:
-        return current_agent["agent"].chat(message)
+        return state["agent"].chat(message)
     except Exception as e:
         return f"❌ Error: {e}"
 
 
-def reset_agent() -> str:
-    """Reset the agent and clean up."""
-    if current_agent["repo_path"] and current_agent["repo_path"].startswith(tempfile.gettempdir()):
-        shutil.rmtree(current_agent["repo_path"], ignore_errors=True)
+def reset_agent(state: dict) -> tuple[str, dict]:
+    """Reset the agent and clean up session state."""
+    if state["repo_path"] and state["repo_path"].startswith(tempfile.gettempdir()):
+        shutil.rmtree(state["repo_path"], ignore_errors=True)
 
-    current_agent["agent"] = None
-    current_agent["repo_path"] = None
-
-    return "🔄 Agent reset. Enter a new repository URL to start."
+    new_state = {"agent": None, "repo_path": None}
+    return "🔄 Agent reset. Enter a new repository URL to start.", new_state
 
 
 # Build the Gradio interface
 with gr.Blocks(title="Codebase Onboarding Agent") as app:
+
+    # Per-session state for agent isolation (replaces global current_agent)
+    agent_state = gr.State({"agent": None, "repo_path": None})
 
     gr.Markdown(
         """
@@ -277,45 +277,46 @@ with gr.Blocks(title="Codebase Onboarding Agent") as app:
         """
     )
 
-    # Event handlers
+    # Event handlers - all use agent_state for session isolation
     init_btn.click(
         fn=initialize_agent,
-        inputs=[repo_input, api_key_input, model_input],
-        outputs=[status_output]
+        inputs=[repo_input, api_key_input, model_input, agent_state],
+        outputs=[status_output, agent_state]
     )
 
     reset_btn.click(
         fn=reset_agent,
-        inputs=[],
-        outputs=[status_output]
+        inputs=[agent_state],
+        outputs=[status_output, agent_state]
     )
 
     overview_btn.click(
         fn=generate_overview,
-        inputs=[],
+        inputs=[agent_state],
         outputs=[overview_output]
     )
 
-    def respond(message, history):
+    def respond(message, history, state):
+        """Chat respond function using session state."""
         if not message.strip():
-            return history, ""
-        response = chat(message, history)
+            return history, "", state
+        response = chat(message, history, state)
         history = history + [
             {"role": "user", "content": message},
             {"role": "assistant", "content": response}
         ]
-        return history, ""
+        return history, "", state
 
     chat_btn.click(
         fn=respond,
-        inputs=[chat_input, chatbot],
-        outputs=[chatbot, chat_input]
+        inputs=[chat_input, chatbot, agent_state],
+        outputs=[chatbot, chat_input, agent_state]
     )
 
     chat_input.submit(
         fn=respond,
-        inputs=[chat_input, chatbot],
-        outputs=[chatbot, chat_input]
+        inputs=[chat_input, chatbot, agent_state],
+        outputs=[chatbot, chat_input, agent_state]
     )
 
 
