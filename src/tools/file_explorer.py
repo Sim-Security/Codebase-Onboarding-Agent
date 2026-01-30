@@ -3,12 +3,103 @@ File exploration tools for codebase analysis.
 Deterministic, CLI-first operations - no AI, just file system operations.
 """
 
+import logging
 import os
 import re
 import subprocess
 from pathlib import Path
 from typing import Optional
 from langchain_core.tools import tool
+
+
+# =============================================================================
+# SEC-002: Prompt Injection Patterns
+# Patterns that could be used for prompt injection attacks in malicious repos
+# =============================================================================
+INJECTION_PATTERNS = [
+    r"ignore\s+(all\s+)?previous\s+instructions",
+    r"forget\s+(all\s+)?(your\s+)?previous",
+    r"disregard\s+(all\s+)?prior",
+    r"system\s*:\s*you\s+are",
+    r"<\|im_start\|>",
+    r"<\|im_end\|>",
+    r"\[INST\]",
+    r"\[/INST\]",
+    r"<\|system\|>",
+    r"<\|user\|>",
+    r"<\|assistant\|>",
+]
+
+
+def sanitize_content(content: str, file_path: str = "") -> tuple[str, bool]:
+    """
+    Check content for prompt injection patterns.
+
+    Args:
+        content: The file content to check
+        file_path: Optional path for logging
+
+    Returns:
+        (content, was_filtered) - If filtered, content is replacement message
+    """
+    for pattern in INJECTION_PATTERNS:
+        if re.search(pattern, content, re.IGNORECASE):
+            logging.warning(f"Injection pattern detected in {file_path}: {pattern}")
+            return "[CONTENT FILTERED - Potential injection pattern detected]", True
+    return content, False
+
+
+# =============================================================================
+# SEC-003: Sensitive File Blocklist
+# Files that typically contain secrets or credentials
+# =============================================================================
+SENSITIVE_FILES = {
+    # Environment files
+    ".env", ".env.local", ".env.development", ".env.production",
+    ".env.test", ".env.staging",
+    # Credential files
+    "credentials.json", "credentials.yaml", "credentials.yml",
+    "secrets.json", "secrets.yaml", "secrets.yml",
+    "service-account.json", "service_account.json",
+    # SSH/Auth keys
+    "id_rsa", "id_rsa.pub", "id_ed25519", "id_ed25519.pub",
+    "id_dsa", "id_ecdsa",
+    # Package manager auth
+    ".npmrc", ".pypirc", ".netrc",
+    # Cloud credentials
+    ".aws/credentials", ".gcloud/credentials",
+}
+
+SENSITIVE_EXTENSIONS = {".pem", ".key", ".p12", ".pfx"}
+
+
+def is_sensitive_file(file_path: str) -> bool:
+    """
+    Check if a file should be blocked from reading due to sensitive content.
+
+    Args:
+        file_path: Path to the file
+
+    Returns:
+        True if the file should be blocked
+    """
+    path = Path(file_path)
+    name = path.name
+
+    # Check exact filename match
+    if name in SENSITIVE_FILES:
+        return True
+
+    # Check extension
+    if path.suffix in SENSITIVE_EXTENSIONS:
+        return True
+
+    # Check parent directories for credential paths
+    parts = path.parts
+    if ".aws" in parts or ".gcloud" in parts or ".ssh" in parts:
+        return True
+
+    return False
 
 # Directories to always skip
 IGNORE_DIRS = {
@@ -164,6 +255,10 @@ def read_file(file_path: str, max_lines: int = 500) -> str:
     """
     path = Path(file_path)
 
+    # SEC-003: Block sensitive files
+    if is_sensitive_file(file_path):
+        return f"[BLOCKED] Cannot read '{file_path}' - potential sensitive file containing secrets"
+
     if not path.exists():
         return f"Error: File '{file_path}' does not exist"
 
@@ -189,9 +284,19 @@ def read_file(file_path: str, max_lines: int = 500) -> str:
     for i, line in enumerate(lines, 1):
         numbered_lines.append(f"{i:4d} | {line.rstrip()}")
 
+    content = "\n".join(numbered_lines)
+
+    # SEC-002: Check for prompt injection patterns
+    content, was_filtered = sanitize_content(content, file_path)
+
+    if was_filtered:
+        result = f"[SECURITY] File {path.name} contained potentially unsafe content\n"
+        result += content
+        return result
+
     result = f"📄 {path.name} ({total_lines} lines)\n"
     result += "─" * 50 + "\n"
-    result += "\n".join(numbered_lines)
+    result += content
 
     if total_lines > max_lines:
         result += f"\n\n... truncated ({total_lines - max_lines} more lines)"
