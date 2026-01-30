@@ -8,6 +8,8 @@ from .verification import (
     compute_relevance,
     extract_citations,
     extract_claims,
+    filter_ungrounded_citations,
+    get_grounded_citations_only,
     ground_claims,
     verify_citation,
 )
@@ -22,4 +24,6 @@ __all__ = [
     "GroundingResult",
     "compute_relevance",
     "calculate_citation_metrics",
+    "filter_ungrounded_citations",
+    "get_grounded_citations_only",
 ]

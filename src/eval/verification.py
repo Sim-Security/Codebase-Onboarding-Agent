@@ -48,18 +48,30 @@ def extract_citations(text: str) -> list[dict]:
     - `file.py:42`
     - (file.py:42)
     - [file.py:42]
+    - `file.py`-42 (alternate format some models use)
+    - ``file.py`-42`
 
     Returns:
         List of {"file": str, "line": int}
     """
-    # Pattern for file:line citations
-    pattern = r"[`\[\(]?([a-zA-Z0-9_/.-]+\.[a-zA-Z]+):(\d+)[`\]\)]?"
-
     citations = []
-    for match in re.finditer(pattern, text):
+
+    # Pattern 1: Standard colon format - file.py:42
+    pattern1 = r"[`\[\(]?([a-zA-Z0-9_/.-]+\.[a-zA-Z]+):(\d+)[`\]\)]?"
+    for match in re.finditer(pattern1, text):
         file_path = match.group(1)
         line_num = int(match.group(2))
         citations.append({"file": file_path, "line": line_num})
+
+    # Pattern 2: Backtick-hyphen format - `file.py`-42 or ``file.py`-42`
+    pattern2 = r"`+([a-zA-Z0-9_/.-]+\.[a-zA-Z]+)`+-(\d+)`?"
+    for match in re.finditer(pattern2, text):
+        file_path = match.group(1)
+        line_num = int(match.group(2))
+        # Avoid duplicates
+        entry = {"file": file_path, "line": line_num}
+        if entry not in citations:
+            citations.append(entry)
 
     return citations
 
@@ -104,6 +116,7 @@ def verify_citation(citation: dict, tool_outputs: list[str]) -> CitationResult:
         )
 
     # Search through tool outputs
+    file_read = False
     for output in tool_outputs:
         # Check if this output contains the file
         # Look for patterns like "📄 filename.py" or "filename.py ("
@@ -112,7 +125,14 @@ def verify_citation(citation: dict, tool_outputs: list[str]) -> CitationResult:
         if file_name not in output and file_path not in output:
             continue
 
-        # File was in output - mark as read
+        # Check if this is a read_file output (has 📄 header and line numbers)
+        # vs a search result or other tool output
+        if f"📄 {file_name}" not in output and f"📄 {file_path}" not in output:
+            # This is likely a search result or other reference, not read_file
+            # Continue to check other outputs
+            continue
+
+        # This is a read_file output - mark as read
         file_read = True
 
         # Check if line number exists in output
@@ -131,16 +151,16 @@ def verify_citation(citation: dict, tool_outputs: list[str]) -> CitationResult:
                 line_number=line_num,
                 actual_content=actual_content,
             )
-        else:
-            # File was read but line doesn't exist
-            return CitationResult(
-                valid=False,
-                file_read=True,
-                line_exists=False,
-                file_path=file_path,
-                line_number=line_num,
-                error=f"Line {line_num} not found in file output",
-            )
+        # If line not found in this read_file output, it truly doesn't exist
+        # (the file was read but line number is out of range)
+        return CitationResult(
+            valid=False,
+            file_read=True,
+            line_exists=False,
+            file_path=file_path,
+            line_number=line_num,
+            error=f"Line {line_num} not found in file output",
+        )
 
     # File was never read
     return CitationResult(
@@ -504,3 +524,84 @@ def calculate_citation_metrics(response: str, tool_outputs: list[str]) -> dict:
         "recall": round(recall, 3),
         "f1": round(f1, 3),
     }
+
+
+def filter_ungrounded_citations(
+    response: str, tool_outputs: list[str], add_warning: bool = True
+) -> tuple[str, int]:
+    """
+    Remove ungrounded citations from a response.
+
+    Replaces citations that can't be verified against tool outputs with
+    just the file name (no line number) and optionally adds a warning.
+
+    Args:
+        response: The agent's text response
+        tool_outputs: List of tool output strings from the agent run
+        add_warning: Whether to add a warning about removed citations
+
+    Returns:
+        (filtered_response, num_removed)
+    """
+    citations = extract_citations(response)
+    if not citations:
+        return response, 0
+
+    filtered = response
+    removed_count = 0
+
+    for citation in citations:
+        result = verify_citation(citation, tool_outputs)
+        if not result.valid:
+            # Replace the citation with just the filename
+            file_path = citation.get("file", "")
+            line_num = citation.get("line", 0)
+
+            # Match various citation formats (including backtick-hyphen format)
+            patterns = [
+                rf"`{re.escape(file_path)}:{line_num}`",
+                rf"\[{re.escape(file_path)}:{line_num}\]",
+                rf"\({re.escape(file_path)}:{line_num}\)",
+                rf"{re.escape(file_path)}:{line_num}",
+                # Backtick-hyphen format: ``file.py`-42`
+                rf"``{re.escape(file_path)}`-{line_num}`",
+                rf"`{re.escape(file_path)}`-{line_num}",
+            ]
+
+            for pattern in patterns:
+                if re.search(pattern, filtered):
+                    # Replace with just filename (no line)
+                    filtered = re.sub(pattern, f"`{file_path}`", filtered, count=1)
+                    removed_count += 1
+                    break
+
+    if removed_count > 0 and add_warning:
+        warning = (
+            f"\n\n*Note: {removed_count} unverified line references were simplified.*"
+        )
+        if warning not in filtered:
+            filtered += warning
+
+    return filtered, removed_count
+
+
+def get_grounded_citations_only(response: str, tool_outputs: list[str]) -> list[dict]:
+    """
+    Return only the citations that can be verified against tool outputs.
+
+    Args:
+        response: The agent's text response
+        tool_outputs: List of tool output strings
+
+    Returns:
+        List of verified citations
+    """
+    citations = extract_citations(response)
+    grounded = []
+
+    for citation in citations:
+        result = verify_citation(citation, tool_outputs)
+        if result.valid:
+            grounded.append(citation)
+
+    return grounded

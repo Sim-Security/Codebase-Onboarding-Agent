@@ -1,49 +1,66 @@
 {
-  "timestamp": "2026-01-13T15:34:27.347672",
+  "timestamp": "2026-01-29T22:59:29.563399",
   "model": "x-ai/grok-4.1-fast",
   "summary": {
-    "total_repos": 10,
-    "repos_passed": 2,
-    "repos_failed": 8,
-    "total_tests": 30,
-    "tests_passed": 22,
-    "tests_failed": 8,
+    "total_repos": 11,
+    "repos_passed": 9,
+    "repos_failed": 2,
+    "total_tests": 33,
+    "tests_passed": 31,
+    "tests_failed": 2,
     "by_language": {
       "Python": {
-        "passed": 12,
-        "failed": 3
-      },
-      "TypeScript": {
-        "passed": 2,
-        "failed": 1
-      },
-      "JavaScript": {
-        "passed": 2,
-        "failed": 1
-      },
-      "Go": {
-        "passed": 4,
+        "passed": 13,
         "failed": 2
       },
+      "TypeScript": {
+        "passed": 3,
+        "failed": 0
+      },
+      "JavaScript": {
+        "passed": 3,
+        "failed": 0
+      },
+      "Go": {
+        "passed": 6,
+        "failed": 0
+      },
       "Rust": {
-        "passed": 2,
-        "failed": 1
+        "passed": 6,
+        "failed": 0
       }
     },
     "by_category": {
       "framework": {
-        "passed": 9,
-        "failed": 3
+        "passed": 11,
+        "failed": 1
       },
       "library": {
-        "passed": 7,
-        "failed": 2
+        "passed": 8,
+        "failed": 1
       },
       "cli": {
-        "passed": 6,
-        "failed": 3
+        "passed": 12,
+        "failed": 0
       }
-    }
+    },
+    "total_citations": 260,
+    "valid_citations": 0,
+    "total_claims": 23,
+    "cited_claims": 0,
+    "grounded_claims": 0,
+    "quality_metrics": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1_score": 0.0,
+      "grounding_rate": 0.0,
+      "total_citations": 260,
+      "valid_citations": 0,
+      "total_claims": 23,
+      "cited_claims": 0,
+      "grounded_claims": 0
+    },
+    "pass_rate": 93.93939393939394
   },
   "results": [
     {
@@ -62,72 +79,34 @@
           "tech_missing": [],
           "tech_accuracy": 100.0,
           "hallucinations": [],
-          "citations": 5,
-          "claims": 2,
-          "citation_rate": 250.0,
-          "tool_calls": 14,
-          "tools_used": [
-            "list_directory_structure",
-            "analyze_dependencies",
-            "find_entry_points",
-            "get_function_signatures",
-            "read_file"
-          ]
-        },
-        "deep_dive": {
-          "passed": false,
-          "citations": 0,
-          "tool_calls": 32,
-          "file_refs_found": [],
-          "answer_length": 246
-        },
-        "language_detection": {
-          "passed": true,
-          "expected": "Python",
-          "mentioned": true
-        }
-      },
-      "passed": 2,
-      "failed": 1,
-      "overview_length": 1700
-    },
-    {
-      "repo": "httpx",
-      "language": "Python",
-      "category": "library",
-      "tests": {
-        "overview": {
-          "passed": true,
-          "tech_found": [
-            "httpx",
-            "Python",
-            "HTTP",
-            "async"
-          ],
-          "tech_missing": [],
-          "tech_accuracy": 100.0,
-          "hallucinations": [],
-          "citations": 6,
+          "citations": 9,
+          "verified_citations": 0,
           "claims": 3,
-          "citation_rate": 200.0,
-          "tool_calls": 12,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "tool_calls": 10,
           "tools_used": [
-            "list_directory_structure",
             "analyze_dependencies",
+            "get_important_files",
+            "read_file",
             "find_entry_points",
-            "get_function_signatures",
-            "read_file"
+            "list_directory_structure",
+            "get_imports"
           ]
         },
         "deep_dive": {
           "passed": true,
-          "citations": 12,
-          "tool_calls": 11,
+          "citations": 16,
+          "verified_citations": 0,
+          "precision": 0.0,
+          "recall": 0.167,
+          "f1": 0.0,
+          "tool_calls": 15,
           "file_refs_found": [
-            "httpx/__init__.py",
             "pyproject.toml"
           ],
-          "answer_length": 7691
+          "answer_length": 1654
         },
         "language_detection": {
           "passed": true,
@@ -137,7 +116,93 @@
       },
       "passed": 3,
       "failed": 0,
-      "overview_length": 1854
+      "overview_length": 2174,
+      "adversarial_tests": {
+        "binary_file": {
+          "passed": true,
+          "details": "Found 5 binary files"
+        },
+        "injection_filename": {
+          "passed": true,
+          "details": "Injection filter active"
+        },
+        "large_file": {
+          "passed": true,
+          "details": "Largest file: pack-ad3941f0d60fce7942f5be6b7e4c5a6bff13de45.pack (790,132 bytes)"
+        }
+      }
+    },
+    {
+      "repo": "httpx",
+      "language": "Python",
+      "category": "library",
+      "tests": {
+        "overview": {
+          "passed": false,
+          "tech_found": [
+            "httpx",
+            "Python",
+            "HTTP",
+            "async"
+          ],
+          "tech_missing": [],
+          "tech_accuracy": 100.0,
+          "hallucinations": [
+            "requests"
+          ],
+          "citations": 15,
+          "verified_citations": 0,
+          "claims": 2,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "tool_calls": 12,
+          "tools_used": [
+            "analyze_dependencies",
+            "get_important_files",
+            "read_file",
+            "find_entry_points",
+            "list_directory_structure",
+            "get_imports"
+          ]
+        },
+        "deep_dive": {
+          "passed": true,
+          "citations": 18,
+          "verified_citations": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "tool_calls": 11,
+          "file_refs_found": [
+            "httpx/__init__.py",
+            "pyproject.toml"
+          ],
+          "answer_length": 2084
+        },
+        "language_detection": {
+          "passed": true,
+          "expected": "Python",
+          "mentioned": true
+        }
+      },
+      "passed": 2,
+      "failed": 1,
+      "overview_length": 1286,
+      "adversarial_tests": {
+        "binary_file": {
+          "passed": true,
+          "details": "Found 7 binary files"
+        },
+        "injection_filename": {
+          "passed": true,
+          "details": "Injection filter active"
+        },
+        "large_file": {
+          "passed": true,
+          "details": "Largest file: pack-cb92921bde767692d6d4beddeb4f3a3276808b70.pack (2,319,570 bytes)"
+        }
+      }
     },
     {
       "repo": "click",
@@ -148,33 +213,41 @@
           "passed": true,
           "tech_found": [
             "Click",
+            "Python",
             "CLI",
             "command"
           ],
-          "tech_missing": [
-            "Python"
-          ],
-          "tech_accuracy": 75.0,
+          "tech_missing": [],
+          "tech_accuracy": 100.0,
           "hallucinations": [],
-          "citations": 0,
+          "citations": 10,
+          "verified_citations": 0,
           "claims": 1,
-          "citation_rate": 0.0,
-          "tool_calls": 21,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "tool_calls": 11,
           "tools_used": [
-            "list_directory_structure",
-            "search_code",
             "analyze_dependencies",
+            "get_important_files",
+            "read_file",
             "find_entry_points",
-            "get_function_signatures",
-            "read_file"
+            "list_directory_structure"
           ]
         },
         "deep_dive": {
-          "passed": false,
-          "citations": 0,
-          "tool_calls": 32,
-          "file_refs_found": [],
-          "answer_length": 245
+          "passed": true,
+          "citations": 15,
+          "verified_citations": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "tool_calls": 14,
+          "file_refs_found": [
+            "click/__init__.py",
+            "pyproject.toml"
+          ],
+          "answer_length": 2219
         },
         "language_detection": {
           "passed": true,
@@ -182,9 +255,23 @@
           "mentioned": true
         }
       },
-      "passed": 2,
-      "failed": 1,
-      "overview_length": 205
+      "passed": 3,
+      "failed": 0,
+      "overview_length": 2115,
+      "adversarial_tests": {
+        "binary_file": {
+          "passed": true,
+          "details": "Found 2 binary files"
+        },
+        "injection_filename": {
+          "passed": true,
+          "details": "Injection filter active"
+        },
+        "large_file": {
+          "passed": true,
+          "details": "Largest file: pack-92458d03315007e711747c9509cd987fcb975cb2.pack (444,650 bytes)"
+        }
+      }
     },
     {
       "repo": "zustand",
@@ -192,38 +279,45 @@
       "category": "library",
       "tests": {
         "overview": {
-          "passed": false,
+          "passed": true,
           "tech_found": [
-            "Zustand",
             "React",
             "state",
             "TypeScript"
           ],
-          "tech_missing": [],
-          "tech_accuracy": 100.0,
-          "hallucinations": [
-            "Redux"
+          "tech_missing": [
+            "Zustand"
           ],
-          "citations": 6,
-          "claims": 11,
-          "citation_rate": 54.5,
-          "tool_calls": 29,
+          "tech_accuracy": 75.0,
+          "hallucinations": [],
+          "citations": 26,
+          "verified_citations": 0,
+          "claims": 4,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "tool_calls": 12,
           "tools_used": [
-            "find_entry_points",
-            "list_directory_structure",
+            "analyze_dependencies",
+            "get_important_files",
             "read_file",
-            "analyze_dependencies"
+            "find_entry_points",
+            "list_directory_structure"
           ]
         },
         "deep_dive": {
           "passed": true,
-          "citations": 6,
-          "tool_calls": 21,
+          "citations": 21,
+          "verified_citations": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "tool_calls": 16,
           "file_refs_found": [
             "package.json",
             "src/index.ts"
           ],
-          "answer_length": 4178
+          "answer_length": 2578
         },
         "language_detection": {
           "passed": true,
@@ -231,9 +325,23 @@
           "mentioned": true
         }
       },
-      "passed": 2,
-      "failed": 1,
-      "overview_length": 2673
+      "passed": 3,
+      "failed": 0,
+      "overview_length": 2165,
+      "adversarial_tests": {
+        "binary_file": {
+          "passed": true,
+          "details": "Found 7 binary files"
+        },
+        "injection_filename": {
+          "passed": true,
+          "details": "Injection filter active"
+        },
+        "large_file": {
+          "passed": true,
+          "details": "Largest file: pack-e7d2f13f89aae41d06cbfceff9adb76c917257da.pack (1,002,315 bytes)"
+        }
+      }
     },
     {
       "repo": "express",
@@ -252,22 +360,33 @@
           "tech_accuracy": 100.0,
           "hallucinations": [],
           "citations": 14,
-          "claims": 7,
-          "citation_rate": 200.0,
-          "tool_calls": 12,
+          "verified_citations": 0,
+          "claims": 2,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "tool_calls": 10,
           "tools_used": [
-            "find_entry_points",
-            "list_directory_structure",
+            "analyze_dependencies",
+            "get_important_files",
             "read_file",
-            "analyze_dependencies"
+            "find_entry_points",
+            "list_directory_structure"
           ]
         },
         "deep_dive": {
-          "passed": false,
-          "citations": 0,
-          "tool_calls": 23,
-          "file_refs_found": [],
-          "answer_length": 301
+          "passed": true,
+          "citations": 20,
+          "verified_citations": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "tool_calls": 15,
+          "file_refs_found": [
+            "package.json",
+            "lib/express.js"
+          ],
+          "answer_length": 2267
         },
         "language_detection": {
           "passed": true,
@@ -275,9 +394,23 @@
           "mentioned": true
         }
       },
-      "passed": 2,
-      "failed": 1,
-      "overview_length": 2824
+      "passed": 3,
+      "failed": 0,
+      "overview_length": 2784,
+      "adversarial_tests": {
+        "binary_file": {
+          "passed": true,
+          "details": "No binary files to test"
+        },
+        "injection_filename": {
+          "passed": true,
+          "details": "Injection filter active"
+        },
+        "large_file": {
+          "passed": true,
+          "details": "Largest file: pack-059cf7007f681e96b7704ac537d1d714b4151697.pack (172,057 bytes)"
+        }
+      }
     },
     {
       "repo": "gin",
@@ -295,25 +428,34 @@
           "tech_missing": [],
           "tech_accuracy": 100.0,
           "hallucinations": [],
-          "citations": 14,
-          "claims": 3,
-          "citation_rate": 466.7,
-          "tool_calls": 14,
+          "citations": 13,
+          "verified_citations": 0,
+          "claims": 1,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "tool_calls": 11,
           "tools_used": [
+            "analyze_dependencies",
+            "get_important_files",
+            "read_file",
             "find_entry_points",
             "list_directory_structure",
-            "read_file",
-            "analyze_dependencies"
+            "get_imports"
           ]
         },
         "deep_dive": {
-          "passed": false,
-          "citations": 0,
-          "tool_calls": 12,
+          "passed": true,
+          "citations": 21,
+          "verified_citations": 0,
+          "precision": 0.0,
+          "recall": 0.2,
+          "f1": 0.0,
+          "tool_calls": 9,
           "file_refs_found": [
             "gin.go"
           ],
-          "answer_length": 160
+          "answer_length": 2172
         },
         "language_detection": {
           "passed": true,
@@ -321,9 +463,23 @@
           "mentioned": true
         }
       },
-      "passed": 2,
-      "failed": 1,
-      "overview_length": 3025
+      "passed": 3,
+      "failed": 0,
+      "overview_length": 1526,
+      "adversarial_tests": {
+        "binary_file": {
+          "passed": true,
+          "details": "No binary files to test"
+        },
+        "injection_filename": {
+          "passed": true,
+          "details": "Injection filter active"
+        },
+        "large_file": {
+          "passed": true,
+          "details": "Largest file: pack-adfde25cde23fea9146395531ee54b90668df2f1.pack (231,120 bytes)"
+        }
+      }
     },
     {
       "repo": "cobra",
@@ -341,29 +497,37 @@
           "tech_missing": [],
           "tech_accuracy": 100.0,
           "hallucinations": [],
-          "citations": 0,
-          "claims": 4,
-          "citation_rate": 0.0,
-          "tool_calls": 16,
+          "citations": 12,
+          "verified_citations": 0,
+          "claims": 2,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "tool_calls": 12,
           "tools_used": [
-            "list_directory_structure",
-            "search_code",
-            "get_imports",
             "analyze_dependencies",
-            "find_files_by_pattern",
-            "find_entry_points",
+            "get_important_files",
             "get_function_signatures",
-            "read_file"
+            "read_file",
+            "search_code",
+            "find_entry_points",
+            "list_directory_structure",
+            "get_imports"
           ]
         },
         "deep_dive": {
-          "passed": false,
-          "citations": 0,
-          "tool_calls": 15,
+          "passed": true,
+          "citations": 13,
+          "verified_citations": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "tool_calls": 10,
           "file_refs_found": [
+            "cobra.go",
             "command.go"
           ],
-          "answer_length": 235
+          "answer_length": 1788
         },
         "language_detection": {
           "passed": true,
@@ -371,9 +535,23 @@
           "mentioned": true
         }
       },
-      "passed": 2,
-      "failed": 1,
-      "overview_length": 1794
+      "passed": 3,
+      "failed": 0,
+      "overview_length": 1365,
+      "adversarial_tests": {
+        "binary_file": {
+          "passed": true,
+          "details": "Found 1 binary files"
+        },
+        "injection_filename": {
+          "passed": true,
+          "details": "Injection filter active"
+        },
+        "large_file": {
+          "passed": true,
+          "details": "Largest file: pack-e65388c0203fc61dbb8edcbb59c5a551e3ac7844.pack (222,887 bytes)"
+        }
+      }
     },
     {
       "repo": "ripgrep",
@@ -391,24 +569,35 @@
           "tech_missing": [],
           "tech_accuracy": 100.0,
           "hallucinations": [],
-          "citations": 3,
+          "citations": 0,
+          "verified_citations": 0,
           "claims": 1,
-          "citation_rate": 300.0,
-          "tool_calls": 17,
+          "precision": 0.0,
+          "recall": 1.0,
+          "f1": 0.0,
+          "tool_calls": 10,
           "tools_used": [
-            "list_directory_structure",
-            "search_code",
             "analyze_dependencies",
+            "get_important_files",
+            "read_file",
             "find_entry_points",
-            "read_file"
+            "list_directory_structure",
+            "get_imports"
           ]
         },
         "deep_dive": {
-          "passed": false,
-          "citations": 0,
-          "tool_calls": 46,
-          "file_refs_found": [],
-          "answer_length": 181
+          "passed": true,
+          "citations": 12,
+          "verified_citations": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "tool_calls": 12,
+          "file_refs_found": [
+            "Cargo.toml",
+            "main.rs"
+          ],
+          "answer_length": 2318
         },
         "language_detection": {
           "passed": true,
@@ -416,9 +605,23 @@
           "mentioned": true
         }
       },
-      "passed": 2,
-      "failed": 1,
-      "overview_length": 1520
+      "passed": 3,
+      "failed": 0,
+      "overview_length": 1517,
+      "adversarial_tests": {
+        "binary_file": {
+          "passed": true,
+          "details": "No binary files to test"
+        },
+        "injection_filename": {
+          "passed": true,
+          "details": "Injection filter active"
+        },
+        "large_file": {
+          "passed": true,
+          "details": "Largest file: pack-56de3316250eaedc062d328cc1bfbc551274136a.pack (633,448 bytes)"
+        }
+      }
     },
     {
       "repo": "langchain",
@@ -426,7 +629,7 @@
       "category": "library",
       "tests": {
         "overview": {
-          "passed": false,
+          "passed": true,
           "tech_found": [
             "LangChain",
             "Python",
@@ -435,28 +638,34 @@
           ],
           "tech_missing": [],
           "tech_accuracy": 100.0,
-          "hallucinations": [
-            "Express"
-          ],
-          "citations": 7,
-          "claims": 2,
-          "citation_rate": 350.0,
-          "tool_calls": 23,
+          "hallucinations": [],
+          "citations": 0,
+          "verified_citations": 0,
+          "claims": 3,
+          "precision": 0.0,
+          "recall": 0.333,
+          "f1": 0.0,
+          "tool_calls": 12,
           "tools_used": [
-            "find_entry_points",
-            "list_directory_structure",
+            "analyze_dependencies",
+            "get_important_files",
             "read_file",
-            "analyze_dependencies"
+            "find_entry_points",
+            "list_directory_structure"
           ]
         },
         "deep_dive": {
           "passed": true,
           "citations": 6,
-          "tool_calls": 31,
+          "verified_citations": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "tool_calls": 27,
           "file_refs_found": [
             "pyproject.toml"
           ],
-          "answer_length": 4710
+          "answer_length": 2178
         },
         "language_detection": {
           "passed": true,
@@ -464,9 +673,23 @@
           "mentioned": true
         }
       },
-      "passed": 2,
-      "failed": 1,
-      "overview_length": 2924
+      "passed": 3,
+      "failed": 0,
+      "overview_length": 2437,
+      "adversarial_tests": {
+        "binary_file": {
+          "passed": true,
+          "details": "No binary files to test"
+        },
+        "injection_filename": {
+          "passed": true,
+          "details": "Injection filter active"
+        },
+        "large_file": {
+          "passed": true,
+          "details": "Largest file: pack-267ed95a96aa78d3399cc2905cde01a14bf11f60.pack (14,807,122 bytes)"
+        }
+      }
     },
     {
       "repo": "fastapi",
@@ -478,32 +701,42 @@
           "tech_found": [
             "FastAPI",
             "Python",
-            "async",
             "Starlette",
             "Pydantic"
           ],
-          "tech_missing": [],
-          "tech_accuracy": 100.0,
+          "tech_missing": [
+            "async"
+          ],
+          "tech_accuracy": 80.0,
           "hallucinations": [],
-          "citations": 0,
-          "claims": 3,
-          "citation_rate": 0.0,
-          "tool_calls": 13,
+          "citations": 10,
+          "verified_citations": 0,
+          "claims": 2,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "tool_calls": 10,
           "tools_used": [
-            "find_entry_points",
-            "list_directory_structure",
+            "analyze_dependencies",
+            "get_important_files",
             "read_file",
-            "analyze_dependencies"
+            "find_entry_points",
+            "list_directory_structure"
           ]
         },
         "deep_dive": {
-          "passed": true,
-          "citations": 8,
-          "tool_calls": 29,
+          "passed": false,
+          "citations": 0,
+          "verified_citations": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "tool_calls": 15,
           "file_refs_found": [
-            "pyproject.toml"
+            "pyproject.toml",
+            "fastapi/__init__.py"
           ],
-          "answer_length": 2753
+          "answer_length": 1198
         },
         "language_detection": {
           "passed": true,
@@ -511,9 +744,91 @@
           "mentioned": true
         }
       },
+      "passed": 2,
+      "failed": 1,
+      "overview_length": 1448,
+      "adversarial_tests": {
+        "binary_file": {
+          "passed": true,
+          "details": "Found 179 binary files"
+        },
+        "injection_filename": {
+          "passed": true,
+          "details": "Injection filter active"
+        },
+        "large_file": {
+          "passed": true,
+          "details": "Largest file: pack-2feaba0b1c41be1dfcc0fbefccf592c7819f94b4.pack (14,746,266 bytes)"
+        }
+      }
+    },
+    {
+      "repo": "turborepo",
+      "language": "Rust",
+      "category": "cli",
+      "tests": {
+        "overview": {
+          "passed": true,
+          "tech_found": [
+            "Turborepo",
+            "Rust",
+            "monorepo",
+            "build"
+          ],
+          "tech_missing": [],
+          "tech_accuracy": 100.0,
+          "hallucinations": [],
+          "citations": 0,
+          "verified_citations": 0,
+          "claims": 2,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "tool_calls": 11,
+          "tools_used": [
+            "analyze_dependencies",
+            "get_important_files",
+            "read_file",
+            "find_entry_points",
+            "list_directory_structure"
+          ]
+        },
+        "deep_dive": {
+          "passed": true,
+          "citations": 9,
+          "verified_citations": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "tool_calls": 17,
+          "file_refs_found": [
+            "Cargo.toml"
+          ],
+          "answer_length": 1905
+        },
+        "language_detection": {
+          "passed": true,
+          "expected": "Rust",
+          "mentioned": true
+        }
+      },
       "passed": 3,
       "failed": 0,
-      "overview_length": 1940
+      "overview_length": 2327,
+      "adversarial_tests": {
+        "binary_file": {
+          "passed": true,
+          "details": "Found 103 binary files"
+        },
+        "injection_filename": {
+          "passed": true,
+          "details": "Injection filter active"
+        },
+        "large_file": {
+          "passed": true,
+          "details": "Largest file: pack-320ee12a0fc376e822a8ce25e58ac840e48fb51c.pack (61,646,093 bytes)"
+        }
+      }
     }
   ]
 }

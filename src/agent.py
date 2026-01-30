@@ -28,6 +28,7 @@ from .errors import (
     get_friendly_error,
     is_retryable_error,
 )
+from .eval.verification import filter_ungrounded_citations
 from .memory import WorkingMemory
 from .tool_router import ToolRouter, ToolUsageTracker
 
@@ -293,7 +294,20 @@ class CodebaseOnboardingAgent:
             logger.warning(f"Circuit breaker: {reason}")
             return self.tool_tracker.get_graceful_exit_message(user_message)
 
-        self.conversation_history.append(HumanMessage(content=user_message))
+        # CITE-FIX: Inject working memory context into prompt so model knows what it can cite
+        memory_context = self.working_memory.to_context_string()
+        if memory_context and self.working_memory.files_read:
+            augmented_message = f"{user_message}\n\n{memory_context}"
+        else:
+            # First call - remind about citation rules
+            augmented_message = f"""{user_message}
+
+## CITATION REMINDER
+You MUST call `read_file` on any file BEFORE citing its line numbers.
+You CANNOT cite lines from files you only saw in search results or directory listings.
+Start by exploring, then READ key files, then answer with citations from files you read."""
+
+        self.conversation_history.append(HumanMessage(content=augmented_message))
 
         state = {
             "messages": self.conversation_history.copy(),
@@ -364,6 +378,51 @@ class CodebaseOnboardingAgent:
                 break
 
         if final_response:
+            # CITE-FIX: Validate and filter citations
+            from .eval.verification import extract_citations
+
+            citations_in_response = extract_citations(final_response)
+            read_file_calls = [
+                tc for tc in self.last_tool_calls if tc.get("name") == "read_file"
+            ]
+
+            # Check if citations exist but no read_file was called
+            if citations_in_response and not read_file_calls:
+                logger.warning(
+                    f"Response has {len(citations_in_response)} citations but no read_file calls - filtering all"
+                )
+                # Filter ALL citations since none are grounded
+                for citation in citations_in_response:
+                    file_path = citation.get("file", "")
+                    line_num = citation.get("line", 0)
+                    import re
+
+                    patterns = [
+                        rf"`{re.escape(file_path)}:{line_num}`",
+                        rf"\[{re.escape(file_path)}:{line_num}\]",
+                        rf"\({re.escape(file_path)}:{line_num}\)",
+                        rf"{re.escape(file_path)}:{line_num}",
+                        # Backtick-hyphen format
+                        rf"``{re.escape(file_path)}`-{line_num}`",
+                        rf"`{re.escape(file_path)}`-{line_num}",
+                    ]
+                    for pattern in patterns:
+                        if re.search(pattern, final_response):
+                            final_response = re.sub(
+                                pattern, f"`{file_path}`", final_response, count=1
+                            )
+                            break
+            elif self.last_tool_outputs:
+                # Normal case: verify citations against tool outputs
+                filtered_response, removed = filter_ungrounded_citations(
+                    final_response, self.last_tool_outputs, add_warning=False
+                )
+                if removed > 0:
+                    logger.info(
+                        f"Filtered {removed} ungrounded citations from response"
+                    )
+                    final_response = filtered_response
+
             self.conversation_history.append(AIMessage(content=final_response))
 
         # UX-006: Prune history to prevent context overflow
@@ -402,10 +461,25 @@ class CodebaseOnboardingAgent:
         if tool_name == "read_file":
             file_path = tool_input.get("file_path", "")
             lines = tool_output.count("\n")
+            # Extract max line number from output
+            # Format: "📄 file.py (123 lines)" or line numbers like "  42 | code"
+            max_line = 0
+            import re
+
+            # Try to get from header "(N lines)"
+            header_match = re.search(r"\((\d+) lines?\)", tool_output)
+            if header_match:
+                max_line = int(header_match.group(1))
+            else:
+                # Extract from last line number in content
+                line_nums = re.findall(r"^\s*(\d+)\s*\|", tool_output, re.MULTILINE)
+                if line_nums:
+                    max_line = max(int(n) for n in line_nums)
+
             # Extract brief summary (first non-empty line of content)
             output_lines = tool_output.split("\n")
             summary = output_lines[2] if len(output_lines) > 2 else ""
-            self.working_memory.add_file_read(file_path, lines, summary[:100])
+            self.working_memory.add_file_read(file_path, lines, summary[:100], max_line)
 
         elif tool_name == "search_code":
             pattern = tool_input.get("pattern", "")

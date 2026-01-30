@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-01-13T12:38:33.474702",
+  "timestamp": "2026-01-30T13:10:14.704244",
   "test_repo": "https://github.com/pallets/flask",
   "model": "x-ai/grok-4.1-fast",
   "results": [
@@ -10,24 +10,25 @@
       "required_found": "4/4",
       "hallucination_score": 1.0,
       "accuracy_score": 1.0,
-      "output_preview": "**Project Type:** Python WSGI web framework for building web applications. Core class `Flask` defined as `class Flask(App):` in `src/flask/app.py:108`, subclassing `App` from `src/flask/sansio/app.py:43` (imported in `src/flask/app.py:43`), implementing request dispatching, routing, templating via Jinja2, sessions, and CLI tools.\n\n**Tech Stack:**\n- Language: Python (`.py` files throughout `src/`, `tests/`, `examples/`; `pyproject.toml:22` specifies `requires-python = \">=3.10\"`)\n- Framework: Flas..."
+      "output_preview": "**Files Read:**\n- pyproject.toml\n- src/flask/__init__.py\n- src/flask/app.py\n- src/flask/cli.py\n- src/flask/__main__.py\n\n**Project Type:** Python web framework\n\n**Tech Stack:**\n- Language: Python (pyproject.toml:15)\n- Framework: Flask (src/flask/__init__.py:2)\n- Key Dependencies: blinker, click, itsdangerous, jinja2, markupsafe, werkzeug (pyproject.toml:24-30)\n\n**Architecture:** Modular package under src/flask/ with core modules for app creation (app.py), CLI tooling (cli.py), blueprints, configu..."
     },
     {
       "task": "citation-rate",
-      "passed": true,
-      "citations_found": 36,
-      "estimated_claims": 10,
-      "citation_rate": 360.0,
-      "output_preview": "### Location\n- **Core routing setup**: `src/flask/sansio/app.py:402` (`self.url_map = self.url_map_class(host_matching=host_matching)`) initializes Werkzeug's `Map` for storing rules.\n- **Route registration**: `src/flask/sansio/app.py:602` (`def add_url_rule(self, rule, endpoint=None, view_func=None, ...)`), called by `@app.route` decorator.\n- **Decorator implementation**: `src/flask/sansio/scaffold.py:362` (`self.add_url_rule(rule, endpoint, f, **options)` in `route` decorator).\n- **Flask subcl..."
+      "passed": false,
+      "citations_found": 0,
+      "estimated_claims": 2,
+      "citation_rate": 0.0,
+      "output_preview": "**Files Read:**\n- src/flask/app.py\n- src/flask/views.py\n\n**Answer:**\nFlask handles routing through the `Flask` class, which inherits from a base app class and uses a `url_map` attribute (an instance of Werkzeug's `Map`) to manage URL rules. Routes are registered using the `add_url_rule` method, which adds `Rule` objects to the `url_map`. The `@app.route` decorator is a convenience wrapper that calls `add_url_rule` with the provided path, methods, and view function.\n\nThe `route` decorator is defi..."
     },
     {
       "task": "tool-usage",
       "passed": true,
-      "total_tool_calls": 8,
+      "total_tool_calls": 14,
       "unique_tools_used": [
-        "find_entry_points",
-        "read_file",
+        "get_important_files",
         "list_directory_structure",
+        "read_file",
+        "find_entry_points",
         "analyze_dependencies"
       ],
       "required_tools_found": [
@@ -40,8 +41,8 @@
     }
   ],
   "summary": {
-    "passed": 3,
+    "passed": 2,
     "total": 3,
-    "pass_rate": 100.0
+    "pass_rate": 66.7
   }
 }

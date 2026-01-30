@@ -136,11 +136,11 @@
 
         <div class="hero-stats">
             <div class="stat-card">
-                <div class="stat-value green">96.7%</div>
+                <div class="stat-value green">73.3%</div>
                 <div class="stat-label">Overall Pass Rate</div>
             </div>
             <div class="stat-card">
-                <div class="stat-value blue">29/30</div>
+                <div class="stat-value blue">22/30</div>
                 <div class="stat-label">Tests Passed</div>
             </div>
             <div class="stat-card">
@@ -189,36 +189,36 @@
                     </tr>
                 </thead>
                 <tbody>
-                    
+
         <tr class="partial">
             <td>Python</td>
-            <td>14/15</td>
-            <td>93.3%</td>
+            <td>12/15</td>
+            <td>80.0%</td>
             <td class="status-cell">⚠️</td>
         </tr>
-        <tr class="pass">
+        <tr class="partial">
             <td>TypeScript</td>
-            <td>3/3</td>
-            <td>100.0%</td>
-            <td class="status-cell">✅</td>
+            <td>2/3</td>
+            <td>66.7%</td>
+            <td class="status-cell">⚠️</td>
         </tr>
-        <tr class="pass">
+        <tr class="partial">
             <td>JavaScript</td>
-            <td>3/3</td>
-            <td>100.0%</td>
-            <td class="status-cell">✅</td>
+            <td>2/3</td>
+            <td>66.7%</td>
+            <td class="status-cell">⚠️</td>
         </tr>
-        <tr class="pass">
+        <tr class="partial">
             <td>Go</td>
-            <td>6/6</td>
-            <td>100.0%</td>
-            <td class="status-cell">✅</td>
+            <td>4/6</td>
+            <td>66.7%</td>
+            <td class="status-cell">⚠️</td>
         </tr>
-        <tr class="pass">
+        <tr class="partial">
             <td>Rust</td>
-            <td>3/3</td>
-            <td>100.0%</td>
-            <td class="status-cell">✅</td>
+            <td>2/3</td>
+            <td>66.7%</td>
+            <td class="status-cell">⚠️</td>
         </tr>
                 </tbody>
             </table>
@@ -236,24 +236,24 @@
                     </tr>
                 </thead>
                 <tbody>
-                    
-        <tr class="pass">
+
+        <tr class="partial">
             <td>Framework</td>
-            <td>12/12</td>
-            <td>100.0%</td>
-            <td class="status-cell">✅</td>
+            <td>9/12</td>
+            <td>75.0%</td>
+            <td class="status-cell">⚠️</td>
         </tr>
         <tr class="partial">
             <td>Library</td>
-            <td>8/9</td>
-            <td>88.9%</td>
+            <td>7/9</td>
+            <td>77.8%</td>
             <td class="status-cell">⚠️</td>
         </tr>
-        <tr class="pass">
+        <tr class="partial">
             <td>Cli</td>
-            <td>9/9</td>
-            <td>100.0%</td>
-            <td class="status-cell">✅</td>
+            <td>6/9</td>
+            <td>66.7%</td>
+            <td class="status-cell">⚠️</td>
         </tr>
                 </tbody>
             </table>
@@ -262,24 +262,49 @@
         <div class="section">
             <h2>🔬 Individual Repository Results</h2>
             <div class="repo-grid">
-                
-        <div class="repo-card pass">
+
+        <div class="repo-card fail">
             <div class="repo-header">
                 <h3>flask</h3>
                 <span class="repo-meta">Python • framework</span>
-                <span class="repo-score">3/3</span>
+                <span class="repo-score">2/3</span>
             </div>
             <div class="repo-tests">
-                
+
             <div class="test-item test-pass">
                 <span class="test-icon">✅</span>
                 <span class="test-name">Overview</span>
-                <span class="test-details">Tech accuracy: 100.0% | Citations: 6</span>
+                <span class="test-details">Tech: 100.0% | Citations: 5</span>
+            </div>
+            <div class="test-item test-fail">
+                <span class="test-icon">❌</span>
+                <span class="test-name">Deep Dive</span>
+                <span class="test-details">Citations: 0 | Tool calls: 32</span>
+            </div>
+            <div class="test-item test-pass">
+                <span class="test-icon">✅</span>
+                <span class="test-name">Language Detection</span>
+                <span class="test-details">Expected: Python</span>
+            </div>
+            </div>
+        </div>
+        <div class="repo-card pass">
+            <div class="repo-header">
+                <h3>httpx</h3>
+                <span class="repo-meta">Python • library</span>
+                <span class="repo-score">3/3</span>
+            </div>
+            <div class="repo-tests">
+
+            <div class="test-item test-pass">
+                <span class="test-icon">✅</span>
+                <span class="test-name">Overview</span>
+                <span class="test-details">Tech: 100.0% | Citations: 6</span>
             </div>
             <div class="test-item test-pass">
                 <span class="test-icon">✅</span>
                 <span class="test-name">Deep Dive</span>
-                <span class="test-details">Citations: 18 | Tool calls: 16</span>
+                <span class="test-details">Citations: 12 | Tool calls: 11</span>
             </div>
             <div class="test-item test-pass">
                 <span class="test-icon">✅</span>
@@ -290,21 +315,21 @@
         </div>
         <div class="repo-card fail">
             <div class="repo-header">
-                <h3>httpx</h3>
-                <span class="repo-meta">Python • library</span>
+                <h3>click</h3>
+                <span class="repo-meta">Python • cli</span>
                 <span class="repo-score">2/3</span>
             </div>
             <div class="repo-tests">
-                
+
+            <div class="test-item test-pass">
+                <span class="test-icon">✅</span>
+                <span class="test-name">Overview</span>
+                <span class="test-details">Tech: 75.0% | Citations: 0</span>
+            </div>
             <div class="test-item test-fail">
                 <span class="test-icon">❌</span>
-                <span class="test-name">Overview</span>
-                <span class="test-details">Tech accuracy: 100.0% | Hallucinations: requests | Citations: 12</span>
-            </div>
-            <div class="test-item test-pass">
-                <span class="test-icon">✅</span>
                 <span class="test-name">Deep Dive</span>
-                <span class="test-details">Citations: 27 | Tool calls: 20</span>
+                <span class="test-details">Citations: 0 | Tool calls: 32</span>
             </div>
             <div class="test-item test-pass">
                 <span class="test-icon">✅</span>
@@ -313,48 +338,23 @@
             </div>
             </div>
         </div>
-        <div class="repo-card pass">
-            <div class="repo-header">
-                <h3>click</h3>
-                <span class="repo-meta">Python • cli</span>
-                <span class="repo-score">3/3</span>
-            </div>
-            <div class="repo-tests">
-                
-            <div class="test-item test-pass">
-                <span class="test-icon">✅</span>
-                <span class="test-name">Overview</span>
-                <span class="test-details">Tech accuracy: 100.0% | Citations: 13</span>
-            </div>
-            <div class="test-item test-pass">
-                <span class="test-icon">✅</span>
-                <span class="test-name">Deep Dive</span>
-                <span class="test-details">Citations: 2 | Tool calls: 13</span>
-            </div>
-            <div class="test-item test-pass">
-                <span class="test-icon">✅</span>
-                <span class="test-name">Language Detection</span>
-                <span class="test-details">Expected: Python</span>
-            </div>
-            </div>
-        </div>
-        <div class="repo-card pass">
+        <div class="repo-card fail">
             <div class="repo-header">
                 <h3>zustand</h3>
                 <span class="repo-meta">TypeScript • library</span>
-                <span class="repo-score">3/3</span>
+                <span class="repo-score">2/3</span>
             </div>
             <div class="repo-tests">
-                
-            <div class="test-item test-pass">
-                <span class="test-icon">✅</span>
+
+            <div class="test-item test-fail">
+                <span class="test-icon">❌</span>
                 <span class="test-name">Overview</span>
-                <span class="test-details">Tech accuracy: 75.0% | Citations: 18</span>
+                <span class="test-details">Tech: 100.0% | ⚠️ Hallucinations: Redux | Citations: 6</span>
             </div>
             <div class="test-item test-pass">
                 <span class="test-icon">✅</span>
                 <span class="test-name">Deep Dive</span>
-                <span class="test-details">Citations: 16 | Tool calls: 18</span>
+                <span class="test-details">Citations: 6 | Tool calls: 21</span>
             </div>
             <div class="test-item test-pass">
                 <span class="test-icon">✅</span>
@@ -363,23 +363,23 @@
             </div>
             </div>
         </div>
-        <div class="repo-card pass">
+        <div class="repo-card fail">
             <div class="repo-header">
                 <h3>express</h3>
                 <span class="repo-meta">JavaScript • framework</span>
-                <span class="repo-score">3/3</span>
+                <span class="repo-score">2/3</span>
             </div>
             <div class="repo-tests">
-                
+
             <div class="test-item test-pass">
                 <span class="test-icon">✅</span>
                 <span class="test-name">Overview</span>
-                <span class="test-details">Tech accuracy: 100.0% | Citations: 10</span>
+                <span class="test-details">Tech: 100.0% | Citations: 14</span>
             </div>
-            <div class="test-item test-pass">
-                <span class="test-icon">✅</span>
+            <div class="test-item test-fail">
+                <span class="test-icon">❌</span>
                 <span class="test-name">Deep Dive</span>
-                <span class="test-details">Citations: 20 | Tool calls: 14</span>
+                <span class="test-details">Citations: 0 | Tool calls: 23</span>
             </div>
             <div class="test-item test-pass">
                 <span class="test-icon">✅</span>
@@ -388,23 +388,23 @@
             </div>
             </div>
         </div>
-        <div class="repo-card pass">
+        <div class="repo-card fail">
             <div class="repo-header">
                 <h3>gin</h3>
                 <span class="repo-meta">Go • framework</span>
-                <span class="repo-score">3/3</span>
+                <span class="repo-score">2/3</span>
             </div>
             <div class="repo-tests">
-                
+
             <div class="test-item test-pass">
                 <span class="test-icon">✅</span>
                 <span class="test-name">Overview</span>
-                <span class="test-details">Tech accuracy: 100.0% | Citations: 14</span>
+                <span class="test-details">Tech: 100.0% | Citations: 14</span>
             </div>
-            <div class="test-item test-pass">
-                <span class="test-icon">✅</span>
+            <div class="test-item test-fail">
+                <span class="test-icon">❌</span>
                 <span class="test-name">Deep Dive</span>
-                <span class="test-details">Citations: 30 | Tool calls: 16</span>
+                <span class="test-details">Citations: 0 | Tool calls: 12</span>
             </div>
             <div class="test-item test-pass">
                 <span class="test-icon">✅</span>
@@ -413,23 +413,23 @@
             </div>
             </div>
         </div>
-        <div class="repo-card pass">
+        <div class="repo-card fail">
             <div class="repo-header">
                 <h3>cobra</h3>
                 <span class="repo-meta">Go • cli</span>
-                <span class="repo-score">3/3</span>
+                <span class="repo-score">2/3</span>
             </div>
             <div class="repo-tests">
-                
+
             <div class="test-item test-pass">
                 <span class="test-icon">✅</span>
                 <span class="test-name">Overview</span>
-                <span class="test-details">Tech accuracy: 100.0% | Citations: 12</span>
+                <span class="test-details">Tech: 100.0% | Citations: 0</span>
             </div>
-            <div class="test-item test-pass">
-                <span class="test-icon">✅</span>
+            <div class="test-item test-fail">
+                <span class="test-icon">❌</span>
                 <span class="test-name">Deep Dive</span>
-                <span class="test-details">Citations: 39 | Tool calls: 15</span>
+                <span class="test-details">Citations: 0 | Tool calls: 15</span>
             </div>
             <div class="test-item test-pass">
                 <span class="test-icon">✅</span>
@@ -438,23 +438,23 @@
             </div>
             </div>
         </div>
-        <div class="repo-card pass">
+        <div class="repo-card fail">
             <div class="repo-header">
                 <h3>ripgrep</h3>
                 <span class="repo-meta">Rust • cli</span>
-                <span class="repo-score">3/3</span>
+                <span class="repo-score">2/3</span>
             </div>
             <div class="repo-tests">
-                
+
             <div class="test-item test-pass">
                 <span class="test-icon">✅</span>
                 <span class="test-name">Overview</span>
-                <span class="test-details">Tech accuracy: 100.0% | Citations: 10</span>
+                <span class="test-details">Tech: 100.0% | Citations: 3</span>
             </div>
-            <div class="test-item test-pass">
-                <span class="test-icon">✅</span>
+            <div class="test-item test-fail">
+                <span class="test-icon">❌</span>
                 <span class="test-name">Deep Dive</span>
-                <span class="test-details">Citations: 11 | Tool calls: 20</span>
+                <span class="test-details">Citations: 0 | Tool calls: 46</span>
             </div>
             <div class="test-item test-pass">
                 <span class="test-icon">✅</span>
@@ -463,23 +463,23 @@
             </div>
             </div>
         </div>
-        <div class="repo-card pass">
+        <div class="repo-card fail">
             <div class="repo-header">
                 <h3>langchain</h3>
                 <span class="repo-meta">Python • library</span>
-                <span class="repo-score">3/3</span>
+                <span class="repo-score">2/3</span>
             </div>
             <div class="repo-tests">
-                
-            <div class="test-item test-pass">
-                <span class="test-icon">✅</span>
+
+            <div class="test-item test-fail">
+                <span class="test-icon">❌</span>
                 <span class="test-name">Overview</span>
-                <span class="test-details">Tech accuracy: 100.0% | Citations: 9</span>
+                <span class="test-details">Tech: 100.0% | ⚠️ Hallucinations: Express | Citations: 7</span>
             </div>
             <div class="test-item test-pass">
                 <span class="test-icon">✅</span>
                 <span class="test-name">Deep Dive</span>
-                <span class="test-details">Citations: 18 | Tool calls: 20</span>
+                <span class="test-details">Citations: 6 | Tool calls: 31</span>
             </div>
             <div class="test-item test-pass">
                 <span class="test-icon">✅</span>
@@ -495,16 +495,16 @@
                 <span class="repo-score">3/3</span>
             </div>
             <div class="repo-tests">
-                
+
             <div class="test-item test-pass">
                 <span class="test-icon">✅</span>
                 <span class="test-name">Overview</span>
-                <span class="test-details">Tech accuracy: 100.0% | Citations: 12</span>
+                <span class="test-details">Tech: 100.0% | Citations: 0</span>
             </div>
             <div class="test-item test-pass">
                 <span class="test-icon">✅</span>
                 <span class="test-name">Deep Dive</span>
-                <span class="test-details">Citations: 3 | Tool calls: 17</span>
+                <span class="test-details">Citations: 8 | Tool calls: 29</span>
             </div>
             <div class="test-item test-pass">
                 <span class="test-icon">✅</span>
@@ -517,8 +517,8 @@
         </div>
 
         <div class="footer">
-            <p>Generated on 2026-01-13 14:08:23</p>
-            <p>Model: x-ai/grok-4.1-fast | Eval timestamp: 2026-01-13T13:41:58.258414</p>
+            <p>Generated on 2026-01-29 20:43:18</p>
+            <p>Model: x-ai/grok-4.1-fast | Eval timestamp: 2026-01-13T15:34:27.347672</p>
         </div>
     </div>
 </body>
