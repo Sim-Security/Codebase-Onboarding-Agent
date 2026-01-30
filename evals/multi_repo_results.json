@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-01-29T22:59:29.563399",
+  "timestamp": "2026-01-30T14:21:42.832895",
   "model": "x-ai/grok-4.1-fast",
   "summary": {
     "total_repos": 11,
@@ -10,8 +10,8 @@
     "tests_failed": 2,
     "by_language": {
       "Python": {
-        "passed": 13,
-        "failed": 2
+        "passed": 14,
+        "failed": 1
       },
       "TypeScript": {
         "passed": 3,
@@ -26,37 +26,37 @@
         "failed": 0
       },
       "Rust": {
-        "passed": 6,
-        "failed": 0
+        "passed": 5,
+        "failed": 1
       }
     },
     "by_category": {
       "framework": {
-        "passed": 11,
-        "failed": 1
+        "passed": 12,
+        "failed": 0
       },
       "library": {
         "passed": 8,
         "failed": 1
       },
       "cli": {
-        "passed": 12,
-        "failed": 0
+        "passed": 11,
+        "failed": 1
       }
     },
-    "total_citations": 260,
-    "valid_citations": 0,
-    "total_claims": 23,
+    "total_citations": 190,
+    "valid_citations": 187,
+    "total_claims": 14,
     "cited_claims": 0,
     "grounded_claims": 0,
     "quality_metrics": {
-      "precision": 0.0,
+      "precision": 98.42105263157895,
       "recall": 0.0,
       "f1_score": 0.0,
       "grounding_rate": 0.0,
-      "total_citations": 260,
-      "valid_citations": 0,
-      "total_claims": 23,
+      "total_citations": 190,
+      "valid_citations": 187,
+      "total_claims": 14,
       "cited_claims": 0,
       "grounded_claims": 0
     },
@@ -80,33 +80,32 @@
           "tech_accuracy": 100.0,
           "hallucinations": [],
           "citations": 9,
-          "verified_citations": 0,
-          "claims": 3,
-          "precision": 0.0,
+          "verified_citations": 9,
+          "claims": 2,
+          "precision": 1.0,
           "recall": 0.0,
           "f1": 0.0,
-          "tool_calls": 10,
+          "tool_calls": 20,
           "tools_used": [
             "analyze_dependencies",
-            "get_important_files",
             "read_file",
             "find_entry_points",
             "list_directory_structure",
-            "get_imports"
+            "get_important_files"
           ]
         },
         "deep_dive": {
           "passed": true,
-          "citations": 16,
-          "verified_citations": 0,
-          "precision": 0.0,
-          "recall": 0.167,
-          "f1": 0.0,
-          "tool_calls": 15,
+          "citations": 9,
+          "verified_citations": 9,
+          "precision": 1.0,
+          "recall": 0.111,
+          "f1": 0.2,
+          "tool_calls": 19,
           "file_refs_found": [
             "pyproject.toml"
           ],
-          "answer_length": 1654
+          "answer_length": 1935
         },
         "language_detection": {
           "passed": true,
@@ -116,7 +115,7 @@
       },
       "passed": 3,
       "failed": 0,
-      "overview_length": 2174,
+      "overview_length": 1101,
       "adversarial_tests": {
         "binary_file": {
           "passed": true,
@@ -138,47 +137,45 @@
       "category": "library",
       "tests": {
         "overview": {
-          "passed": false,
+          "passed": true,
           "tech_found": [
             "httpx",
             "Python",
-            "HTTP",
+            "HTTP"
+          ],
+          "tech_missing": [
             "async"
           ],
-          "tech_missing": [],
-          "tech_accuracy": 100.0,
-          "hallucinations": [
-            "requests"
-          ],
-          "citations": 15,
+          "tech_accuracy": 75.0,
+          "hallucinations": [],
+          "citations": 0,
           "verified_citations": 0,
           "claims": 2,
           "precision": 0.0,
           "recall": 0.0,
           "f1": 0.0,
-          "tool_calls": 12,
+          "tool_calls": 31,
           "tools_used": [
             "analyze_dependencies",
-            "get_important_files",
             "read_file",
             "find_entry_points",
             "list_directory_structure",
-            "get_imports"
+            "get_important_files"
           ]
         },
         "deep_dive": {
-          "passed": true,
-          "citations": 18,
+          "passed": false,
+          "citations": 0,
           "verified_citations": 0,
           "precision": 0.0,
-          "recall": 0.0,
+          "recall": 0.2,
           "f1": 0.0,
-          "tool_calls": 11,
+          "tool_calls": 24,
           "file_refs_found": [
             "httpx/__init__.py",
             "pyproject.toml"
           ],
-          "answer_length": 2084
+          "answer_length": 1435
         },
         "language_detection": {
           "passed": true,
@@ -188,7 +185,7 @@
       },
       "passed": 2,
       "failed": 1,
-      "overview_length": 1286,
+      "overview_length": 1475,
       "adversarial_tests": {
         "binary_file": {
           "passed": true,
@@ -220,34 +217,34 @@
           "tech_missing": [],
           "tech_accuracy": 100.0,
           "hallucinations": [],
-          "citations": 10,
-          "verified_citations": 0,
+          "citations": 11,
+          "verified_citations": 11,
           "claims": 1,
-          "precision": 0.0,
-          "recall": 0.0,
-          "f1": 0.0,
-          "tool_calls": 11,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "tool_calls": 13,
           "tools_used": [
             "analyze_dependencies",
-            "get_important_files",
             "read_file",
             "find_entry_points",
-            "list_directory_structure"
+            "list_directory_structure",
+            "get_important_files"
           ]
         },
         "deep_dive": {
           "passed": true,
-          "citations": 15,
-          "verified_citations": 0,
-          "precision": 0.0,
+          "citations": 27,
+          "verified_citations": 27,
+          "precision": 1.0,
           "recall": 0.0,
           "f1": 0.0,
-          "tool_calls": 14,
+          "tool_calls": 20,
           "file_refs_found": [
             "click/__init__.py",
             "pyproject.toml"
           ],
-          "answer_length": 2219
+          "answer_length": 3235
         },
         "language_detection": {
           "passed": true,
@@ -257,7 +254,7 @@
       },
       "passed": 3,
       "failed": 0,
-      "overview_length": 2115,
+      "overview_length": 975,
       "adversarial_tests": {
         "binary_file": {
           "passed": true,
@@ -290,34 +287,34 @@
           ],
           "tech_accuracy": 75.0,
           "hallucinations": [],
-          "citations": 26,
-          "verified_citations": 0,
-          "claims": 4,
-          "precision": 0.0,
+          "citations": 5,
+          "verified_citations": 4,
+          "claims": 1,
+          "precision": 0.8,
           "recall": 0.0,
           "f1": 0.0,
-          "tool_calls": 12,
+          "tool_calls": 17,
           "tools_used": [
             "analyze_dependencies",
-            "get_important_files",
             "read_file",
             "find_entry_points",
-            "list_directory_structure"
+            "list_directory_structure",
+            "get_important_files"
           ]
         },
         "deep_dive": {
           "passed": true,
-          "citations": 21,
-          "verified_citations": 0,
-          "precision": 0.0,
-          "recall": 0.0,
-          "f1": 0.0,
-          "tool_calls": 16,
+          "citations": 13,
+          "verified_citations": 11,
+          "precision": 0.846,
+          "recall": 0.167,
+          "f1": 0.278,
+          "tool_calls": 17,
           "file_refs_found": [
             "package.json",
             "src/index.ts"
           ],
-          "answer_length": 2578
+          "answer_length": 2344
         },
         "language_detection": {
           "passed": true,
@@ -327,7 +324,7 @@
       },
       "passed": 3,
       "failed": 0,
-      "overview_length": 2165,
+      "overview_length": 760,
       "adversarial_tests": {
         "binary_file": {
           "passed": true,
@@ -359,34 +356,34 @@
           "tech_missing": [],
           "tech_accuracy": 100.0,
           "hallucinations": [],
-          "citations": 14,
-          "verified_citations": 0,
-          "claims": 2,
-          "precision": 0.0,
+          "citations": 8,
+          "verified_citations": 8,
+          "claims": 1,
+          "precision": 1.0,
           "recall": 0.0,
           "f1": 0.0,
           "tool_calls": 10,
           "tools_used": [
             "analyze_dependencies",
-            "get_important_files",
             "read_file",
             "find_entry_points",
-            "list_directory_structure"
+            "list_directory_structure",
+            "get_important_files"
           ]
         },
         "deep_dive": {
           "passed": true,
-          "citations": 20,
-          "verified_citations": 0,
-          "precision": 0.0,
-          "recall": 0.0,
-          "f1": 0.0,
-          "tool_calls": 15,
+          "citations": 13,
+          "verified_citations": 13,
+          "precision": 1.0,
+          "recall": 0.231,
+          "f1": 0.375,
+          "tool_calls": 11,
           "file_refs_found": [
             "package.json",
             "lib/express.js"
           ],
-          "answer_length": 2267
+          "answer_length": 3393
         },
         "language_detection": {
           "passed": true,
@@ -396,7 +393,7 @@
       },
       "passed": 3,
       "failed": 0,
-      "overview_length": 2784,
+      "overview_length": 1650,
       "adversarial_tests": {
         "binary_file": {
           "passed": true,
@@ -422,40 +419,40 @@
           "tech_found": [
             "Gin",
             "Go",
-            "HTTP",
+            "HTTP"
+          ],
+          "tech_missing": [
             "router"
           ],
-          "tech_missing": [],
-          "tech_accuracy": 100.0,
+          "tech_accuracy": 75.0,
           "hallucinations": [],
-          "citations": 13,
-          "verified_citations": 0,
+          "citations": 10,
+          "verified_citations": 10,
           "claims": 1,
-          "precision": 0.0,
+          "precision": 1.0,
           "recall": 0.0,
           "f1": 0.0,
-          "tool_calls": 11,
+          "tool_calls": 7,
           "tools_used": [
             "analyze_dependencies",
-            "get_important_files",
             "read_file",
             "find_entry_points",
             "list_directory_structure",
-            "get_imports"
+            "get_important_files"
           ]
         },
         "deep_dive": {
           "passed": true,
-          "citations": 21,
-          "verified_citations": 0,
-          "precision": 0.0,
+          "citations": 19,
+          "verified_citations": 19,
+          "precision": 1.0,
           "recall": 0.2,
-          "f1": 0.0,
-          "tool_calls": 9,
+          "f1": 0.333,
+          "tool_calls": 10,
           "file_refs_found": [
             "gin.go"
           ],
-          "answer_length": 2172
+          "answer_length": 2783
         },
         "language_detection": {
           "passed": true,
@@ -465,7 +462,7 @@
       },
       "passed": 3,
       "failed": 0,
-      "overview_length": 1526,
+      "overview_length": 1102,
       "adversarial_tests": {
         "binary_file": {
           "passed": true,
@@ -497,37 +494,34 @@
           "tech_missing": [],
           "tech_accuracy": 100.0,
           "hallucinations": [],
-          "citations": 12,
-          "verified_citations": 0,
+          "citations": 9,
+          "verified_citations": 9,
           "claims": 2,
-          "precision": 0.0,
+          "precision": 1.0,
           "recall": 0.0,
           "f1": 0.0,
-          "tool_calls": 12,
+          "tool_calls": 9,
           "tools_used": [
             "analyze_dependencies",
-            "get_important_files",
-            "get_function_signatures",
             "read_file",
-            "search_code",
             "find_entry_points",
             "list_directory_structure",
-            "get_imports"
+            "get_important_files"
           ]
         },
         "deep_dive": {
           "passed": true,
-          "citations": 13,
-          "verified_citations": 0,
-          "precision": 0.0,
+          "citations": 12,
+          "verified_citations": 12,
+          "precision": 1.0,
           "recall": 0.0,
           "f1": 0.0,
-          "tool_calls": 10,
+          "tool_calls": 9,
           "file_refs_found": [
             "cobra.go",
             "command.go"
           ],
-          "answer_length": 1788
+          "answer_length": 2260
         },
         "language_detection": {
           "passed": true,
@@ -537,7 +531,7 @@
       },
       "passed": 3,
       "failed": 0,
-      "overview_length": 1365,
+      "overview_length": 1434,
       "adversarial_tests": {
         "binary_file": {
           "passed": true,
@@ -573,31 +567,30 @@
           "verified_citations": 0,
           "claims": 1,
           "precision": 0.0,
-          "recall": 1.0,
+          "recall": 0.0,
           "f1": 0.0,
-          "tool_calls": 10,
+          "tool_calls": 27,
           "tools_used": [
             "analyze_dependencies",
-            "get_important_files",
             "read_file",
             "find_entry_points",
             "list_directory_structure",
-            "get_imports"
+            "get_important_files"
           ]
         },
         "deep_dive": {
           "passed": true,
-          "citations": 12,
-          "verified_citations": 0,
-          "precision": 0.0,
-          "recall": 0.0,
-          "f1": 0.0,
-          "tool_calls": 12,
+          "citations": 23,
+          "verified_citations": 23,
+          "precision": 1.0,
+          "recall": 0.167,
+          "f1": 0.286,
+          "tool_calls": 13,
           "file_refs_found": [
             "Cargo.toml",
             "main.rs"
           ],
-          "answer_length": 2318
+          "answer_length": 2857
         },
         "language_detection": {
           "passed": true,
@@ -607,7 +600,7 @@
       },
       "passed": 3,
       "failed": 0,
-      "overview_length": 1517,
+      "overview_length": 1930,
       "adversarial_tests": {
         "binary_file": {
           "passed": true,
@@ -641,31 +634,31 @@
           "hallucinations": [],
           "citations": 0,
           "verified_citations": 0,
-          "claims": 3,
+          "claims": 1,
           "precision": 0.0,
-          "recall": 0.333,
+          "recall": 1.0,
           "f1": 0.0,
-          "tool_calls": 12,
+          "tool_calls": 19,
           "tools_used": [
             "analyze_dependencies",
-            "get_important_files",
             "read_file",
             "find_entry_points",
-            "list_directory_structure"
+            "list_directory_structure",
+            "get_important_files"
           ]
         },
         "deep_dive": {
           "passed": true,
-          "citations": 6,
-          "verified_citations": 0,
-          "precision": 0.0,
+          "citations": 2,
+          "verified_citations": 2,
+          "precision": 1.0,
           "recall": 0.0,
           "f1": 0.0,
-          "tool_calls": 27,
+          "tool_calls": 40,
           "file_refs_found": [
             "pyproject.toml"
           ],
-          "answer_length": 2178
+          "answer_length": 1467
         },
         "language_detection": {
           "passed": true,
@@ -675,7 +668,7 @@
       },
       "passed": 3,
       "failed": 0,
-      "overview_length": 2437,
+      "overview_length": 1946,
       "adversarial_tests": {
         "binary_file": {
           "passed": true,
@@ -687,7 +680,7 @@
         },
         "large_file": {
           "passed": true,
-          "details": "Largest file: pack-267ed95a96aa78d3399cc2905cde01a14bf11f60.pack (14,807,122 bytes)"
+          "details": "Largest file: pack-1e759df3292b93ca8b7ac2583c7e9670e5dbeadf.pack (14,807,304 bytes)"
         }
       }
     },
@@ -709,34 +702,34 @@
           ],
           "tech_accuracy": 80.0,
           "hallucinations": [],
-          "citations": 10,
-          "verified_citations": 0,
-          "claims": 2,
-          "precision": 0.0,
+          "citations": 9,
+          "verified_citations": 9,
+          "claims": 1,
+          "precision": 1.0,
           "recall": 0.0,
           "f1": 0.0,
-          "tool_calls": 10,
+          "tool_calls": 13,
           "tools_used": [
             "analyze_dependencies",
-            "get_important_files",
             "read_file",
             "find_entry_points",
-            "list_directory_structure"
+            "list_directory_structure",
+            "get_important_files"
           ]
         },
         "deep_dive": {
-          "passed": false,
-          "citations": 0,
-          "verified_citations": 0,
-          "precision": 0.0,
+          "passed": true,
+          "citations": 11,
+          "verified_citations": 11,
+          "precision": 1.0,
           "recall": 0.0,
           "f1": 0.0,
-          "tool_calls": 15,
+          "tool_calls": 28,
           "file_refs_found": [
             "pyproject.toml",
             "fastapi/__init__.py"
           ],
-          "answer_length": 1198
+          "answer_length": 1659
         },
         "language_detection": {
           "passed": true,
@@ -744,9 +737,9 @@
           "mentioned": true
         }
       },
-      "passed": 2,
-      "failed": 1,
-      "overview_length": 1448,
+      "passed": 3,
+      "failed": 0,
+      "overview_length": 996,
       "adversarial_tests": {
         "binary_file": {
           "passed": true,
@@ -780,31 +773,29 @@
           "hallucinations": [],
           "citations": 0,
           "verified_citations": 0,
-          "claims": 2,
+          "claims": 1,
           "precision": 0.0,
           "recall": 0.0,
           "f1": 0.0,
-          "tool_calls": 11,
+          "tool_calls": 21,
           "tools_used": [
             "analyze_dependencies",
-            "get_important_files",
             "read_file",
             "find_entry_points",
-            "list_directory_structure"
+            "list_directory_structure",
+            "get_important_files"
           ]
         },
         "deep_dive": {
-          "passed": true,
-          "citations": 9,
+          "passed": false,
+          "citations": 0,
           "verified_citations": 0,
           "precision": 0.0,
           "recall": 0.0,
           "f1": 0.0,
           "tool_calls": 17,
-          "file_refs_found": [
-            "Cargo.toml"
-          ],
-          "answer_length": 1905
+          "file_refs_found": [],
+          "answer_length": 1562
         },
         "language_detection": {
           "passed": true,
@@ -812,9 +803,9 @@
           "mentioned": true
         }
       },
-      "passed": 3,
-      "failed": 0,
-      "overview_length": 2327,
+      "passed": 2,
+      "failed": 1,
+      "overview_length": 1426,
       "adversarial_tests": {
         "binary_file": {
           "passed": true,
@@ -826,7 +817,7 @@
         },
         "large_file": {
           "passed": true,
-          "details": "Largest file: pack-320ee12a0fc376e822a8ce25e58ac840e48fb51c.pack (61,646,093 bytes)"
+          "details": "Largest file: pack-380ff0ae7363683b43cc55f3b37c251e48cfddc5.pack (61,644,222 bytes)"
         }
       }
     }
