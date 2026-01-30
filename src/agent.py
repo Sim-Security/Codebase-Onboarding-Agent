@@ -83,12 +83,15 @@ def create_agent(
         model = DEFAULT_MODELS.get(provider, DEFAULT_MODELS["openrouter"])
 
     # Initialize LLM based on provider
+    # SEC-007: Add request timeout to prevent hanging requests
     if provider == "openrouter":
         llm = ChatOpenAI(
             api_key=api_key,
             base_url="https://openrouter.ai/api/v1",
             model=model,
             temperature=0,
+            timeout=120,  # 2 minute timeout
+            max_retries=2,
         )
     else:
         # Groq uses OpenAI-compatible API too
@@ -97,6 +100,8 @@ def create_agent(
             base_url="https://api.groq.com/openai/v1",
             model=model,
             temperature=0,
+            timeout=120,  # 2 minute timeout
+            max_retries=2,
         )
 
     llm_with_tools = llm.bind_tools(TOOLS)

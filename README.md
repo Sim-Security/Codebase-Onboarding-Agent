@@ -19,9 +19,9 @@ tags:
 
 **Understand any codebase in minutes, not hours.**
 
-[![Pass Rate](https://img.shields.io/badge/Pass%20Rate-96.7%25-brightgreen)](evals/)
-[![Hallucination Rate](https://img.shields.io/badge/Hallucinations-0%25-brightgreen)](evals/)
-[![Languages](https://img.shields.io/badge/Languages-5%2B-blue)](evals/)
+[![Test Pass Rate](https://img.shields.io/badge/Test%20Pass%20Rate-73.3%25-yellow)](evals/)
+[![Repos Tested](https://img.shields.io/badge/Repos%20Tested-10-blue)](evals/)
+[![Languages](https://img.shields.io/badge/Languages-5-blue)](evals/)
 [![License](https://img.shields.io/badge/License-MIT-yellow)](LICENSE)
 
 A LangGraph-powered AI agent that helps developers quickly understand unfamiliar codebases through intelligent exploration — no RAG, no embeddings, just smart tools and model reasoning.
@@ -58,48 +58,54 @@ Comprehensively evaluated across **10 diverse open-source codebases** spanning 5
 
 ### Key Performance Indicators
 
-| Metric | Target | Result | Status |
-|--------|--------|--------|--------|
-| **Overall Pass Rate** | >90% | **96.7%** (29/30 tests) | ✅ Exceeded |
-| **Hallucination Rate** | <5% | **0%** | ✅ Perfect |
-| **Citation Rate** | >80% | **600%+** | ✅ Exceeded |
-| **Tool Usage Rate** | >90% | **100%** | ✅ Perfect |
+**Last run:** 2026-01-13
+**Model:** x-ai/grok-4.1-fast
+
+| Metric | Result | Notes |
+|--------|--------|-------|
+| **Test Pass Rate** | **73.3%** (22/30) | Individual test passes |
+| **Repo Pass Rate** | **20%** (2/10) | Repos where ALL 3 tests pass |
+| **Overview Accuracy** | **100%** | All repos identified correct tech |
+| **Deep-Dive Pass Rate** | **30%** (3/10) | Needs improvement |
+| **Tool Usage** | **100%** | All responses use tools |
+
+> **Note:** "Test Pass Rate" measures individual test cases. "Repo Pass Rate" is stricter—only repos where all 3 tests pass count. Deep-dive questions (asking about entry points) have the lowest pass rate due to citation requirements.
 
 ### Results by Language
 
-| Language | Repos Tested | Pass Rate | Test Count |
-|----------|--------------|-----------|------------|
-| Python | flask, httpx, click, langchain, fastapi | 93.3% | 15 |
-| TypeScript | zustand | 100% | 3 |
-| JavaScript | express | 100% | 3 |
-| Go | gin, cobra | 100% | 6 |
-| Rust | ripgrep | 100% | 3 |
+| Language | Repos Tested | Pass Rate | Passed/Total |
+|----------|--------------|-----------|--------------|
+| Python | flask, httpx, click, langchain, fastapi | 80% | 12/15 |
+| TypeScript | zustand | 67% | 2/3 |
+| JavaScript | express | 67% | 2/3 |
+| Go | gin, cobra | 67% | 4/6 |
+| Rust | ripgrep | 67% | 2/3 |
 
 ### Results by Category
 
-| Category | Pass Rate | Description |
-|----------|-----------|-------------|
-| **Frameworks** | 100% (12/12) | Flask, FastAPI, Express, Gin |
-| **Libraries** | 88.9% (8/9) | httpx, zustand, langchain |
-| **CLI Tools** | 100% (9/9) | Click, Cobra, ripgrep |
+| Category | Pass Rate | Passed/Total |
+|----------|-----------|--------------|
+| **Frameworks** | 75% | 9/12 |
+| **Libraries** | 78% | 7/9 |
+| **CLI Tools** | 67% | 6/9 |
 
 <details>
 <summary><strong>📋 Detailed Per-Repo Results</strong></summary>
 
-| Repo | Language | Category | Tests Passed | Citations | Tool Calls |
-|------|----------|----------|--------------|-----------|------------|
-| flask | Python | Framework | 3/3 | 24 | 25 |
-| fastapi | Python | Framework | 3/3 | 15 | 27 |
-| httpx | Python | Library | 2/3* | 39 | 36 |
-| click | Python | CLI | 3/3 | 15 | 22 |
-| langchain | Python | Library | 3/3 | 27 | 29 |
-| zustand | TypeScript | Library | 3/3 | 34 | 27 |
-| express | JavaScript | Framework | 3/3 | 30 | 22 |
-| gin | Go | Framework | 3/3 | 44 | 26 |
-| cobra | Go | CLI | 3/3 | 51 | 25 |
-| ripgrep | Rust | CLI | 3/3 | 21 | 28 |
+| Repo | Language | Category | Tests Passed | Issue |
+|------|----------|----------|--------------|-------|
+| httpx | Python | Library | 3/3 ✅ | — |
+| fastapi | Python | Framework | 3/3 ✅ | — |
+| flask | Python | Framework | 2/3 | Deep-dive: 0 citations |
+| click | Python | CLI | 2/3 | Deep-dive: 0 citations |
+| langchain | Python | Library | 2/3 | Hallucination: "Express" |
+| zustand | TypeScript | Library | 2/3 | Hallucination: "Redux" |
+| express | JavaScript | Framework | 2/3 | Deep-dive: 0 citations |
+| gin | Go | Framework | 2/3 | Deep-dive: 0 citations |
+| cobra | Go | CLI | 2/3 | Deep-dive: 0 citations |
+| ripgrep | Rust | CLI | 2/3 | Deep-dive: 0 citations |
 
-*\*httpx: One test flagged "requests" mention as hallucination, though it's a contextual comparison in the overview.*
+**Key insight:** The deep-dive test (asking about entry points) frequently fails because responses don't include file:line citations, even when tool calls are made. This is a prompt engineering issue, not a tool limitation.
 
 </details>
 
