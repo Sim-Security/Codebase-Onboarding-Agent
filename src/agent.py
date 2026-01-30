@@ -22,7 +22,7 @@ from tenacity import (
     before_sleep_log,
 )
 
-from .errors import RetryableError, is_retryable_error, get_friendly_error
+from .errors import RetryableError, ContextLimitError, is_retryable_error, get_friendly_error
 
 logger = logging.getLogger(__name__)
 
@@ -59,6 +59,11 @@ DEFAULT_MODELS = {
 
 # UX-006: Maximum conversation history to prevent context overflow
 MAX_HISTORY_MESSAGES = int(os.getenv("MAX_HISTORY_MESSAGES", "20"))
+
+# EVAL-003: Context budget tracking
+MAX_CONTEXT_TOKENS = int(os.getenv("MAX_CONTEXT_TOKENS", "100000"))
+CONTEXT_WARNING_THRESHOLD = 0.8  # Warn at 80%
+CONTEXT_SUMMARY_THRESHOLD = 0.95  # Truncate at 95%
 
 
 class AgentState(TypedDict):
@@ -221,6 +226,9 @@ class CodebaseOnboardingAgent:
         self.conversation_history: list = []
         self.last_tool_calls: list[dict] = []  # Track tool calls from last run
         self.last_tool_outputs: list[str] = []  # Track tool outputs for citation verification (EVAL-005)
+        # EVAL-003: Context budget tracking
+        self.context_tokens = 0
+        self.context_warning_shown = False
 
     def _run(self, user_message: str) -> str:
         """Run a single interaction with the agent."""
@@ -313,6 +321,61 @@ class CodebaseOnboardingAgent:
 
         self.conversation_history = system_msgs + other_msgs
         logger.info(f"Pruned conversation history to {len(self.conversation_history)} messages")
+
+    def _estimate_tokens(self, content: str) -> int:
+        """
+        EVAL-003: Rough token estimate (1 token ≈ 4 chars).
+        """
+        return len(content) // 4
+
+    def _track_context(self, content: str) -> str:
+        """
+        EVAL-003: Track context usage and potentially truncate.
+
+        Args:
+            content: Content being added to context
+
+        Returns:
+            Content (possibly truncated if near limit)
+
+        Raises:
+            ContextLimitError: If context budget is exhausted
+        """
+        tokens = self._estimate_tokens(content)
+        self.context_tokens += tokens
+
+        usage_pct = self.context_tokens / MAX_CONTEXT_TOKENS
+
+        if usage_pct >= 1.0:
+            raise ContextLimitError(
+                f"Context limit reached ({self.context_tokens:,} tokens). "
+                "Try asking about a specific component or file."
+            )
+
+        if usage_pct >= CONTEXT_SUMMARY_THRESHOLD:
+            # Truncate to prevent overflow
+            truncated = content[:4000] + "\n\n[TRUNCATED - Context limit approaching]"
+            logger.warning(f"Content truncated at {usage_pct:.1%} context usage")
+            return truncated
+
+        if usage_pct >= CONTEXT_WARNING_THRESHOLD and not self.context_warning_shown:
+            self.context_warning_shown = True
+            logger.warning(f"Context usage at {usage_pct:.1%} of {MAX_CONTEXT_TOKENS:,} tokens")
+
+        return content
+
+    def get_context_usage(self) -> dict:
+        """
+        EVAL-003: Get current context usage stats.
+
+        Returns:
+            {"tokens_used": int, "limit": int, "percentage": float}
+        """
+        return {
+            "tokens_used": self.context_tokens,
+            "limit": MAX_CONTEXT_TOKENS,
+            "percentage": round(self.context_tokens / MAX_CONTEXT_TOKENS * 100, 1)
+        }
 
     def get_tool_calls(self) -> list[dict]:
         """Get the tool calls from the last run."""

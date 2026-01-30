@@ -76,16 +76,39 @@ DEEP_DIVE_PROMPT = """Answer this question about the codebase:
 
 {question}
 
-**Steps:**
-1. Search for relevant code
-2. Read the matching files
-3. Trace imports and connections
-4. Find related tests
+## MANDATORY REQUIREMENTS
 
-**Output Format:**
-- **Location:** file:line references
-- **Implementation:** code snippets
-- **Connections:** how it relates to other parts
-- **Notes:** non-obvious behavior
+Before providing your answer, you MUST complete these steps:
 
-Every claim must reference code you actually read."""
+1. **Directory Exploration** - Use `list_directory_structure` to understand the layout
+2. **Code Search** - Use `search_code` to find relevant patterns
+3. **File Reading** - Use `read_file` on AT LEAST 2 relevant files
+4. **Citation** - Every claim must have a `file:line` reference
+
+## VALIDATION CRITERIA
+
+Your answer will be REJECTED if:
+- You answer without using any tools
+- You have fewer than 2 `read_file` calls
+- You have fewer than 3 file:line citations
+- You make claims without file:line evidence
+
+## OUTPUT FORMAT
+
+**Files Examined:**
+- [List each file you read with read_file]
+
+**Answer:**
+[Your grounded answer with inline citations like `file.py:42`]
+
+**Key Locations:**
+- `file.py:42` - [describe what's at this location]
+- `other.py:17` - [describe what's at this location]
+- `module/init.py:5` - [describe what's at this location]
+
+## QUESTION
+
+{question}
+
+Remember: Only describe what you actually found. Say "I didn't find X" rather than guessing.
+Ground every claim in specific file:line references from code you read."""

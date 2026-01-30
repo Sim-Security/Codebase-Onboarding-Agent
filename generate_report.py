@@ -18,6 +18,37 @@ def load_results():
         return json.load(f)
 
 
+def load_baseline():
+    """EVAL-006: Load baseline for comparison."""
+    evals_dir = Path(__file__).parent / "evals"
+    baseline_files = sorted(evals_dir.glob("baseline_*.json"))
+    if baseline_files:
+        with open(baseline_files[-1]) as f:
+            return json.load(f)
+    return None
+
+
+def compare_to_baseline(current: dict, baseline: dict) -> dict:
+    """EVAL-006: Compare current results to baseline."""
+    if not baseline:
+        return {"available": False}
+
+    curr_summary = current.get("summary", {})
+    base_summary = baseline.get("summary", {})
+
+    curr_pass_rate = curr_summary.get("tests_passed", 0) / max(curr_summary.get("tests_passed", 0) + curr_summary.get("tests_failed", 1), 1) * 100
+    base_pass_rate = base_summary.get("tests_passed", 0) / max(base_summary.get("tests_passed", 0) + base_summary.get("tests_failed", 1), 1) * 100
+
+    return {
+        "available": True,
+        "baseline_date": baseline.get("timestamp", "Unknown"),
+        "current_pass_rate": round(curr_pass_rate, 1),
+        "baseline_pass_rate": round(base_pass_rate, 1),
+        "change": round(curr_pass_rate - base_pass_rate, 1),
+        "improved": curr_pass_rate > base_pass_rate
+    }
+
+
 def generate_html_report(data: dict) -> str:
     """Generate an HTML report from eval data."""
 
@@ -70,14 +101,22 @@ def generate_html_report(data: dict) -> str:
             details = ""
             if test_name == "overview":
                 if "tech_accuracy" in test_result:
-                    details = f"Tech accuracy: {test_result['tech_accuracy']}%"
+                    details = f"Tech: {test_result['tech_accuracy']}%"
                     if test_result.get("hallucinations"):
-                        details += f" | Hallucinations: {', '.join(test_result['hallucinations'])}"
-                    details += f" | Citations: {test_result.get('citations', 0)}"
+                        details += f" | ⚠️ Hallucinations: {', '.join(test_result['hallucinations'])}"
+                    # EVAL-006: Show P/R/F1 metrics
+                    if "precision" in test_result:
+                        details += f" | P:{test_result['precision']}% R:{test_result['recall']}% F1:{test_result['f1']}%"
+                    else:
+                        details += f" | Citations: {test_result.get('citations', 0)}"
                 elif "error" in test_result:
                     details = f"Error: {test_result['error'][:50]}..."
             elif test_name == "deep_dive":
-                details = f"Citations: {test_result.get('citations', 0)} | Tool calls: {test_result.get('tool_calls', 0)}"
+                # EVAL-006: Show P/R/F1 for deep dive too
+                if "precision" in test_result:
+                    details = f"P:{test_result['precision']}% R:{test_result['recall']}% | Tools: {test_result.get('tool_calls', 0)}"
+                else:
+                    details = f"Citations: {test_result.get('citations', 0)} | Tool calls: {test_result.get('tool_calls', 0)}"
             elif test_name == "language_detection":
                 details = f"Expected: {test_result.get('expected', 'N/A')}"
 
@@ -335,6 +374,20 @@ def main():
     print("📊 Generating visual eval report...")
 
     data = load_results()
+
+    # EVAL-006: Load and compare to baseline
+    baseline = load_baseline()
+    comparison = compare_to_baseline(data, baseline)
+
+    if comparison["available"]:
+        print(f"📈 Comparing to baseline from {comparison['baseline_date'][:10]}")
+        if comparison["improved"]:
+            print(f"   ✅ Improved: {comparison['baseline_pass_rate']}% → {comparison['current_pass_rate']}% (+{comparison['change']}%)")
+        elif comparison["change"] < 0:
+            print(f"   ⚠️  Regression: {comparison['baseline_pass_rate']}% → {comparison['current_pass_rate']}% ({comparison['change']}%)")
+        else:
+            print(f"   → No change: {comparison['current_pass_rate']}%")
+
     html = generate_html_report(data)
 
     output_file = Path(__file__).parent / "evals" / "report.html"
