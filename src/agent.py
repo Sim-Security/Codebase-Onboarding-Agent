@@ -5,14 +5,26 @@ Supports multiple LLM providers: OpenRouter (default), Groq.
 """
 
 import os
-from typing import Annotated, TypedDict
+import logging
+from typing import Annotated, TypedDict, AsyncIterator
 from pathlib import Path
 
-from langchain_core.messages import HumanMessage, SystemMessage, AIMessage
+from langchain_core.messages import HumanMessage, SystemMessage, AIMessage, ToolMessage
 from langchain_openai import ChatOpenAI
 from langgraph.graph import StateGraph, END
 from langgraph.graph.message import add_messages
 from langgraph.prebuilt import ToolNode
+from tenacity import (
+    retry,
+    stop_after_attempt,
+    wait_exponential,
+    retry_if_exception_type,
+    before_sleep_log,
+)
+
+from .errors import RetryableError, is_retryable_error, get_friendly_error
+
+logger = logging.getLogger(__name__)
 
 from .tools import (
     list_directory_structure,
@@ -44,6 +56,9 @@ DEFAULT_MODELS = {
     "openrouter": "xiaomi/mimo-v2-flash:free",  # FREE model, excellent for code
     "groq": "llama-3.1-8b-instant",  # Free tier
 }
+
+# UX-006: Maximum conversation history to prevent context overflow
+MAX_HISTORY_MESSAGES = int(os.getenv("MAX_HISTORY_MESSAGES", "20"))
 
 
 class AgentState(TypedDict):
@@ -156,6 +171,29 @@ def create_agent(
     return graph.compile()
 
 
+# UX-003: Retry decorator for transient errors
+@retry(
+    stop=stop_after_attempt(3),
+    wait=wait_exponential(multiplier=2, min=4, max=30),
+    retry=retry_if_exception_type(RetryableError),
+    before_sleep=before_sleep_log(logger, logging.WARNING),
+    reraise=True,
+)
+def invoke_with_retry(agent, state):
+    """
+    Invoke agent with automatic retry on transient errors.
+
+    UX-003: Implements exponential backoff for rate limits, timeouts, etc.
+    """
+    try:
+        return agent.invoke(state)
+    except Exception as e:
+        if is_retryable_error(e):
+            logger.warning(f"Retryable error encountered: {e}")
+            raise RetryableError(str(e)) from e
+        raise
+
+
 class CodebaseOnboardingAgent:
     """High-level interface for the codebase onboarding agent."""
 
@@ -182,6 +220,7 @@ class CodebaseOnboardingAgent:
         self.agent = create_agent(api_key, model, provider)
         self.conversation_history: list = []
         self.last_tool_calls: list[dict] = []  # Track tool calls from last run
+        self.last_tool_outputs: list[str] = []  # Track tool outputs for citation verification (EVAL-005)
 
     def _run(self, user_message: str) -> str:
         """Run a single interaction with the agent."""
@@ -192,11 +231,20 @@ class CodebaseOnboardingAgent:
             "repo_path": self.repo_path,
         }
 
-        result = self.agent.invoke(state)
+        try:
+            # UX-003: Use retry wrapper for transient errors
+            result = invoke_with_retry(self.agent, state)
+        except RetryableError as e:
+            # UX-004: Return friendly error after retries exhausted
+            return get_friendly_error(e)
+        except Exception as e:
+            # UX-004: Return friendly error for non-retryable errors
+            return get_friendly_error(e)
 
         # Extract the final response and track tool calls
         messages = result["messages"]
         self.last_tool_calls = []  # Reset for this run
+        self.last_tool_outputs = []  # Reset tool outputs for this run
 
         # Find the last AI message that isn't a tool call
         final_response = None
@@ -208,6 +256,9 @@ class CodebaseOnboardingAgent:
                         "name": tc.get("name") or tc.get("function", {}).get("name"),
                         "args": tc.get("args") or tc.get("function", {}).get("arguments"),
                     })
+            # Capture tool outputs from ToolMessages (EVAL-005)
+            elif isinstance(msg, ToolMessage) and hasattr(msg, "content"):
+                self.last_tool_outputs.append(msg.content)
 
         # Find final response (last AIMessage without tool calls)
         for msg in reversed(messages):
@@ -217,6 +268,9 @@ class CodebaseOnboardingAgent:
 
         if final_response:
             self.conversation_history.append(AIMessage(content=final_response))
+
+        # UX-006: Prune history to prevent context overflow
+        self._prune_history()
 
         return final_response or "No response generated"
 
@@ -237,6 +291,28 @@ class CodebaseOnboardingAgent:
         """Reset the conversation history and tool call log."""
         self.conversation_history = []
         self.last_tool_calls = []
+        self.last_tool_outputs = []
+
+    def _prune_history(self):
+        """
+        UX-006: Keep conversation history within limits to prevent context overflow.
+
+        Preserves system messages and keeps the most recent messages.
+        """
+        if len(self.conversation_history) <= MAX_HISTORY_MESSAGES:
+            return
+
+        # Separate system messages from others
+        system_msgs = [m for m in self.conversation_history if isinstance(m, SystemMessage)]
+        other_msgs = [m for m in self.conversation_history if not isinstance(m, SystemMessage)]
+
+        # Keep last (MAX - len(system_msgs)) non-system messages
+        keep_count = MAX_HISTORY_MESSAGES - len(system_msgs)
+        if keep_count > 0:
+            other_msgs = other_msgs[-keep_count:]
+
+        self.conversation_history = system_msgs + other_msgs
+        logger.info(f"Pruned conversation history to {len(self.conversation_history)} messages")
 
     def get_tool_calls(self) -> list[dict]:
         """Get the tool calls from the last run."""
@@ -245,6 +321,91 @@ class CodebaseOnboardingAgent:
     def get_tool_names(self) -> list[str]:
         """Get unique tool names from the last run."""
         return list(set(tc["name"] for tc in self.last_tool_calls if tc["name"]))
+
+    def get_tool_outputs(self) -> list[str]:
+        """Get tool outputs from the last run (EVAL-005: for citation verification)."""
+        return self.last_tool_outputs
+
+    async def stream(self, message: str) -> AsyncIterator[dict]:
+        """
+        Stream response chunks for real-time display.
+
+        UX-001: Streaming responses for better user experience.
+
+        Yields:
+            {"type": "token", "content": "..."}
+            {"type": "tool_start", "name": "read_file", "input": {...}}
+            {"type": "tool_end", "name": "read_file", "output": "..."}
+            {"type": "done", "content": "full response"}
+        """
+        self.conversation_history.append(HumanMessage(content=message))
+
+        state = {
+            "messages": self.conversation_history.copy(),
+            "repo_path": self.repo_path,
+        }
+
+        full_response = ""
+        self.last_tool_calls = []  # Reset for this run
+        self.last_tool_outputs = []  # Reset tool outputs
+
+        try:
+            async for event in self.agent.astream_events(state, version="v2"):
+                kind = event["event"]
+
+                if kind == "on_chat_model_stream":
+                    chunk = event["data"]["chunk"]
+                    if hasattr(chunk, "content") and chunk.content:
+                        full_response += chunk.content
+                        yield {"type": "token", "content": chunk.content}
+
+                elif kind == "on_tool_start":
+                    tool_name = event.get("name", "unknown")
+                    tool_input = event.get("data", {}).get("input", {})
+                    self.last_tool_calls.append({
+                        "name": tool_name,
+                        "args": tool_input,
+                    })
+                    yield {
+                        "type": "tool_start",
+                        "name": tool_name,
+                        "input": tool_input
+                    }
+
+                elif kind == "on_tool_end":
+                    tool_name = event.get("name", "unknown")
+                    tool_output = str(event.get("data", {}).get("output", ""))
+                    # Store tool output for citation verification
+                    self.last_tool_outputs.append(tool_output)
+                    yield {
+                        "type": "tool_end",
+                        "name": tool_name,
+                        "output": tool_output[:500]  # Truncate for display
+                    }
+
+        except Exception as e:
+            yield {"type": "error", "content": str(e)}
+            return
+
+        # Update conversation history with final response
+        if full_response:
+            self.conversation_history.append(AIMessage(content=full_response))
+
+        # UX-006: Prune history to prevent context overflow
+        self._prune_history()
+
+        yield {"type": "done", "content": full_response}
+
+    async def stream_overview(self) -> AsyncIterator[dict]:
+        """Stream overview generation."""
+        async for event in self.stream(OVERVIEW_PROMPT):
+            yield event
+
+    async def stream_ask(self, question: str) -> AsyncIterator[dict]:
+        """Stream a question response."""
+        prompt = DEEP_DIVE_PROMPT.format(question=question)
+        async for event in self.stream(prompt):
+            yield event
 
 
 def run_cli():

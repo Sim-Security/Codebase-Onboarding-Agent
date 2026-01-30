@@ -8,6 +8,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 import os
+import asyncio
 import tempfile
 import shutil
 import subprocess
@@ -16,6 +17,7 @@ from pathlib import Path
 import gradio as gr
 
 from src.agent import CodebaseOnboardingAgent
+from src.errors import get_friendly_error
 
 
 # Available models - users can also type any OpenRouter model ID
@@ -33,6 +35,33 @@ MODEL_OPTIONS = [
     "anthropic/claude-opus-4",
     "openai/gpt-4o",
 ]
+
+
+def get_model_display(model: str, provider: str = "openrouter") -> str:
+    """
+    UX-008: Generate display string for model with cost indicator.
+
+    Args:
+        model: Model ID
+        provider: LLM provider
+
+    Returns:
+        Display string with FREE/paid indicator
+    """
+    if not model:
+        if provider == "groq":
+            return "Llama 3.1 8B (FREE via Groq)"
+        return "xiaomi/mimo-v2-flash:free (FREE)"
+
+    if ":free" in model.lower():
+        return f"{model} (FREE)"
+
+    # Known free models
+    free_models = ["llama-3.1-8b-instant", "gemma-3-4b-it"]
+    if any(fm in model.lower() for fm in free_models):
+        return f"{model} (FREE)"
+
+    return f"{model} (paid via {provider.title()})"
 
 
 def clone_repo(repo_url: str) -> tuple[str, str]:
@@ -71,11 +100,14 @@ def clone_repo(repo_url: str) -> tuple[str, str]:
         return None, f"Error cloning repository: {e}"
 
 
-def initialize_agent(repo_url: str, api_key: str, model: str, state: dict) -> tuple[str, dict]:
+def initialize_agent(repo_url: str, api_key: str, model: str, state: dict, progress=gr.Progress()) -> tuple[str, dict]:
     """Initialize the agent for a repository.
 
+    UX-005: Uses Gradio Progress API for visual feedback during initialization.
     Uses per-session state instead of global state for session isolation.
     """
+    progress(0.05, desc="Validating inputs...")
+
     # User MUST provide their own API key - no default to avoid chargebacks
     if not api_key or not api_key.strip():
         return ("""❌ **API Key Required**
@@ -108,28 +140,26 @@ Both options are completely free with generous rate limits!""", state)
     if state["repo_path"] and state["repo_path"].startswith(tempfile.gettempdir()):
         shutil.rmtree(state["repo_path"], ignore_errors=True)
 
+    progress(0.1, desc="Cloning repository...")
+
     # Clone the repository
     repo_path, message = clone_repo(repo_url)
     if not repo_path:
         return message, state
 
+    progress(0.6, desc="Initializing agent...")
+
     try:
         agent = CodebaseOnboardingAgent(repo_path, api_key=api_key, model=model, provider=provider)
+        progress(0.9, desc="Almost ready...")
         # Update session state (not global state)
         new_state = {"agent": agent, "repo_path": repo_path}
 
         # Get repo name for display
         repo_name = Path(repo_url.rstrip("/")).name.replace(".git", "")
 
-        # Determine model display name
-        if model:
-            model_display = model
-            if ":free" in model:
-                model_display += " (FREE)"
-        elif provider == "groq":
-            model_display = "Llama 3.1 8B (FREE)"
-        else:
-            model_display = "xiaomi/mimo-v2-flash:free (FREE)"
+        # UX-008: Use get_model_display for consistent model info
+        model_display = get_model_display(model, provider)
 
         return (f"✅ Agent initialized for **{repo_name}**\n\n**Model:** {model_display}\n\n{message}\n\nYou can now:\n- Click 'Generate Overview' for a comprehensive analysis\n- Ask specific questions in the chat", new_state)
 
@@ -146,7 +176,8 @@ def generate_overview(state: dict) -> str:
     try:
         return state["agent"].get_overview()
     except Exception as e:
-        return f"❌ Error generating overview: {e}"
+        # UX-004: Use friendly error messages
+        return get_friendly_error(e)
 
 
 def chat(message: str, history: list, state: dict) -> str:
@@ -160,7 +191,112 @@ def chat(message: str, history: list, state: dict) -> str:
     try:
         return state["agent"].chat(message)
     except Exception as e:
-        return f"❌ Error: {e}"
+        # UX-004: Use friendly error messages
+        return get_friendly_error(e)
+
+
+async def chat_stream(message: str, history: list, state: dict):
+    """
+    UX-002: Stream chat responses to UI for real-time display.
+
+    Yields updated history with streaming content.
+    """
+    if not state.get("agent"):
+        history = history + [
+            {"role": "user", "content": message},
+            {"role": "assistant", "content": "❌ Please initialize the agent first by entering a repository URL"}
+        ]
+        yield history
+        return
+
+    if not message.strip():
+        yield history
+        return
+
+    agent = state["agent"]
+    current_response = ""
+    tool_status = ""
+
+    # Add user message to history
+    history = history + [
+        {"role": "user", "content": message},
+        {"role": "assistant", "content": ""}
+    ]
+
+    try:
+        async for event in agent.stream(message):
+            if event["type"] == "token":
+                current_response += event["content"]
+                history[-1]["content"] = current_response + tool_status
+                yield history
+
+            elif event["type"] == "tool_start":
+                tool_name = event.get("name", "tool")
+                # Show tool status with emoji
+                tool_status = f"\n\n`🔍 Using: {tool_name}...`"
+                history[-1]["content"] = current_response + tool_status
+                yield history
+
+            elif event["type"] == "tool_end":
+                # Clear tool status when done
+                tool_status = ""
+                history[-1]["content"] = current_response
+                yield history
+
+            elif event["type"] == "error":
+                error_msg = event.get("content", "Unknown error")
+                history[-1]["content"] = f"❌ Error: {error_msg}"
+                yield history
+                return
+
+            elif event["type"] == "done":
+                # Final update
+                history[-1]["content"] = current_response
+                yield history
+
+    except Exception as e:
+        history[-1]["content"] = f"❌ Error: {e}"
+        yield history
+
+
+async def overview_stream(state: dict):
+    """
+    UX-002: Stream overview generation for real-time display.
+
+    Yields markdown content as it's generated.
+    """
+    if not state.get("agent"):
+        yield "❌ Please initialize the agent first by entering a repository URL"
+        return
+
+    agent = state["agent"]
+    current_content = ""
+    tool_status = ""
+
+    try:
+        async for event in agent.stream_overview():
+            if event["type"] == "token":
+                current_content += event["content"]
+                yield current_content + tool_status
+
+            elif event["type"] == "tool_start":
+                tool_name = event.get("name", "tool")
+                tool_status = f"\n\n`🔍 Using: {tool_name}...`"
+                yield current_content + tool_status
+
+            elif event["type"] == "tool_end":
+                tool_status = ""
+                yield current_content
+
+            elif event["type"] == "error":
+                yield f"❌ Error: {event.get('content', 'Unknown error')}"
+                return
+
+            elif event["type"] == "done":
+                yield current_content
+
+    except Exception as e:
+        yield f"❌ Error generating overview: {e}"
 
 
 def reset_agent(state: dict) -> tuple[str, dict]:
@@ -170,6 +306,17 @@ def reset_agent(state: dict) -> tuple[str, dict]:
 
     new_state = {"agent": None, "repo_path": None}
     return "🔄 Agent reset. Enter a new repository URL to start.", new_state
+
+
+def clear_chat(state: dict) -> tuple[list, dict]:
+    """
+    UX-007: Clear chat history without resetting the agent.
+
+    Preserves the agent connection but clears conversation history.
+    """
+    if state.get("agent"):
+        state["agent"].reset_conversation()
+    return [], state  # Return empty chatbot history and unchanged state
 
 
 # Build the Gradio interface
@@ -258,6 +405,8 @@ with gr.Blocks(title="Codebase Onboarding Agent") as app:
                 scale=4
             )
             chat_btn = gr.Button("Ask", variant="primary", scale=1)
+            # UX-007: Clear chat button
+            clear_chat_btn = gr.Button("🗑️ Clear Chat", variant="secondary", scale=1)
 
     gr.Markdown(
         """
@@ -290,33 +439,42 @@ with gr.Blocks(title="Codebase Onboarding Agent") as app:
         outputs=[status_output, agent_state]
     )
 
+    # UX-002: Use streaming for overview generation
     overview_btn.click(
-        fn=generate_overview,
+        fn=overview_stream,
         inputs=[agent_state],
         outputs=[overview_output]
     )
 
-    def respond(message, history, state):
-        """Chat respond function using session state."""
+    # UX-002: Streaming chat response function
+    async def respond_stream(message, history, state):
+        """Streaming chat respond function using session state."""
         if not message.strip():
-            return history, "", state
-        response = chat(message, history, state)
-        history = history + [
-            {"role": "user", "content": message},
-            {"role": "assistant", "content": response}
-        ]
-        return history, "", state
+            yield history, "", state
+            return
 
+        # Stream the response
+        async for updated_history in chat_stream(message, history, state):
+            yield updated_history, "", state
+
+    # Use streaming for chat
     chat_btn.click(
-        fn=respond,
+        fn=respond_stream,
         inputs=[chat_input, chatbot, agent_state],
         outputs=[chatbot, chat_input, agent_state]
     )
 
     chat_input.submit(
-        fn=respond,
+        fn=respond_stream,
         inputs=[chat_input, chatbot, agent_state],
         outputs=[chatbot, chat_input, agent_state]
+    )
+
+    # UX-007: Clear chat button handler
+    clear_chat_btn.click(
+        fn=clear_chat,
+        inputs=[agent_state],
+        outputs=[chatbot, agent_state]
     )
 
 
