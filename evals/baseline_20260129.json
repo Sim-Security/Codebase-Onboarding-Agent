@@ -1,0 +1,519 @@
+{
+  "timestamp": "2026-01-13T15:34:27.347672",
+  "model": "x-ai/grok-4.1-fast",
+  "summary": {
+    "total_repos": 10,
+    "repos_passed": 2,
+    "repos_failed": 8,
+    "total_tests": 30,
+    "tests_passed": 22,
+    "tests_failed": 8,
+    "by_language": {
+      "Python": {
+        "passed": 12,
+        "failed": 3
+      },
+      "TypeScript": {
+        "passed": 2,
+        "failed": 1
+      },
+      "JavaScript": {
+        "passed": 2,
+        "failed": 1
+      },
+      "Go": {
+        "passed": 4,
+        "failed": 2
+      },
+      "Rust": {
+        "passed": 2,
+        "failed": 1
+      }
+    },
+    "by_category": {
+      "framework": {
+        "passed": 9,
+        "failed": 3
+      },
+      "library": {
+        "passed": 7,
+        "failed": 2
+      },
+      "cli": {
+        "passed": 6,
+        "failed": 3
+      }
+    }
+  },
+  "results": [
+    {
+      "repo": "flask",
+      "language": "Python",
+      "category": "framework",
+      "tests": {
+        "overview": {
+          "passed": true,
+          "tech_found": [
+            "Flask",
+            "Python",
+            "Werkzeug",
+            "Jinja"
+          ],
+          "tech_missing": [],
+          "tech_accuracy": 100.0,
+          "hallucinations": [],
+          "citations": 5,
+          "claims": 2,
+          "citation_rate": 250.0,
+          "tool_calls": 14,
+          "tools_used": [
+            "list_directory_structure",
+            "analyze_dependencies",
+            "find_entry_points",
+            "get_function_signatures",
+            "read_file"
+          ]
+        },
+        "deep_dive": {
+          "passed": false,
+          "citations": 0,
+          "tool_calls": 32,
+          "file_refs_found": [],
+          "answer_length": 246
+        },
+        "language_detection": {
+          "passed": true,
+          "expected": "Python",
+          "mentioned": true
+        }
+      },
+      "passed": 2,
+      "failed": 1,
+      "overview_length": 1700
+    },
+    {
+      "repo": "httpx",
+      "language": "Python",
+      "category": "library",
+      "tests": {
+        "overview": {
+          "passed": true,
+          "tech_found": [
+            "httpx",
+            "Python",
+            "HTTP",
+            "async"
+          ],
+          "tech_missing": [],
+          "tech_accuracy": 100.0,
+          "hallucinations": [],
+          "citations": 6,
+          "claims": 3,
+          "citation_rate": 200.0,
+          "tool_calls": 12,
+          "tools_used": [
+            "list_directory_structure",
+            "analyze_dependencies",
+            "find_entry_points",
+            "get_function_signatures",
+            "read_file"
+          ]
+        },
+        "deep_dive": {
+          "passed": true,
+          "citations": 12,
+          "tool_calls": 11,
+          "file_refs_found": [
+            "httpx/__init__.py",
+            "pyproject.toml"
+          ],
+          "answer_length": 7691
+        },
+        "language_detection": {
+          "passed": true,
+          "expected": "Python",
+          "mentioned": true
+        }
+      },
+      "passed": 3,
+      "failed": 0,
+      "overview_length": 1854
+    },
+    {
+      "repo": "click",
+      "language": "Python",
+      "category": "cli",
+      "tests": {
+        "overview": {
+          "passed": true,
+          "tech_found": [
+            "Click",
+            "CLI",
+            "command"
+          ],
+          "tech_missing": [
+            "Python"
+          ],
+          "tech_accuracy": 75.0,
+          "hallucinations": [],
+          "citations": 0,
+          "claims": 1,
+          "citation_rate": 0.0,
+          "tool_calls": 21,
+          "tools_used": [
+            "list_directory_structure",
+            "search_code",
+            "analyze_dependencies",
+            "find_entry_points",
+            "get_function_signatures",
+            "read_file"
+          ]
+        },
+        "deep_dive": {
+          "passed": false,
+          "citations": 0,
+          "tool_calls": 32,
+          "file_refs_found": [],
+          "answer_length": 245
+        },
+        "language_detection": {
+          "passed": true,
+          "expected": "Python",
+          "mentioned": true
+        }
+      },
+      "passed": 2,
+      "failed": 1,
+      "overview_length": 205
+    },
+    {
+      "repo": "zustand",
+      "language": "TypeScript",
+      "category": "library",
+      "tests": {
+        "overview": {
+          "passed": false,
+          "tech_found": [
+            "Zustand",
+            "React",
+            "state",
+            "TypeScript"
+          ],
+          "tech_missing": [],
+          "tech_accuracy": 100.0,
+          "hallucinations": [
+            "Redux"
+          ],
+          "citations": 6,
+          "claims": 11,
+          "citation_rate": 54.5,
+          "tool_calls": 29,
+          "tools_used": [
+            "find_entry_points",
+            "list_directory_structure",
+            "read_file",
+            "analyze_dependencies"
+          ]
+        },
+        "deep_dive": {
+          "passed": true,
+          "citations": 6,
+          "tool_calls": 21,
+          "file_refs_found": [
+            "package.json",
+            "src/index.ts"
+          ],
+          "answer_length": 4178
+        },
+        "language_detection": {
+          "passed": true,
+          "expected": "TypeScript",
+          "mentioned": true
+        }
+      },
+      "passed": 2,
+      "failed": 1,
+      "overview_length": 2673
+    },
+    {
+      "repo": "express",
+      "language": "JavaScript",
+      "category": "framework",
+      "tests": {
+        "overview": {
+          "passed": true,
+          "tech_found": [
+            "Express",
+            "Node",
+            "JavaScript",
+            "middleware"
+          ],
+          "tech_missing": [],
+          "tech_accuracy": 100.0,
+          "hallucinations": [],
+          "citations": 14,
+          "claims": 7,
+          "citation_rate": 200.0,
+          "tool_calls": 12,
+          "tools_used": [
+            "find_entry_points",
+            "list_directory_structure",
+            "read_file",
+            "analyze_dependencies"
+          ]
+        },
+        "deep_dive": {
+          "passed": false,
+          "citations": 0,
+          "tool_calls": 23,
+          "file_refs_found": [],
+          "answer_length": 301
+        },
+        "language_detection": {
+          "passed": true,
+          "expected": "JavaScript",
+          "mentioned": true
+        }
+      },
+      "passed": 2,
+      "failed": 1,
+      "overview_length": 2824
+    },
+    {
+      "repo": "gin",
+      "language": "Go",
+      "category": "framework",
+      "tests": {
+        "overview": {
+          "passed": true,
+          "tech_found": [
+            "Gin",
+            "Go",
+            "HTTP",
+            "router"
+          ],
+          "tech_missing": [],
+          "tech_accuracy": 100.0,
+          "hallucinations": [],
+          "citations": 14,
+          "claims": 3,
+          "citation_rate": 466.7,
+          "tool_calls": 14,
+          "tools_used": [
+            "find_entry_points",
+            "list_directory_structure",
+            "read_file",
+            "analyze_dependencies"
+          ]
+        },
+        "deep_dive": {
+          "passed": false,
+          "citations": 0,
+          "tool_calls": 12,
+          "file_refs_found": [
+            "gin.go"
+          ],
+          "answer_length": 160
+        },
+        "language_detection": {
+          "passed": true,
+          "expected": "Go",
+          "mentioned": true
+        }
+      },
+      "passed": 2,
+      "failed": 1,
+      "overview_length": 3025
+    },
+    {
+      "repo": "cobra",
+      "language": "Go",
+      "category": "cli",
+      "tests": {
+        "overview": {
+          "passed": true,
+          "tech_found": [
+            "Cobra",
+            "Go",
+            "CLI",
+            "command"
+          ],
+          "tech_missing": [],
+          "tech_accuracy": 100.0,
+          "hallucinations": [],
+          "citations": 0,
+          "claims": 4,
+          "citation_rate": 0.0,
+          "tool_calls": 16,
+          "tools_used": [
+            "list_directory_structure",
+            "search_code",
+            "get_imports",
+            "analyze_dependencies",
+            "find_files_by_pattern",
+            "find_entry_points",
+            "get_function_signatures",
+            "read_file"
+          ]
+        },
+        "deep_dive": {
+          "passed": false,
+          "citations": 0,
+          "tool_calls": 15,
+          "file_refs_found": [
+            "command.go"
+          ],
+          "answer_length": 235
+        },
+        "language_detection": {
+          "passed": true,
+          "expected": "Go",
+          "mentioned": true
+        }
+      },
+      "passed": 2,
+      "failed": 1,
+      "overview_length": 1794
+    },
+    {
+      "repo": "ripgrep",
+      "language": "Rust",
+      "category": "cli",
+      "tests": {
+        "overview": {
+          "passed": true,
+          "tech_found": [
+            "Rust",
+            "grep",
+            "search",
+            "regex"
+          ],
+          "tech_missing": [],
+          "tech_accuracy": 100.0,
+          "hallucinations": [],
+          "citations": 3,
+          "claims": 1,
+          "citation_rate": 300.0,
+          "tool_calls": 17,
+          "tools_used": [
+            "list_directory_structure",
+            "search_code",
+            "analyze_dependencies",
+            "find_entry_points",
+            "read_file"
+          ]
+        },
+        "deep_dive": {
+          "passed": false,
+          "citations": 0,
+          "tool_calls": 46,
+          "file_refs_found": [],
+          "answer_length": 181
+        },
+        "language_detection": {
+          "passed": true,
+          "expected": "Rust",
+          "mentioned": true
+        }
+      },
+      "passed": 2,
+      "failed": 1,
+      "overview_length": 1520
+    },
+    {
+      "repo": "langchain",
+      "language": "Python",
+      "category": "library",
+      "tests": {
+        "overview": {
+          "passed": false,
+          "tech_found": [
+            "LangChain",
+            "Python",
+            "LLM",
+            "agent"
+          ],
+          "tech_missing": [],
+          "tech_accuracy": 100.0,
+          "hallucinations": [
+            "Express"
+          ],
+          "citations": 7,
+          "claims": 2,
+          "citation_rate": 350.0,
+          "tool_calls": 23,
+          "tools_used": [
+            "find_entry_points",
+            "list_directory_structure",
+            "read_file",
+            "analyze_dependencies"
+          ]
+        },
+        "deep_dive": {
+          "passed": true,
+          "citations": 6,
+          "tool_calls": 31,
+          "file_refs_found": [
+            "pyproject.toml"
+          ],
+          "answer_length": 4710
+        },
+        "language_detection": {
+          "passed": true,
+          "expected": "Python",
+          "mentioned": true
+        }
+      },
+      "passed": 2,
+      "failed": 1,
+      "overview_length": 2924
+    },
+    {
+      "repo": "fastapi",
+      "language": "Python",
+      "category": "framework",
+      "tests": {
+        "overview": {
+          "passed": true,
+          "tech_found": [
+            "FastAPI",
+            "Python",
+            "async",
+            "Starlette",
+            "Pydantic"
+          ],
+          "tech_missing": [],
+          "tech_accuracy": 100.0,
+          "hallucinations": [],
+          "citations": 0,
+          "claims": 3,
+          "citation_rate": 0.0,
+          "tool_calls": 13,
+          "tools_used": [
+            "find_entry_points",
+            "list_directory_structure",
+            "read_file",
+            "analyze_dependencies"
+          ]
+        },
+        "deep_dive": {
+          "passed": true,
+          "citations": 8,
+          "tool_calls": 29,
+          "file_refs_found": [
+            "pyproject.toml"
+          ],
+          "answer_length": 2753
+        },
+        "language_detection": {
+          "passed": true,
+          "expected": "Python",
+          "mentioned": true
+        }
+      },
+      "passed": 3,
+      "failed": 0,
+      "overview_length": 1940
+    }
+  ]
+}
