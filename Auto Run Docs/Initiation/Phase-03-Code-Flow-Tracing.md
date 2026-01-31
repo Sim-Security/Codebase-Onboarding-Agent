@@ -52,7 +52,7 @@ This phase addresses Priority 3 from the improvement plan: improving code flow t
     """
     ```
 
-- [ ] Add code_flow question detection in `CodebaseOnboardingAgent.ask()` in `src/agent.py`:
+- [x] Add code_flow question detection in `CodebaseOnboardingAgent.ask()` in `src/agent.py`: *(Already implemented: `_is_code_flow_question()` at lines 461-477 with expanded keywords including "walk through", "execution path", "called in what order", "sequence of calls". Used in both `ask()` at line 485 and `stream_ask()` at line 1025)*
   - Before calling `self._run()`, detect if the question is about code flow
   - Check for keywords: "trace", "flow", "how does...work", "what happens when", "execution path", "call sequence"
   - If detected, use CODE_FLOW_PROMPT instead of DEEP_DIVE_PROMPT
