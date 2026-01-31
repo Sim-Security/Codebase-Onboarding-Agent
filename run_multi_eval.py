@@ -205,6 +205,11 @@ from src.eval.pass_at_k import (
     run_with_pass_at_k,
 )
 from src.eval.questions import get_questions_for_repo
+from src.eval.regression import (
+    detect_regressions,
+    format_regression_warnings,
+    regression_warnings_to_dict,
+)
 from src.eval.tool_metrics import (
     ToolUsageMetrics,
     aggregate_tool_metrics,
@@ -1498,6 +1503,20 @@ def main():
         print("\n" + compare_with_previous(summary, previous))
     else:
         print("\nNo previous results to compare with.")
+
+    # Phase-04: Regression detection (compare to last 3 runs)
+    history = load_eval_history()
+    if history:
+        regression_warnings = detect_regressions(
+            summary, history, category_threshold=10.0, repo_threshold=20.0
+        )
+        print("\n" + format_regression_warnings(regression_warnings))
+
+        # Add warnings to summary for JSON output
+        if regression_warnings:
+            summary["regression_warnings"] = regression_warnings_to_dict(
+                regression_warnings
+            )
 
     # Detailed failures
     failures = [r for r in all_results if r.get("failed", 0) > 0]

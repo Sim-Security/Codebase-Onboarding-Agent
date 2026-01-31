@@ -22,7 +22,7 @@ This phase implements the eval system improvements from the improvement plan's T
   - Integration in `run_multi_eval.py` with summary output to JSON
   - 18 unit tests in `tests/test_category_metrics.py` (all passing)
 
-- [ ] Add eval history tracking for regression detection:
+- [x] Add eval history tracking for regression detection:
   - Create or update `evals/eval_history.json` structure:
     ```json
     {
@@ -44,6 +44,17 @@ This phase implements the eval system improvements from the improvement plan's T
     - Flag if any repo drops >20% from previous run
     - Return list of regression warnings
   - Integrate into `run_multi_eval.py` to show regression warnings at end
+
+  **Completed 2026-01-31**: Created `src/eval/regression.py` with:
+  - `RegressionWarning` dataclass to represent detected regressions
+  - `get_category_averages(history, last_n=3)` to compute rolling averages
+  - `get_repo_pass_rates(run)` to extract per-language pass rates
+  - `detect_regressions(current, history, category_threshold=10.0, repo_threshold=20.0)` function
+  - `format_regression_warnings()` for formatted console output
+  - `regression_warnings_to_dict()` for JSON serialization
+  - Integration in `run_multi_eval.py` after historical comparison section
+  - 18 unit tests in `tests/test_regression.py` (all passing)
+  - Leverages existing `evals/eval_history.json` structure (flat list format)
 
 - [ ] Add flaky test detection:
   - In `src/eval/pass_at_k.py`, add flaky test tracking:
