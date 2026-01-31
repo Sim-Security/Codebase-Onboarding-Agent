@@ -18,6 +18,251 @@ class QuestionTemplate:
     expected_tools: list[str]  # Tools that should be used
     min_citations: int  # Minimum citations expected
     grader: Callable[[str, dict], tuple[bool, str]] | None = None  # Custom grader
+    actual_difficulty: str | None = None  # Computed from eval results
+
+
+@dataclass
+class DifficultyMismatch:
+    """Represents a mismatch between expected and actual question difficulty."""
+
+    template_id: str
+    expected_difficulty: str
+    actual_difficulty: str
+    pass_rate: float
+    total_runs: int
+    direction: str  # "harder_than_expected" or "easier_than_expected"
+
+    def __str__(self) -> str:
+        """Format the mismatch for display."""
+        if self.direction == "harder_than_expected":
+            arrow = "→"
+            indicator = "⬆️"
+        else:
+            arrow = "→"
+            indicator = "⬇️"
+        return (
+            f"{indicator} {self.template_id}: expected '{self.expected_difficulty}' "
+            f"{arrow} actual '{self.actual_difficulty}' "
+            f"(pass rate: {self.pass_rate:.1f}%, n={self.total_runs})"
+        )
+
+
+# Difficulty thresholds based on pass rate
+DIFFICULTY_THRESHOLDS = {
+    "easy": 90.0,  # > 90% pass rate = easy
+    "medium": 70.0,  # 70-90% pass rate = medium
+    "hard": 0.0,  # < 70% pass rate = hard
+}
+
+
+def compute_difficulty_from_results(pass_rate: float) -> str:
+    """
+    Compute the actual difficulty based on pass rate.
+
+    Args:
+        pass_rate: The percentage of test runs that passed (0-100)
+
+    Returns:
+        Difficulty level: "easy", "medium", or "hard"
+    """
+    if pass_rate > DIFFICULTY_THRESHOLDS["easy"]:
+        return "easy"
+    elif pass_rate >= DIFFICULTY_THRESHOLDS["medium"]:
+        return "medium"
+    else:
+        return "hard"
+
+
+def analyze_difficulty_mismatches(
+    results: list[dict],
+) -> tuple[dict[str, dict], list[DifficultyMismatch]]:
+    """
+    Analyze eval results to find difficulty mismatches.
+
+    Args:
+        results: List of eval results from run_multi_eval
+
+    Returns:
+        Tuple of:
+        - Dict mapping template_id to {pass_count, total, pass_rate, actual_difficulty}
+        - List of DifficultyMismatch objects for questions where expected != actual
+    """
+    # Aggregate results by template_id
+    template_stats: dict[str, dict] = {}
+
+    for result in results:
+        # Check diverse questions
+        diverse = result.get("diverse_questions", {})
+        questions = diverse.get("questions", [])
+
+        for q in questions:
+            template_id = q.get("id", "")
+            if not template_id:
+                continue
+
+            if template_id not in template_stats:
+                template_stats[template_id] = {
+                    "expected_difficulty": q.get("difficulty", "medium"),
+                    "pass_count": 0,
+                    "total": 0,
+                }
+
+            template_stats[template_id]["total"] += 1
+            if q.get("passed", False):
+                template_stats[template_id]["pass_count"] += 1
+
+    # Calculate pass rates and actual difficulties
+    for template_id, stats in template_stats.items():
+        if stats["total"] > 0:
+            stats["pass_rate"] = (stats["pass_count"] / stats["total"]) * 100
+        else:
+            stats["pass_rate"] = 0.0
+        stats["actual_difficulty"] = compute_difficulty_from_results(stats["pass_rate"])
+
+    # Find mismatches
+    mismatches: list[DifficultyMismatch] = []
+
+    for template_id, stats in template_stats.items():
+        expected = stats["expected_difficulty"]
+        actual = stats["actual_difficulty"]
+
+        if expected != actual:
+            # Determine direction
+            difficulty_order = {"easy": 0, "medium": 1, "hard": 2}
+            if difficulty_order.get(actual, 1) > difficulty_order.get(expected, 1):
+                direction = "harder_than_expected"
+            else:
+                direction = "easier_than_expected"
+
+            mismatches.append(
+                DifficultyMismatch(
+                    template_id=template_id,
+                    expected_difficulty=expected,
+                    actual_difficulty=actual,
+                    pass_rate=stats["pass_rate"],
+                    total_runs=stats["total"],
+                    direction=direction,
+                )
+            )
+
+    # Sort mismatches by severity (harder_than_expected first, then by pass rate diff)
+    mismatches.sort(
+        key=lambda m: (
+            0 if m.direction == "harder_than_expected" else 1,
+            -abs(_difficulty_to_expected_rate(m.expected_difficulty) - m.pass_rate),
+        )
+    )
+
+    return template_stats, mismatches
+
+
+def _difficulty_to_expected_rate(difficulty: str) -> float:
+    """Convert difficulty to expected pass rate midpoint."""
+    if difficulty == "easy":
+        return 95.0
+    elif difficulty == "medium":
+        return 80.0
+    else:  # hard
+        return 50.0
+
+
+def format_difficulty_analysis(
+    template_stats: dict[str, dict],
+    mismatches: list[DifficultyMismatch],
+) -> str:
+    """
+    Format difficulty analysis for display.
+
+    Args:
+        template_stats: Dict mapping template_id to stats
+        mismatches: List of difficulty mismatches
+
+    Returns:
+        Formatted string for console output
+    """
+    lines = [
+        "",
+        "┌" + "─" * 58 + "┐",
+        "│" + " DIFFICULTY ANALYSIS".center(58) + "│",
+        "├" + "─" * 58 + "┤",
+    ]
+
+    if not template_stats:
+        lines.append("│" + "  No question data available".ljust(58) + "│")
+    else:
+        # Summary by difficulty level
+        by_difficulty: dict[str, list[float]] = {"easy": [], "medium": [], "hard": []}
+        for stats in template_stats.values():
+            expected = stats.get("expected_difficulty", "medium")
+            if expected in by_difficulty:
+                by_difficulty[expected].append(stats["pass_rate"])
+
+        lines.append("│" + "  Expected Difficulty Summary:".ljust(58) + "│")
+        for diff in ["easy", "medium", "hard"]:
+            rates = by_difficulty[diff]
+            if rates:
+                avg_rate = sum(rates) / len(rates)
+                indicator = "🟢" if avg_rate >= 70 else "🟡" if avg_rate >= 50 else "🔴"
+                lines.append(
+                    "│"
+                    + f"    {indicator} {diff.capitalize()}: {avg_rate:.1f}% avg pass rate (n={len(rates)})".ljust(
+                        58
+                    )
+                    + "│"
+                )
+
+    lines.append("├" + "─" * 58 + "┤")
+
+    if mismatches:
+        lines.append("│" + "  ⚠️  Difficulty Mismatches:".ljust(58) + "│")
+        for mismatch in mismatches:
+            lines.append("│" + f"    {mismatch}".ljust(58) + "│")
+    else:
+        lines.append("│" + "  ✅ No difficulty mismatches detected".ljust(58) + "│")
+
+    lines.append("└" + "─" * 58 + "┘")
+
+    return "\n".join(lines)
+
+
+def difficulty_analysis_to_dict(
+    template_stats: dict[str, dict],
+    mismatches: list[DifficultyMismatch],
+) -> dict:
+    """
+    Convert difficulty analysis to dict for JSON serialization.
+
+    Args:
+        template_stats: Dict mapping template_id to stats
+        mismatches: List of difficulty mismatches
+
+    Returns:
+        Dict suitable for JSON serialization
+    """
+    return {
+        "template_stats": template_stats,
+        "mismatches": [
+            {
+                "template_id": m.template_id,
+                "expected_difficulty": m.expected_difficulty,
+                "actual_difficulty": m.actual_difficulty,
+                "pass_rate": m.pass_rate,
+                "total_runs": m.total_runs,
+                "direction": m.direction,
+            }
+            for m in mismatches
+        ],
+        "summary": {
+            "total_templates": len(template_stats),
+            "total_mismatches": len(mismatches),
+            "harder_than_expected": sum(
+                1 for m in mismatches if m.direction == "harder_than_expected"
+            ),
+            "easier_than_expected": sum(
+                1 for m in mismatches if m.direction == "easier_than_expected"
+            ),
+        },
+    }
 
 
 # Question templates organized by category
@@ -92,24 +337,48 @@ QUESTION_TEMPLATES = [
         category="code_flow",
         template="Trace what happens when a request/call comes into this {category}. What functions are called in what order?",
         difficulty="hard",
-        expected_tools=["read_file", "search_code", "get_imports"],
-        min_citations=3,
+        expected_tools=["find_entry_points", "read_file", "get_imports"],
+        min_citations=4,
     ),
     QuestionTemplate(
         id="flow_init",
         category="code_flow",
         template="What happens during initialization/startup of this project? Walk through the sequence.",
         difficulty="medium",
-        expected_tools=["find_entry_points", "read_file"],
-        min_citations=2,
+        expected_tools=["find_entry_points", "read_file", "get_imports"],
+        min_citations=4,
     ),
     QuestionTemplate(
         id="flow_error",
         category="code_flow",
         template="How does error handling work in this codebase? Where are errors caught and how are they processed?",
         difficulty="hard",
-        expected_tools=["search_code", "read_file"],
-        min_citations=2,
+        expected_tools=["find_entry_points", "read_file", "get_imports"],
+        min_citations=4,
+    ),
+    QuestionTemplate(
+        id="flow_main_function",
+        category="code_flow",
+        template="Trace what happens when {main_function} is called from start to finish.",
+        difficulty="hard",
+        expected_tools=["find_entry_points", "read_file", "get_imports"],
+        min_citations=4,
+    ),
+    QuestionTemplate(
+        id="flow_execution_path",
+        category="code_flow",
+        template="What is the execution path from the entry point to {feature_area}?",
+        difficulty="hard",
+        expected_tools=["find_entry_points", "read_file", "get_imports"],
+        min_citations=4,
+    ),
+    QuestionTemplate(
+        id="flow_user_action",
+        category="code_flow",
+        template="Walk through the code flow step by step when a user performs {feature_area}.",
+        difficulty="hard",
+        expected_tools=["find_entry_points", "read_file", "get_imports"],
+        min_citations=4,
     ),
     # =========================================================================
     # DEBUGGING/INVESTIGATION QUESTIONS
@@ -180,6 +449,26 @@ FEATURE_AREAS = {
     "api": ["endpoints", "authentication", "data validation", "responses"],
 }
 
+# Main functions by category for code flow questions
+MAIN_FUNCTIONS = {
+    "framework": [
+        "the main application handler",
+        "the request router",
+        "the middleware chain",
+    ],
+    "library": [
+        "the primary API function",
+        "the main processing function",
+        "the core algorithm",
+    ],
+    "cli": [
+        "the main command handler",
+        "the argument parser",
+        "the subcommand dispatcher",
+    ],
+    "api": ["the request handler", "the endpoint function", "the data processor"],
+}
+
 
 def get_questions_for_repo(
     language: str,
@@ -206,6 +495,7 @@ def get_questions_for_repo(
 
     # Get feature areas for this category
     feature_areas = FEATURE_AREAS.get(category, ["core functionality"])
+    main_functions = MAIN_FUNCTIONS.get(category, ["the main function"])
 
     # Format questions
     questions = []
@@ -215,6 +505,7 @@ def get_questions_for_repo(
             language=language,
             category=category,
             feature_area=feature_areas[len(questions) % len(feature_areas)],
+            main_function=main_functions[len(questions) % len(main_functions)],
         )
 
         questions.append(

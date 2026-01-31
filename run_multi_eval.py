@@ -207,7 +207,12 @@ from src.eval.pass_at_k import (
     format_pass_at_k_report,
     run_with_pass_at_k,
 )
-from src.eval.questions import get_questions_for_repo
+from src.eval.questions import (
+    analyze_difficulty_mismatches,
+    difficulty_analysis_to_dict,
+    format_difficulty_analysis,
+    get_questions_for_repo,
+)
 from src.eval.regression import (
     detect_regressions,
     format_regression_warnings,
@@ -1498,6 +1503,31 @@ def main():
             print("\n⚠️  Problem Categories (pass rate < 70%):")
             for cat, rate in problem_categories:
                 print(f"   • {cat}: {rate:.1f}%")
+
+    # Phase-04: Difficulty Analysis
+    template_stats, difficulty_mismatches = analyze_difficulty_mismatches(all_results)
+    if template_stats:
+        print(format_difficulty_analysis(template_stats, difficulty_mismatches))
+        summary["difficulty_analysis"] = difficulty_analysis_to_dict(
+            template_stats, difficulty_mismatches
+        )
+
+        # Report difficulty mismatches as warnings
+        if difficulty_mismatches:
+            harder_count = sum(
+                1
+                for m in difficulty_mismatches
+                if m.direction == "harder_than_expected"
+            )
+            easier_count = sum(
+                1
+                for m in difficulty_mismatches
+                if m.direction == "easier_than_expected"
+            )
+            if harder_count > 0:
+                print(f"\n⚠️  {harder_count} question(s) are harder than expected")
+            if easier_count > 0:
+                print(f"ℹ️  {easier_count} question(s) are easier than expected")
 
     # Pass@k Report (if enabled)
     if args.pass_at_k and pass_at_k_results_all:

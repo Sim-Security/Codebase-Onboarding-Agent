@@ -76,7 +76,7 @@ This phase implements the eval system improvements from the improvement plan's T
   - Integration outputs flaky test report and adds to JSON summary
   - 18 unit tests in `tests/test_flaky_detection.py` (all passing)
 
-- [ ] Add question difficulty analysis:
+- [x] Add question difficulty analysis:
   - In `src/eval/questions.py`, update `QuestionTemplate` to include:
     - `actual_difficulty: str | None` field (computed from eval results)
   - Add function `compute_difficulty_from_results(template_id: str, results: list) -> str`:
@@ -85,6 +85,27 @@ This phase implements the eval system improvements from the improvement plan's T
     - If pass_rate < 70%: "hard"
   - Compare computed difficulty vs expected difficulty
   - Report mismatches (questions marked "easy" that actually fail often)
+
+  **Completed 2026-01-31**: Created question difficulty analysis functionality in `src/eval/questions.py`:
+  - Added `actual_difficulty: str | None` field to `QuestionTemplate` dataclass (defaults to None)
+  - Created `DifficultyMismatch` dataclass to represent discrepancies between expected and actual difficulty
+  - Defined `DIFFICULTY_THRESHOLDS` constants: easy (>90%), medium (70-90%), hard (<70%)
+  - Added `compute_difficulty_from_results(pass_rate: float) -> str` function
+  - Added `analyze_difficulty_mismatches(results: list[dict]) -> tuple[dict, list[DifficultyMismatch]]` to:
+    - Aggregate pass rates by template_id across repos
+    - Compute actual difficulty based on pass rate thresholds
+    - Identify mismatches between expected and actual difficulty
+    - Classify as "harder_than_expected" or "easier_than_expected"
+  - Added `format_difficulty_analysis()` for formatted console output with:
+    - Summary by expected difficulty level
+    - List of mismatches with indicators (⬆️ for harder, ⬇️ for easier)
+  - Added `difficulty_analysis_to_dict()` for JSON serialization
+  - Integration in `run_multi_eval.py`:
+    - Calls `analyze_difficulty_mismatches()` after category metrics
+    - Prints difficulty analysis table
+    - Reports mismatch counts as warnings
+    - Adds `difficulty_analysis` to JSON summary output
+  - 22 unit tests in `tests/test_difficulty_analysis.py` (all passing)
 
 - [ ] Run comprehensive eval with new metrics:
   - Execute: `python run_multi_eval.py --diverse --repos flask,express,gin,click,ripgrep`
