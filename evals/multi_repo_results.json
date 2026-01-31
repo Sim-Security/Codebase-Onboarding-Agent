@@ -1,350 +1,55 @@
 {
-  "timestamp": "2026-01-31T14:06:49.553107",
+  "timestamp": "2026-01-31T15:38:32.524334",
   "model": "x-ai/grok-4.1-fast",
   "summary": {
-    "total_repos": 11,
-    "repos_passed": 4,
-    "repos_failed": 7,
-    "total_tests": 66,
-    "tests_passed": 52,
-    "tests_failed": 14,
+    "total_repos": 2,
+    "repos_passed": 0,
+    "repos_failed": 2,
+    "total_tests": 12,
+    "tests_passed": 9,
+    "tests_failed": 3,
     "by_language": {
       "Python": {
-        "passed": 13,
-        "failed": 2
-      },
-      "TypeScript": {
-        "passed": 3,
-        "failed": 0
-      },
-      "JavaScript": {
         "passed": 3,
         "failed": 0
       },
       "Go": {
-        "passed": 6,
+        "passed": 3,
         "failed": 0
-      },
-      "Rust": {
-        "passed": 5,
-        "failed": 1
       }
     },
     "by_category": {
-      "framework": {
-        "passed": 12,
-        "failed": 0
-      },
-      "library": {
-        "passed": 9,
-        "failed": 0
-      },
       "cli": {
-        "passed": 9,
-        "failed": 3
+        "passed": 6,
+        "failed": 0
       }
     },
-    "total_citations": 200,
-    "valid_citations": 193,
-    "total_claims": 18,
+    "total_citations": 41,
+    "valid_citations": 41,
+    "total_claims": 3,
     "cited_claims": 0,
     "grounded_claims": 0,
     "quality_metrics": {
-      "precision": 96.5,
+      "precision": 100.0,
       "recall": 0.0,
       "f1_score": 0.0,
       "grounding_rate": 0.0,
-      "total_citations": 200,
-      "valid_citations": 193,
-      "total_claims": 18,
+      "total_citations": 41,
+      "valid_citations": 41,
+      "total_claims": 3,
       "cited_claims": 0,
       "grounded_claims": 0
     },
-    "pass_rate": 78.78787878787878
+    "pass_rate": 75.0
   },
   "results": [
-    {
-      "repo": "flask",
-      "language": "Python",
-      "category": "framework",
-      "tests": {
-        "overview": {
-          "passed": true,
-          "tech_found": [
-            "Flask",
-            "Python",
-            "Werkzeug",
-            "Jinja"
-          ],
-          "tech_missing": [],
-          "tech_accuracy": 100.0,
-          "hallucinations": [],
-          "citations": 6,
-          "verified_citations": 6,
-          "claims": 1,
-          "precision": 1.0,
-          "recall": 0.0,
-          "f1": 0.0,
-          "tool_calls": 12,
-          "tools_used": [
-            "read_file",
-            "list_directory_structure",
-            "get_important_files",
-            "find_entry_points",
-            "analyze_dependencies"
-          ]
-        },
-        "deep_dive": {
-          "passed": true,
-          "citations": 11,
-          "verified_citations": 11,
-          "precision": 1.0,
-          "recall": 0.0,
-          "f1": 0.0,
-          "tool_calls": 20,
-          "file_refs_found": [
-            "app.py",
-            "pyproject.toml"
-          ],
-          "answer_length": 1928
-        },
-        "language_detection": {
-          "passed": true,
-          "expected": "Python",
-          "mentioned": true
-        }
-      },
-      "passed": 3,
-      "failed": 0,
-      "overview_length": 870,
-      "adversarial_tests": {
-        "binary_file": {
-          "passed": true,
-          "details": "Found 5 binary files"
-        },
-        "injection_filename": {
-          "passed": true,
-          "details": "Injection filter active"
-        },
-        "large_file": {
-          "passed": true,
-          "details": "Largest file: pack-ad3941f0d60fce7942f5be6b7e4c5a6bff13de45.pack (790,132 bytes)"
-        }
-      },
-      "diverse_questions": {
-        "repo": "flask",
-        "num_questions": 3,
-        "questions": [
-          {
-            "id": "arch_overview",
-            "category": "architecture",
-            "difficulty": "medium",
-            "passed": false,
-            "citations": 2,
-            "verified_citations": 2,
-            "min_citations_required": 3,
-            "precision": 1.0,
-            "recall": 0.0,
-            "f1": 0.0,
-            "tool_calls": 24,
-            "expected_tools": [
-              "list_directory_structure",
-              "read_file",
-              "get_important_files"
-            ],
-            "answer_length": 2738
-          },
-          {
-            "id": "dep_external",
-            "category": "dependencies",
-            "difficulty": "easy",
-            "passed": true,
-            "citations": 16,
-            "verified_citations": 16,
-            "min_citations_required": 2,
-            "precision": 1.0,
-            "recall": 0.0,
-            "f1": 0.0,
-            "tool_calls": 23,
-            "expected_tools": [
-              "analyze_dependencies",
-              "read_file"
-            ],
-            "answer_length": 2135
-          },
-          {
-            "id": "flow_request",
-            "category": "code_flow",
-            "difficulty": "hard",
-            "passed": false,
-            "citations": 0,
-            "verified_citations": 0,
-            "min_citations_required": 3,
-            "precision": 0.0,
-            "recall": 0.0,
-            "f1": 0.0,
-            "tool_calls": 31,
-            "expected_tools": [
-              "read_file",
-              "search_code",
-              "get_imports"
-            ],
-            "answer_length": 1045
-          }
-        ],
-        "pass_at_k_results": null,
-        "passed": 1,
-        "failed": 2,
-        "pass_rate": 33.33333333333333
-      },
-      "total_passed": 4,
-      "total_failed": 2
-    },
-    {
-      "repo": "httpx",
-      "language": "Python",
-      "category": "library",
-      "tests": {
-        "overview": {
-          "passed": true,
-          "tech_found": [
-            "httpx",
-            "Python",
-            "HTTP"
-          ],
-          "tech_missing": [
-            "async"
-          ],
-          "tech_accuracy": 75.0,
-          "hallucinations": [],
-          "citations": 7,
-          "verified_citations": 7,
-          "claims": 2,
-          "precision": 1.0,
-          "recall": 0.0,
-          "f1": 0.0,
-          "tool_calls": 13,
-          "tools_used": [
-            "read_file",
-            "list_directory_structure",
-            "get_important_files",
-            "find_entry_points",
-            "analyze_dependencies"
-          ]
-        },
-        "deep_dive": {
-          "passed": true,
-          "citations": 18,
-          "verified_citations": 18,
-          "precision": 1.0,
-          "recall": 0.182,
-          "f1": 0.308,
-          "tool_calls": 14,
-          "file_refs_found": [
-            "httpx/__init__.py",
-            "pyproject.toml"
-          ],
-          "answer_length": 2525
-        },
-        "language_detection": {
-          "passed": true,
-          "expected": "Python",
-          "mentioned": true
-        }
-      },
-      "passed": 3,
-      "failed": 0,
-      "overview_length": 1005,
-      "adversarial_tests": {
-        "binary_file": {
-          "passed": true,
-          "details": "Found 7 binary files"
-        },
-        "injection_filename": {
-          "passed": true,
-          "details": "Injection filter active"
-        },
-        "large_file": {
-          "passed": true,
-          "details": "Largest file: pack-cb92921bde767692d6d4beddeb4f3a3276808b70.pack (2,319,570 bytes)"
-        }
-      },
-      "diverse_questions": {
-        "repo": "httpx",
-        "num_questions": 3,
-        "questions": [
-          {
-            "id": "arch_overview",
-            "category": "architecture",
-            "difficulty": "medium",
-            "passed": false,
-            "citations": 0,
-            "verified_citations": 0,
-            "min_citations_required": 3,
-            "precision": 0.0,
-            "recall": 0.25,
-            "f1": 0.0,
-            "tool_calls": 45,
-            "expected_tools": [
-              "list_directory_structure",
-              "read_file",
-              "get_important_files"
-            ],
-            "answer_length": 2752
-          },
-          {
-            "id": "dep_external",
-            "category": "dependencies",
-            "difficulty": "easy",
-            "passed": false,
-            "citations": 0,
-            "verified_citations": 0,
-            "min_citations_required": 2,
-            "precision": 0.0,
-            "recall": 0.667,
-            "f1": 0.0,
-            "tool_calls": 23,
-            "expected_tools": [
-              "analyze_dependencies",
-              "read_file"
-            ],
-            "answer_length": 2043
-          },
-          {
-            "id": "flow_request",
-            "category": "code_flow",
-            "difficulty": "hard",
-            "passed": true,
-            "citations": 18,
-            "verified_citations": 18,
-            "min_citations_required": 3,
-            "precision": 1.0,
-            "recall": 0.75,
-            "f1": 0.857,
-            "tool_calls": 30,
-            "expected_tools": [
-              "read_file",
-              "search_code",
-              "get_imports"
-            ],
-            "answer_length": 2984
-          }
-        ],
-        "pass_at_k_results": null,
-        "passed": 1,
-        "failed": 2,
-        "pass_rate": 33.33333333333333
-      },
-      "total_passed": 4,
-      "total_failed": 2
-    },
     {
       "repo": "click",
       "language": "Python",
       "category": "cli",
       "tests": {
         "overview": {
-          "passed": false,
+          "passed": true,
           "tech_found": [
             "Click",
             "Python",
@@ -353,37 +58,35 @@
           ],
           "tech_missing": [],
           "tech_accuracy": 100.0,
-          "hallucinations": [
-            "Flask"
-          ],
+          "hallucinations": [],
           "citations": 0,
           "verified_citations": 0,
           "claims": 1,
           "precision": 0.0,
           "recall": 1.0,
           "f1": 0.0,
-          "tool_calls": 27,
+          "tool_calls": 30,
           "tools_used": [
-            "read_file",
-            "list_directory_structure",
             "get_important_files",
+            "find_files_by_pattern",
+            "analyze_dependencies",
             "find_entry_points",
-            "analyze_dependencies"
+            "read_file",
+            "list_directory_structure"
           ]
         },
         "deep_dive": {
-          "passed": false,
-          "citations": 0,
-          "verified_citations": 0,
-          "precision": 0.0,
-          "recall": 0.2,
+          "passed": true,
+          "citations": 14,
+          "verified_citations": 14,
+          "precision": 1.0,
+          "recall": 0.0,
           "f1": 0.0,
-          "tool_calls": 32,
+          "tool_calls": 27,
           "file_refs_found": [
-            "click/__init__.py",
             "pyproject.toml"
           ],
-          "answer_length": 1240
+          "answer_length": 2353
         },
         "language_detection": {
           "passed": true,
@@ -391,9 +94,9 @@
           "mentioned": true
         }
       },
-      "passed": 1,
-      "failed": 2,
-      "overview_length": 1161,
+      "passed": 3,
+      "failed": 0,
+      "overview_length": 1468,
       "adversarial_tests": {
         "binary_file": {
           "passed": true,
@@ -417,474 +120,65 @@
             "category": "architecture",
             "difficulty": "medium",
             "passed": true,
-            "citations": 22,
-            "verified_citations": 22,
-            "min_citations_required": 3,
-            "precision": 1.0,
-            "recall": 0.0,
-            "f1": 0.0,
-            "tool_calls": 22,
-            "expected_tools": [
-              "list_directory_structure",
-              "read_file",
-              "get_important_files"
-            ],
-            "answer_length": 3280
-          },
-          {
-            "id": "dep_external",
-            "category": "dependencies",
-            "difficulty": "easy",
-            "passed": true,
-            "citations": 4,
-            "verified_citations": 4,
-            "min_citations_required": 2,
-            "precision": 1.0,
-            "recall": 0.5,
-            "f1": 0.667,
-            "tool_calls": 22,
-            "expected_tools": [
-              "analyze_dependencies",
-              "read_file"
-            ],
-            "answer_length": 1276
-          },
-          {
-            "id": "flow_request",
-            "category": "code_flow",
-            "difficulty": "hard",
-            "passed": false,
-            "citations": 0,
-            "verified_citations": 0,
-            "min_citations_required": 3,
-            "precision": 0.0,
-            "recall": 0.0,
-            "f1": 0.0,
-            "tool_calls": 33,
-            "expected_tools": [
-              "read_file",
-              "search_code",
-              "get_imports"
-            ],
-            "answer_length": 1735
-          }
-        ],
-        "pass_at_k_results": null,
-        "passed": 2,
-        "failed": 1,
-        "pass_rate": 66.66666666666666
-      },
-      "total_passed": 3,
-      "total_failed": 3
-    },
-    {
-      "repo": "zustand",
-      "language": "TypeScript",
-      "category": "library",
-      "tests": {
-        "overview": {
-          "passed": true,
-          "tech_found": [
-            "Zustand",
-            "React",
-            "state",
-            "TypeScript"
-          ],
-          "tech_missing": [],
-          "tech_accuracy": 100.0,
-          "hallucinations": [],
-          "citations": 6,
-          "verified_citations": 6,
-          "claims": 1,
-          "precision": 1.0,
-          "recall": 0.0,
-          "f1": 0.0,
-          "tool_calls": 10,
-          "tools_used": [
-            "read_file",
-            "list_directory_structure",
-            "get_important_files",
-            "find_entry_points",
-            "analyze_dependencies"
-          ]
-        },
-        "deep_dive": {
-          "passed": true,
-          "citations": 14,
-          "verified_citations": 12,
-          "precision": 0.857,
-          "recall": 0.0,
-          "f1": 0.0,
-          "tool_calls": 24,
-          "file_refs_found": [
-            "package.json",
-            "src/index.ts"
-          ],
-          "answer_length": 1973
-        },
-        "language_detection": {
-          "passed": true,
-          "expected": "TypeScript",
-          "mentioned": true
-        }
-      },
-      "passed": 3,
-      "failed": 0,
-      "overview_length": 781,
-      "adversarial_tests": {
-        "binary_file": {
-          "passed": true,
-          "details": "Found 7 binary files"
-        },
-        "injection_filename": {
-          "passed": true,
-          "details": "Injection filter active"
-        },
-        "large_file": {
-          "passed": true,
-          "details": "Largest file: pack-e7d2f13f89aae41d06cbfceff9adb76c917257da.pack (1,002,315 bytes)"
-        }
-      },
-      "diverse_questions": {
-        "repo": "zustand",
-        "num_questions": 3,
-        "questions": [
-          {
-            "id": "arch_overview",
-            "category": "architecture",
-            "difficulty": "medium",
-            "passed": true,
-            "citations": 11,
-            "verified_citations": 11,
-            "min_citations_required": 3,
-            "precision": 1.0,
-            "recall": 0.5,
-            "f1": 0.667,
-            "tool_calls": 13,
-            "expected_tools": [
-              "list_directory_structure",
-              "read_file",
-              "get_important_files"
-            ],
-            "answer_length": 2463
-          },
-          {
-            "id": "dep_external",
-            "category": "dependencies",
-            "difficulty": "easy",
-            "passed": true,
             "citations": 25,
             "verified_citations": 25,
-            "min_citations_required": 2,
+            "min_citations_required": 3,
             "precision": 1.0,
             "recall": 0.0,
             "f1": 0.0,
-            "tool_calls": 23,
-            "expected_tools": [
-              "analyze_dependencies",
-              "read_file"
-            ],
-            "answer_length": 2164
-          },
-          {
-            "id": "flow_request",
-            "category": "code_flow",
-            "difficulty": "hard",
-            "passed": true,
-            "citations": 31,
-            "verified_citations": 31,
-            "min_citations_required": 3,
-            "precision": 1.0,
-            "recall": 0.5,
-            "f1": 0.667,
-            "tool_calls": 11,
-            "expected_tools": [
-              "read_file",
-              "search_code",
-              "get_imports"
-            ],
-            "answer_length": 2461
-          }
-        ],
-        "pass_at_k_results": null,
-        "passed": 3,
-        "failed": 0,
-        "pass_rate": 100.0
-      },
-      "total_passed": 6,
-      "total_failed": 0
-    },
-    {
-      "repo": "express",
-      "language": "JavaScript",
-      "category": "framework",
-      "tests": {
-        "overview": {
-          "passed": true,
-          "tech_found": [
-            "Express",
-            "Node",
-            "JavaScript",
-            "middleware"
-          ],
-          "tech_missing": [],
-          "tech_accuracy": 100.0,
-          "hallucinations": [],
-          "citations": 13,
-          "verified_citations": 11,
-          "claims": 1,
-          "precision": 0.846,
-          "recall": 0.0,
-          "f1": 0.0,
-          "tool_calls": 9,
-          "tools_used": [
-            "read_file",
-            "list_directory_structure",
-            "get_important_files",
-            "find_entry_points",
-            "analyze_dependencies"
-          ]
-        },
-        "deep_dive": {
-          "passed": true,
-          "citations": 14,
-          "verified_citations": 14,
-          "precision": 1.0,
-          "recall": 0.0,
-          "f1": 0.0,
-          "tool_calls": 10,
-          "file_refs_found": [
-            "package.json",
-            "lib/express.js"
-          ],
-          "answer_length": 2523
-        },
-        "language_detection": {
-          "passed": true,
-          "expected": "JavaScript",
-          "mentioned": true
-        }
-      },
-      "passed": 3,
-      "failed": 0,
-      "overview_length": 1284,
-      "adversarial_tests": {
-        "binary_file": {
-          "passed": true,
-          "details": "No binary files to test"
-        },
-        "injection_filename": {
-          "passed": true,
-          "details": "Injection filter active"
-        },
-        "large_file": {
-          "passed": true,
-          "details": "Largest file: pack-059cf7007f681e96b7704ac537d1d714b4151697.pack (172,057 bytes)"
-        }
-      },
-      "diverse_questions": {
-        "repo": "express",
-        "num_questions": 3,
-        "questions": [
-          {
-            "id": "arch_overview",
-            "category": "architecture",
-            "difficulty": "medium",
-            "passed": true,
-            "citations": 30,
-            "verified_citations": 29,
-            "min_citations_required": 3,
-            "precision": 0.967,
-            "recall": 0.0,
-            "f1": 0.0,
-            "tool_calls": 27,
-            "expected_tools": [
-              "list_directory_structure",
-              "read_file",
-              "get_important_files"
-            ],
-            "answer_length": 3393
-          },
-          {
-            "id": "dep_external",
-            "category": "dependencies",
-            "difficulty": "easy",
-            "passed": true,
-            "citations": 37,
-            "verified_citations": 37,
-            "min_citations_required": 2,
-            "precision": 1.0,
-            "recall": 0.0,
-            "f1": 0.0,
-            "tool_calls": 11,
-            "expected_tools": [
-              "analyze_dependencies",
-              "read_file"
-            ],
-            "answer_length": 3149
-          },
-          {
-            "id": "flow_request",
-            "category": "code_flow",
-            "difficulty": "hard",
-            "passed": true,
-            "citations": 17,
-            "verified_citations": 16,
-            "min_citations_required": 3,
-            "precision": 0.941,
-            "recall": 0.0,
-            "f1": 0.0,
-            "tool_calls": 20,
-            "expected_tools": [
-              "read_file",
-              "search_code",
-              "get_imports"
-            ],
-            "answer_length": 2126
-          }
-        ],
-        "pass_at_k_results": null,
-        "passed": 3,
-        "failed": 0,
-        "pass_rate": 100.0
-      },
-      "total_passed": 6,
-      "total_failed": 0
-    },
-    {
-      "repo": "gin",
-      "language": "Go",
-      "category": "framework",
-      "tests": {
-        "overview": {
-          "passed": true,
-          "tech_found": [
-            "Gin",
-            "Go",
-            "HTTP",
-            "router"
-          ],
-          "tech_missing": [],
-          "tech_accuracy": 100.0,
-          "hallucinations": [],
-          "citations": 6,
-          "verified_citations": 6,
-          "claims": 3,
-          "precision": 1.0,
-          "recall": 0.0,
-          "f1": 0.0,
-          "tool_calls": 6,
-          "tools_used": [
-            "list_directory_structure",
-            "analyze_dependencies",
-            "read_file",
-            "find_entry_points"
-          ]
-        },
-        "deep_dive": {
-          "passed": true,
-          "citations": 18,
-          "verified_citations": 15,
-          "precision": 0.833,
-          "recall": 0.0,
-          "f1": 0.0,
-          "tool_calls": 12,
-          "file_refs_found": [
-            "gin.go"
-          ],
-          "answer_length": 2152
-        },
-        "language_detection": {
-          "passed": true,
-          "expected": "Go",
-          "mentioned": true
-        }
-      },
-      "passed": 3,
-      "failed": 0,
-      "overview_length": 1265,
-      "adversarial_tests": {
-        "binary_file": {
-          "passed": true,
-          "details": "No binary files to test"
-        },
-        "injection_filename": {
-          "passed": true,
-          "details": "Injection filter active"
-        },
-        "large_file": {
-          "passed": true,
-          "details": "Largest file: pack-adfde25cde23fea9146395531ee54b90668df2f1.pack (231,120 bytes)"
-        }
-      },
-      "diverse_questions": {
-        "repo": "gin",
-        "num_questions": 3,
-        "questions": [
-          {
-            "id": "arch_overview",
-            "category": "architecture",
-            "difficulty": "medium",
-            "passed": true,
-            "citations": 60,
-            "verified_citations": 60,
-            "min_citations_required": 3,
-            "precision": 1.0,
-            "recall": 0.2,
-            "f1": 0.333,
             "tool_calls": 18,
             "expected_tools": [
               "list_directory_structure",
               "read_file",
               "get_important_files"
             ],
-            "answer_length": 4034
+            "answer_length": 3695
           },
           {
             "id": "dep_external",
             "category": "dependencies",
             "difficulty": "easy",
-            "passed": true,
-            "citations": 12,
-            "verified_citations": 12,
+            "passed": false,
+            "citations": 0,
+            "verified_citations": 0,
             "min_citations_required": 2,
-            "precision": 1.0,
+            "precision": 0.0,
             "recall": 0.0,
             "f1": 0.0,
-            "tool_calls": 12,
+            "tool_calls": 21,
             "expected_tools": [
               "analyze_dependencies",
               "read_file"
             ],
-            "answer_length": 1501
+            "answer_length": 863
           },
           {
             "id": "flow_request",
             "category": "code_flow",
             "difficulty": "hard",
-            "passed": true,
-            "citations": 30,
-            "verified_citations": 30,
+            "passed": false,
+            "citations": 1,
+            "verified_citations": 1,
             "min_citations_required": 3,
             "precision": 1.0,
-            "recall": 0.4,
-            "f1": 0.571,
-            "tool_calls": 17,
+            "recall": 0.0,
+            "f1": 0.0,
+            "tool_calls": 35,
             "expected_tools": [
               "read_file",
               "search_code",
               "get_imports"
             ],
-            "answer_length": 3127
+            "answer_length": 1042
           }
         ],
         "pass_at_k_results": null,
-        "passed": 3,
-        "failed": 0,
-        "pass_rate": 100.0
+        "passed": 1,
+        "failed": 2,
+        "pass_rate": 33.33333333333333
       },
-      "total_passed": 6,
-      "total_failed": 0
+      "total_passed": 4,
+      "total_failed": 2
     },
     {
       "repo": "cobra",
@@ -902,25 +196,24 @@
           "tech_missing": [],
           "tech_accuracy": 100.0,
           "hallucinations": [],
-          "citations": 13,
-          "verified_citations": 13,
-          "claims": 4,
+          "citations": 12,
+          "verified_citations": 12,
+          "claims": 2,
           "precision": 1.0,
-          "recall": 0.75,
-          "f1": 0.857,
+          "recall": 0.0,
+          "f1": 0.0,
           "tool_calls": 8,
           "tools_used": [
             "read_file",
+            "analyze_dependencies",
             "list_directory_structure",
-            "get_important_files",
-            "find_entry_points",
-            "analyze_dependencies"
+            "find_entry_points"
           ]
         },
         "deep_dive": {
           "passed": true,
-          "citations": 13,
-          "verified_citations": 13,
+          "citations": 15,
+          "verified_citations": 15,
           "precision": 1.0,
           "recall": 0.0,
           "f1": 0.0,
@@ -929,7 +222,7 @@
             "cobra.go",
             "command.go"
           ],
-          "answer_length": 2296
+          "answer_length": 2570
         },
         "language_detection": {
           "passed": true,
@@ -939,7 +232,7 @@
       },
       "passed": 3,
       "failed": 0,
-      "overview_length": 1216,
+      "overview_length": 1279,
       "adversarial_tests": {
         "binary_file": {
           "passed": true,
@@ -963,156 +256,19 @@
             "category": "architecture",
             "difficulty": "medium",
             "passed": true,
-            "citations": 31,
-            "verified_citations": 31,
+            "citations": 41,
+            "verified_citations": 41,
             "min_citations_required": 3,
             "precision": 1.0,
-            "recall": 0.0,
-            "f1": 0.0,
-            "tool_calls": 20,
+            "recall": 0.167,
+            "f1": 0.286,
+            "tool_calls": 15,
             "expected_tools": [
               "list_directory_structure",
               "read_file",
               "get_important_files"
             ],
-            "answer_length": 3497
-          },
-          {
-            "id": "dep_external",
-            "category": "dependencies",
-            "difficulty": "easy",
-            "passed": true,
-            "citations": 21,
-            "verified_citations": 21,
-            "min_citations_required": 2,
-            "precision": 1.0,
-            "recall": 0.0,
-            "f1": 0.0,
-            "tool_calls": 17,
-            "expected_tools": [
-              "analyze_dependencies",
-              "read_file"
-            ],
-            "answer_length": 1715
-          },
-          {
-            "id": "flow_request",
-            "category": "code_flow",
-            "difficulty": "hard",
-            "passed": true,
-            "citations": 29,
-            "verified_citations": 29,
-            "min_citations_required": 3,
-            "precision": 1.0,
-            "recall": 0.0,
-            "f1": 0.0,
-            "tool_calls": 22,
-            "expected_tools": [
-              "read_file",
-              "search_code",
-              "get_imports"
-            ],
-            "answer_length": 2925
-          }
-        ],
-        "pass_at_k_results": null,
-        "passed": 3,
-        "failed": 0,
-        "pass_rate": 100.0
-      },
-      "total_passed": 6,
-      "total_failed": 0
-    },
-    {
-      "repo": "ripgrep",
-      "language": "Rust",
-      "category": "cli",
-      "tests": {
-        "overview": {
-          "passed": true,
-          "tech_found": [
-            "Rust",
-            "grep",
-            "search",
-            "regex"
-          ],
-          "tech_missing": [],
-          "tech_accuracy": 100.0,
-          "hallucinations": [],
-          "citations": 13,
-          "verified_citations": 13,
-          "claims": 1,
-          "precision": 1.0,
-          "recall": 0.0,
-          "f1": 0.0,
-          "tool_calls": 14,
-          "tools_used": [
-            "read_file",
-            "list_directory_structure",
-            "get_important_files",
-            "find_entry_points",
-            "analyze_dependencies"
-          ]
-        },
-        "deep_dive": {
-          "passed": true,
-          "citations": 32,
-          "verified_citations": 32,
-          "precision": 1.0,
-          "recall": 0.143,
-          "f1": 0.25,
-          "tool_calls": 13,
-          "file_refs_found": [
-            "Cargo.toml",
-            "main.rs"
-          ],
-          "answer_length": 2783
-        },
-        "language_detection": {
-          "passed": true,
-          "expected": "Rust",
-          "mentioned": true
-        }
-      },
-      "passed": 3,
-      "failed": 0,
-      "overview_length": 1176,
-      "adversarial_tests": {
-        "binary_file": {
-          "passed": true,
-          "details": "No binary files to test"
-        },
-        "injection_filename": {
-          "passed": true,
-          "details": "Injection filter active"
-        },
-        "large_file": {
-          "passed": true,
-          "details": "Largest file: pack-5a84364851a1ff009aca0085a3520d92633ca551.pack (633,439 bytes)"
-        }
-      },
-      "diverse_questions": {
-        "repo": "ripgrep",
-        "num_questions": 3,
-        "questions": [
-          {
-            "id": "arch_overview",
-            "category": "architecture",
-            "difficulty": "medium",
-            "passed": true,
-            "citations": 27,
-            "verified_citations": 27,
-            "min_citations_required": 3,
-            "precision": 1.0,
-            "recall": 0.0,
-            "f1": 0.0,
-            "tool_calls": 13,
-            "expected_tools": [
-              "list_directory_structure",
-              "read_file",
-              "get_important_files"
-            ],
-            "answer_length": 3495
+            "answer_length": 3515
           },
           {
             "id": "dep_external",
@@ -1125,31 +281,31 @@
             "precision": 0.0,
             "recall": 0.0,
             "f1": 0.0,
-            "tool_calls": 23,
+            "tool_calls": 19,
             "expected_tools": [
               "analyze_dependencies",
               "read_file"
             ],
-            "answer_length": 1166
+            "answer_length": 1469
           },
           {
             "id": "flow_request",
             "category": "code_flow",
             "difficulty": "hard",
             "passed": true,
-            "citations": 24,
-            "verified_citations": 24,
+            "citations": 19,
+            "verified_citations": 14,
             "min_citations_required": 3,
-            "precision": 1.0,
+            "precision": 0.737,
             "recall": 0.0,
             "f1": 0.0,
-            "tool_calls": 32,
+            "tool_calls": 18,
             "expected_tools": [
               "read_file",
               "search_code",
               "get_imports"
             ],
-            "answer_length": 2772
+            "answer_length": 3015
           }
         ],
         "pass_at_k_results": null,
@@ -1159,418 +315,6 @@
       },
       "total_passed": 5,
       "total_failed": 1
-    },
-    {
-      "repo": "langchain",
-      "language": "Python",
-      "category": "library",
-      "tests": {
-        "overview": {
-          "passed": true,
-          "tech_found": [
-            "LangChain",
-            "Python",
-            "LLM",
-            "agent"
-          ],
-          "tech_missing": [],
-          "tech_accuracy": 100.0,
-          "hallucinations": [],
-          "citations": 0,
-          "verified_citations": 0,
-          "claims": 1,
-          "precision": 0.0,
-          "recall": 1.0,
-          "f1": 0.0,
-          "tool_calls": 30,
-          "tools_used": [
-            "read_file",
-            "list_directory_structure",
-            "get_important_files",
-            "find_entry_points",
-            "analyze_dependencies"
-          ]
-        },
-        "deep_dive": {
-          "passed": true,
-          "citations": 2,
-          "verified_citations": 2,
-          "precision": 1.0,
-          "recall": 0.0,
-          "f1": 0.0,
-          "tool_calls": 38,
-          "file_refs_found": [
-            "pyproject.toml"
-          ],
-          "answer_length": 1602
-        },
-        "language_detection": {
-          "passed": true,
-          "expected": "Python",
-          "mentioned": true
-        }
-      },
-      "passed": 3,
-      "failed": 0,
-      "overview_length": 2172,
-      "adversarial_tests": {
-        "binary_file": {
-          "passed": true,
-          "details": "No binary files to test"
-        },
-        "injection_filename": {
-          "passed": true,
-          "details": "Injection filter active"
-        },
-        "large_file": {
-          "passed": true,
-          "details": "Largest file: pack-e80c965629bf41ea19a770e0137e5a36db740384.pack (14,819,852 bytes)"
-        }
-      },
-      "diverse_questions": {
-        "repo": "langchain",
-        "num_questions": 3,
-        "questions": [
-          {
-            "id": "arch_overview",
-            "category": "architecture",
-            "difficulty": "medium",
-            "passed": true,
-            "citations": 23,
-            "verified_citations": 23,
-            "min_citations_required": 3,
-            "precision": 1.0,
-            "recall": 0.0,
-            "f1": 0.0,
-            "tool_calls": 14,
-            "expected_tools": [
-              "list_directory_structure",
-              "read_file",
-              "get_important_files"
-            ],
-            "answer_length": 3300
-          },
-          {
-            "id": "dep_external",
-            "category": "dependencies",
-            "difficulty": "easy",
-            "passed": false,
-            "citations": 1,
-            "verified_citations": 1,
-            "min_citations_required": 2,
-            "precision": 1.0,
-            "recall": 0.0,
-            "f1": 0.0,
-            "tool_calls": 37,
-            "expected_tools": [
-              "analyze_dependencies",
-              "read_file"
-            ],
-            "answer_length": 1192
-          },
-          {
-            "id": "flow_request",
-            "category": "code_flow",
-            "difficulty": "hard",
-            "passed": false,
-            "citations": 0,
-            "verified_citations": 0,
-            "min_citations_required": 3,
-            "precision": 0.0,
-            "recall": 0.5,
-            "f1": 0.0,
-            "tool_calls": 44,
-            "expected_tools": [
-              "read_file",
-              "search_code",
-              "get_imports"
-            ],
-            "answer_length": 1585
-          }
-        ],
-        "pass_at_k_results": null,
-        "passed": 1,
-        "failed": 2,
-        "pass_rate": 33.33333333333333
-      },
-      "total_passed": 4,
-      "total_failed": 2
-    },
-    {
-      "repo": "fastapi",
-      "language": "Python",
-      "category": "framework",
-      "tests": {
-        "overview": {
-          "passed": true,
-          "tech_found": [
-            "FastAPI",
-            "Python",
-            "Starlette",
-            "Pydantic"
-          ],
-          "tech_missing": [
-            "async"
-          ],
-          "tech_accuracy": 80.0,
-          "hallucinations": [],
-          "citations": 0,
-          "verified_citations": 0,
-          "claims": 2,
-          "precision": 0.0,
-          "recall": 0.0,
-          "f1": 0.0,
-          "tool_calls": 26,
-          "tools_used": [
-            "read_file",
-            "search_code",
-            "list_directory_structure",
-            "get_important_files",
-            "find_entry_points",
-            "analyze_dependencies"
-          ]
-        },
-        "deep_dive": {
-          "passed": true,
-          "citations": 12,
-          "verified_citations": 12,
-          "precision": 1.0,
-          "recall": 0.0,
-          "f1": 0.0,
-          "tool_calls": 14,
-          "file_refs_found": [
-            "pyproject.toml",
-            "fastapi/__init__.py"
-          ],
-          "answer_length": 1840
-        },
-        "language_detection": {
-          "passed": true,
-          "expected": "Python",
-          "mentioned": true
-        }
-      },
-      "passed": 3,
-      "failed": 0,
-      "overview_length": 1511,
-      "adversarial_tests": {
-        "binary_file": {
-          "passed": true,
-          "details": "Found 179 binary files"
-        },
-        "injection_filename": {
-          "passed": true,
-          "details": "Injection filter active"
-        },
-        "large_file": {
-          "passed": true,
-          "details": "Largest file: pack-221391f3f799c32cfa09fcb4fc0b41f362823e7b.pack (14,749,991 bytes)"
-        }
-      },
-      "diverse_questions": {
-        "repo": "fastapi",
-        "num_questions": 3,
-        "questions": [
-          {
-            "id": "arch_overview",
-            "category": "architecture",
-            "difficulty": "medium",
-            "passed": true,
-            "citations": 17,
-            "verified_citations": 17,
-            "min_citations_required": 3,
-            "precision": 1.0,
-            "recall": 0.0,
-            "f1": 0.0,
-            "tool_calls": 24,
-            "expected_tools": [
-              "list_directory_structure",
-              "read_file",
-              "get_important_files"
-            ],
-            "answer_length": 2895
-          },
-          {
-            "id": "dep_external",
-            "category": "dependencies",
-            "difficulty": "easy",
-            "passed": true,
-            "citations": 10,
-            "verified_citations": 9,
-            "min_citations_required": 2,
-            "precision": 0.9,
-            "recall": 0.0,
-            "f1": 0.0,
-            "tool_calls": 11,
-            "expected_tools": [
-              "analyze_dependencies",
-              "read_file"
-            ],
-            "answer_length": 1540
-          },
-          {
-            "id": "flow_request",
-            "category": "code_flow",
-            "difficulty": "hard",
-            "passed": false,
-            "citations": 0,
-            "verified_citations": 0,
-            "min_citations_required": 3,
-            "precision": 0.0,
-            "recall": 1.0,
-            "f1": 0.0,
-            "tool_calls": 35,
-            "expected_tools": [
-              "read_file",
-              "search_code",
-              "get_imports"
-            ],
-            "answer_length": 1284
-          }
-        ],
-        "pass_at_k_results": null,
-        "passed": 2,
-        "failed": 1,
-        "pass_rate": 66.66666666666666
-      },
-      "total_passed": 5,
-      "total_failed": 1
-    },
-    {
-      "repo": "turborepo",
-      "language": "Rust",
-      "category": "cli",
-      "tests": {
-        "overview": {
-          "passed": true,
-          "tech_found": [
-            "Turborepo",
-            "Rust",
-            "monorepo",
-            "build"
-          ],
-          "tech_missing": [],
-          "tech_accuracy": 100.0,
-          "hallucinations": [],
-          "citations": 2,
-          "verified_citations": 2,
-          "claims": 1,
-          "precision": 1.0,
-          "recall": 0.0,
-          "f1": 0.0,
-          "tool_calls": 14,
-          "tools_used": [
-            "read_file",
-            "list_directory_structure",
-            "get_important_files",
-            "find_entry_points",
-            "analyze_dependencies"
-          ]
-        },
-        "deep_dive": {
-          "passed": false,
-          "citations": 0,
-          "verified_citations": 0,
-          "precision": 0.0,
-          "recall": 0.5,
-          "f1": 0.0,
-          "tool_calls": 21,
-          "file_refs_found": [
-            "Cargo.toml"
-          ],
-          "answer_length": 1577
-        },
-        "language_detection": {
-          "passed": true,
-          "expected": "Rust",
-          "mentioned": true
-        }
-      },
-      "passed": 2,
-      "failed": 1,
-      "overview_length": 653,
-      "adversarial_tests": {
-        "binary_file": {
-          "passed": true,
-          "details": "Found 103 binary files"
-        },
-        "injection_filename": {
-          "passed": true,
-          "details": "Injection filter active"
-        },
-        "large_file": {
-          "passed": true,
-          "details": "Largest file: pack-57622e109cf14d0965c67609ed9e05e73dc714ce.pack (61,653,938 bytes)"
-        }
-      },
-      "diverse_questions": {
-        "repo": "turborepo",
-        "num_questions": 3,
-        "questions": [
-          {
-            "id": "arch_overview",
-            "category": "architecture",
-            "difficulty": "medium",
-            "passed": false,
-            "citations": 0,
-            "verified_citations": 0,
-            "min_citations_required": 3,
-            "precision": 0.0,
-            "recall": 0.0,
-            "f1": 0.0,
-            "tool_calls": 38,
-            "expected_tools": [
-              "list_directory_structure",
-              "read_file",
-              "get_important_files"
-            ],
-            "answer_length": 3032
-          },
-          {
-            "id": "dep_external",
-            "category": "dependencies",
-            "difficulty": "easy",
-            "passed": true,
-            "citations": 27,
-            "verified_citations": 27,
-            "min_citations_required": 2,
-            "precision": 1.0,
-            "recall": 0.667,
-            "f1": 0.8,
-            "tool_calls": 11,
-            "expected_tools": [
-              "analyze_dependencies",
-              "read_file"
-            ],
-            "answer_length": 3215
-          },
-          {
-            "id": "flow_request",
-            "category": "code_flow",
-            "difficulty": "hard",
-            "passed": false,
-            "citations": 0,
-            "verified_citations": 0,
-            "min_citations_required": 3,
-            "precision": 0.0,
-            "recall": 0.0,
-            "f1": 0.0,
-            "tool_calls": 26,
-            "expected_tools": [
-              "read_file",
-              "search_code",
-              "get_imports"
-            ],
-            "answer_length": 2319
-          }
-        ],
-        "pass_at_k_results": null,
-        "passed": 1,
-        "failed": 2,
-        "pass_rate": 33.33333333333333
-      },
-      "total_passed": 3,
-      "total_failed": 3
     }
   ]
 }

@@ -7,16 +7,40 @@
     "tests_passed": 31,
     "tests_failed": 2,
     "by_language": {
-      "Python": {"passed": 13, "failed": 2},
-      "TypeScript": {"passed": 3, "failed": 0},
-      "JavaScript": {"passed": 3, "failed": 0},
-      "Go": {"passed": 6, "failed": 0},
-      "Rust": {"passed": 6, "failed": 0}
+      "Python": {
+        "passed": 13,
+        "failed": 2
+      },
+      "TypeScript": {
+        "passed": 3,
+        "failed": 0
+      },
+      "JavaScript": {
+        "passed": 3,
+        "failed": 0
+      },
+      "Go": {
+        "passed": 6,
+        "failed": 0
+      },
+      "Rust": {
+        "passed": 6,
+        "failed": 0
+      }
     },
     "by_category": {
-      "framework": {"passed": 11, "failed": 1},
-      "library": {"passed": 8, "failed": 1},
-      "cli": {"passed": 12, "failed": 0}
+      "framework": {
+        "passed": 11,
+        "failed": 1
+      },
+      "library": {
+        "passed": 8,
+        "failed": 1
+      },
+      "cli": {
+        "passed": 12,
+        "failed": 0
+      }
     },
     "quality_metrics": {
       "precision": 0.0,
@@ -37,16 +61,40 @@
     "tests_passed": 31,
     "tests_failed": 2,
     "by_language": {
-      "Python": {"passed": 14, "failed": 1},
-      "TypeScript": {"passed": 3, "failed": 0},
-      "JavaScript": {"passed": 3, "failed": 0},
-      "Go": {"passed": 6, "failed": 0},
-      "Rust": {"passed": 5, "failed": 1}
+      "Python": {
+        "passed": 14,
+        "failed": 1
+      },
+      "TypeScript": {
+        "passed": 3,
+        "failed": 0
+      },
+      "JavaScript": {
+        "passed": 3,
+        "failed": 0
+      },
+      "Go": {
+        "passed": 6,
+        "failed": 0
+      },
+      "Rust": {
+        "passed": 5,
+        "failed": 1
+      }
     },
     "by_category": {
-      "framework": {"passed": 12, "failed": 0},
-      "library": {"passed": 8, "failed": 1},
-      "cli": {"passed": 11, "failed": 1}
+      "framework": {
+        "passed": 12,
+        "failed": 0
+      },
+      "library": {
+        "passed": 8,
+        "failed": 1
+      },
+      "cli": {
+        "passed": 11,
+        "failed": 1
+      }
     },
     "quality_metrics": {
       "precision": 98.42,
@@ -69,16 +117,40 @@
     "tests_passed": 52,
     "tests_failed": 14,
     "by_language": {
-      "Python": {"passed": 13, "failed": 2},
-      "TypeScript": {"passed": 3, "failed": 0},
-      "JavaScript": {"passed": 3, "failed": 0},
-      "Go": {"passed": 6, "failed": 0},
-      "Rust": {"passed": 5, "failed": 1}
+      "Python": {
+        "passed": 13,
+        "failed": 2
+      },
+      "TypeScript": {
+        "passed": 3,
+        "failed": 0
+      },
+      "JavaScript": {
+        "passed": 3,
+        "failed": 0
+      },
+      "Go": {
+        "passed": 6,
+        "failed": 0
+      },
+      "Rust": {
+        "passed": 5,
+        "failed": 1
+      }
     },
     "by_category": {
-      "framework": {"passed": 12, "failed": 0},
-      "library": {"passed": 9, "failed": 0},
-      "cli": {"passed": 9, "failed": 3}
+      "framework": {
+        "passed": 12,
+        "failed": 0
+      },
+      "library": {
+        "passed": 9,
+        "failed": 0
+      },
+      "cli": {
+        "passed": 9,
+        "failed": 3
+      }
     },
     "quality_metrics": {
       "precision": 96.5,
@@ -92,5 +164,48 @@
     "timestamp": "2026-01-31T14:06:49.552532",
     "version": "v3",
     "note": "Diverse questions eval (6 tests/repo) - harder questions lower pass rate"
+  },
+  {
+    "total_repos": 2,
+    "repos_passed": 0,
+    "repos_failed": 2,
+    "total_tests": 12,
+    "tests_passed": 9,
+    "tests_failed": 3,
+    "by_language": {
+      "Python": {
+        "passed": 3,
+        "failed": 0
+      },
+      "Go": {
+        "passed": 3,
+        "failed": 0
+      }
+    },
+    "by_category": {
+      "cli": {
+        "passed": 6,
+        "failed": 0
+      }
+    },
+    "total_citations": 41,
+    "valid_citations": 41,
+    "total_claims": 3,
+    "cited_claims": 0,
+    "grounded_claims": 0,
+    "quality_metrics": {
+      "precision": 100.0,
+      "recall": 0.0,
+      "f1_score": 0.0,
+      "grounding_rate": 0.0,
+      "total_citations": 41,
+      "valid_citations": 41,
+      "total_claims": 3,
+      "cited_claims": 0,
+      "grounded_claims": 0
+    },
+    "pass_rate": 75.0,
+    "timestamp": "2026-01-31T15:38:32.523743",
+    "version": "v3"
   }
 ]
