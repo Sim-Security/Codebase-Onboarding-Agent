@@ -1,32 +1,36 @@
 {
-  "timestamp": "2026-01-31T16:11:28.308854",
+  "timestamp": "2026-01-31T16:30:51.886152",
   "model": "x-ai/grok-4.1-fast",
   "summary": {
     "total_repos": 2,
     "repos_passed": 0,
     "repos_failed": 2,
     "total_tests": 12,
-    "tests_passed": 7,
-    "tests_failed": 5,
+    "tests_passed": 8,
+    "tests_failed": 4,
     "by_language": {
-      "Python": {
+      "Rust": {
         "passed": 2,
         "failed": 1
       },
-      "Rust": {
+      "Python": {
         "passed": 2,
         "failed": 1
       }
     },
     "by_category": {
       "cli": {
-        "passed": 4,
-        "failed": 2
+        "passed": 2,
+        "failed": 1
+      },
+      "framework": {
+        "passed": 2,
+        "failed": 1
       }
     },
-    "total_citations": 9,
-    "valid_citations": 9,
-    "total_claims": 4,
+    "total_citations": 20,
+    "valid_citations": 20,
+    "total_claims": 6,
     "cited_claims": 0,
     "grounded_claims": 0,
     "quality_metrics": {
@@ -34,59 +38,59 @@
       "recall": 0.0,
       "f1_score": 0.0,
       "grounding_rate": 0.0,
-      "total_citations": 9,
-      "valid_citations": 9,
-      "total_claims": 4,
+      "total_citations": 20,
+      "valid_citations": 20,
+      "total_claims": 6,
       "cited_claims": 0,
       "grounded_claims": 0
     },
-    "pass_rate": 58.333333333333336,
+    "pass_rate": 66.66666666666666,
     "tool_metrics": {
       "total_questions": 8,
       "questions_with_read_file": 8,
-      "questions_with_citations": 3,
+      "questions_with_citations": 5,
       "questions_with_ungrounded_citations": 0,
-      "total_read_file_calls": 93,
-      "total_search_code_calls": 42,
-      "total_tool_calls": 171,
-      "total_citations": 63,
+      "total_read_file_calls": 101,
+      "total_search_code_calls": 44,
+      "total_tool_calls": 204,
+      "total_citations": 97,
       "grounding_violation_count": 0,
       "read_file_rate": 100.0,
       "grounding_rate": 100.0,
-      "avg_read_file_per_question": 11.625,
-      "avg_search_code_per_question": 5.25
+      "avg_read_file_per_question": 12.625,
+      "avg_search_code_per_question": 5.5
     }
   },
   "results": [
     {
-      "repo": "click",
-      "language": "Python",
+      "repo": "ripgrep",
+      "language": "Rust",
       "category": "cli",
       "tests": {
         "overview": {
           "passed": true,
           "tech_found": [
-            "Click",
-            "Python",
-            "CLI",
-            "command"
+            "Rust",
+            "grep",
+            "search",
+            "regex"
           ],
           "tech_missing": [],
           "tech_accuracy": 100.0,
           "hallucinations": [],
-          "citations": 8,
-          "verified_citations": 8,
-          "claims": 1,
+          "citations": 11,
+          "verified_citations": 11,
+          "claims": 5,
           "precision": 1.0,
           "recall": 0.0,
           "f1": 0.0,
-          "tool_calls": 9,
+          "tool_calls": 33,
           "tools_used": [
-            "list_directory_structure",
-            "read_file",
-            "find_entry_points",
             "get_important_files",
-            "analyze_dependencies"
+            "read_file",
+            "list_directory_structure",
+            "analyze_dependencies",
+            "find_entry_points"
           ]
         },
         "deep_dive": {
@@ -94,40 +98,40 @@
           "citations": 0,
           "verified_citations": 0,
           "precision": 0.0,
-          "recall": 0.143,
+          "recall": 0.2,
           "f1": 0.0,
-          "tool_calls": 21,
-          "file_refs_found": [],
-          "answer_length": 1941,
-          "read_file_calls": 12,
+          "tool_calls": 19,
+          "file_refs_found": [
+            "Cargo.toml",
+            "main.rs"
+          ],
+          "answer_length": 1136,
+          "read_file_calls": 7,
           "search_code_calls": 4,
           "has_citations_without_read": false,
           "grounding_valid": true,
           "files_read": [
-            "examples/complex/complex/cli.py",
-            "pyproject.toml",
-            "examples/aliases/aliases.py",
-            "src/click/core.py",
-            "src/click/__init__.py",
-            "README.md",
-            "examples/colors/colors.py",
-            "examples/repo/repo.py"
+            "crates/core/main.rs",
+            "crates/core/search.rs",
+            "crates/core/Cargo.toml",
+            "Cargo.toml",
+            "crates/core/flags/mod.rs"
           ],
           "ungrounded_files": []
         },
         "language_detection": {
           "passed": true,
-          "expected": "Python",
+          "expected": "Rust",
           "mentioned": true
         }
       },
       "passed": 2,
       "failed": 1,
-      "overview_length": 1340,
+      "overview_length": 1553,
       "adversarial_tests": {
         "binary_file": {
           "passed": true,
-          "details": "Found 2 binary files"
+          "details": "No binary files to test"
         },
         "injection_filename": {
           "passed": true,
@@ -135,11 +139,11 @@
         },
         "large_file": {
           "passed": true,
-          "details": "Largest file: pack-92458d03315007e711747c9509cd987fcb975cb2.pack (444,650 bytes)"
+          "details": "Largest file: pack-5a84364851a1ff009aca0085a3520d92633ca551.pack (633,439 bytes)"
         }
       },
       "diverse_questions": {
-        "repo": "click",
+        "repo": "ripgrep",
         "num_questions": 3,
         "questions": [
           {
@@ -147,21 +151,21 @@
             "category": "architecture",
             "difficulty": "medium",
             "passed": true,
-            "citations": 17,
-            "verified_citations": 17,
+            "citations": 49,
+            "verified_citations": 49,
             "min_citations_required": 3,
             "precision": 1.0,
             "recall": 0.0,
             "f1": 0.0,
-            "tool_calls": 22,
+            "tool_calls": 13,
             "expected_tools": [
               "list_directory_structure",
               "read_file",
               "get_important_files"
             ],
-            "answer_length": 4164,
-            "read_file_calls": 10,
-            "search_code_calls": 8,
+            "answer_length": 4742,
+            "read_file_calls": 5,
+            "search_code_calls": 3,
             "has_citations_without_read": false,
             "grounding_valid": true
           },
@@ -170,20 +174,20 @@
             "category": "dependencies",
             "difficulty": "easy",
             "passed": true,
-            "citations": 7,
-            "verified_citations": 7,
+            "citations": 30,
+            "verified_citations": 30,
             "min_citations_required": 2,
             "precision": 1.0,
             "recall": 0.0,
             "f1": 0.0,
-            "tool_calls": 9,
+            "tool_calls": 16,
             "expected_tools": [
               "analyze_dependencies",
               "read_file"
             ],
-            "answer_length": 2074,
-            "read_file_calls": 2,
-            "search_code_calls": 3,
+            "answer_length": 3087,
+            "read_file_calls": 7,
+            "search_code_calls": 4,
             "has_citations_without_read": false,
             "grounding_valid": true
           },
@@ -192,20 +196,20 @@
             "category": "code_flow",
             "difficulty": "hard",
             "passed": true,
-            "citations": 39,
-            "verified_citations": 39,
-            "min_citations_required": 3,
+            "citations": 9,
+            "verified_citations": 9,
+            "min_citations_required": 4,
             "precision": 1.0,
-            "recall": 0.273,
-            "f1": 0.429,
-            "tool_calls": 23,
+            "recall": 0.0,
+            "f1": 0.0,
+            "tool_calls": 48,
             "expected_tools": [
+              "find_entry_points",
               "read_file",
-              "search_code",
               "get_imports"
             ],
-            "answer_length": 5156,
-            "read_file_calls": 12,
+            "answer_length": 2616,
+            "read_file_calls": 26,
             "search_code_calls": 7,
             "has_citations_without_read": false,
             "grounding_valid": true
@@ -220,34 +224,36 @@
       "total_failed": 1
     },
     {
-      "repo": "turborepo",
-      "language": "Rust",
-      "category": "cli",
+      "repo": "fastapi",
+      "language": "Python",
+      "category": "framework",
       "tests": {
         "overview": {
           "passed": true,
           "tech_found": [
-            "Turborepo",
-            "Rust",
-            "monorepo",
-            "build"
+            "FastAPI",
+            "Python",
+            "Starlette",
+            "Pydantic"
           ],
-          "tech_missing": [],
-          "tech_accuracy": 100.0,
+          "tech_missing": [
+            "async"
+          ],
+          "tech_accuracy": 80.0,
           "hallucinations": [],
-          "citations": 1,
-          "verified_citations": 1,
-          "claims": 3,
+          "citations": 9,
+          "verified_citations": 9,
+          "claims": 1,
           "precision": 1.0,
-          "recall": 0.333,
-          "f1": 0.5,
-          "tool_calls": 19,
+          "recall": 0.0,
+          "f1": 0.0,
+          "tool_calls": 10,
           "tools_used": [
-            "list_directory_structure",
-            "read_file",
-            "find_entry_points",
             "get_important_files",
-            "analyze_dependencies"
+            "read_file",
+            "list_directory_structure",
+            "analyze_dependencies",
+            "find_entry_points"
           ]
         },
         "deep_dive": {
@@ -255,39 +261,44 @@
           "citations": 0,
           "verified_citations": 0,
           "precision": 0.0,
-          "recall": 0.0,
+          "recall": 0.5,
           "f1": 0.0,
-          "tool_calls": 15,
-          "file_refs_found": [],
-          "answer_length": 2025,
-          "read_file_calls": 9,
-          "search_code_calls": 2,
+          "tool_calls": 28,
+          "file_refs_found": [
+            "pyproject.toml"
+          ],
+          "answer_length": 1702,
+          "read_file_calls": 14,
+          "search_code_calls": 7,
           "has_citations_without_read": false,
           "grounding_valid": true,
           "files_read": [
-            "crates/turborepo/Cargo.toml",
-            "crates/turborepo/ARCHITECTURE.md",
-            "crates/turborepo-lib/Cargo.toml",
-            "crates/turborepo-lib/src/cli/mod.rs",
-            "crates/turborepo/src/main.rs",
-            "crates/turbo-trace/src/main.rs",
-            "crates/turborepo-lib/src/lib.rs"
+            "scripts/translate.py",
+            "pyproject.toml",
+            "fastapi/applications.py",
+            "fastapi/__init__.py",
+            "tests/main.py",
+            "docs_src/debugging/tutorial001_py39.py",
+            "fastapi/cli.py",
+            "scripts/docs.py",
+            "docs_src/first_steps/tutorial001_py39.py",
+            "fastapi/__main__.py"
           ],
           "ungrounded_files": []
         },
         "language_detection": {
           "passed": true,
-          "expected": "Rust",
+          "expected": "Python",
           "mentioned": true
         }
       },
       "passed": 2,
       "failed": 1,
-      "overview_length": 1611,
+      "overview_length": 1225,
       "adversarial_tests": {
         "binary_file": {
           "passed": true,
-          "details": "Found 103 binary files"
+          "details": "Found 179 binary files"
         },
         "injection_filename": {
           "passed": true,
@@ -295,11 +306,11 @@
         },
         "large_file": {
           "passed": true,
-          "details": "Largest file: pack-6e58cfa69d3a74c5c2fcf52cebc6b689f57f9cc1.pack (61,644,964 bytes)"
+          "details": "Largest file: pack-221391f3f799c32cfa09fcb4fc0b41f362823e7b.pack (14,749,991 bytes)"
         }
       },
       "diverse_questions": {
-        "repo": "turborepo",
+        "repo": "fastapi",
         "num_questions": 3,
         "questions": [
           {
@@ -307,21 +318,21 @@
             "category": "architecture",
             "difficulty": "medium",
             "passed": false,
-            "citations": 0,
-            "verified_citations": 0,
+            "citations": 2,
+            "verified_citations": 2,
             "min_citations_required": 3,
-            "precision": 0.0,
-            "recall": 0.0,
-            "f1": 0.0,
-            "tool_calls": 27,
+            "precision": 1.0,
+            "recall": 0.6,
+            "f1": 0.75,
+            "tool_calls": 34,
             "expected_tools": [
               "list_directory_structure",
               "read_file",
               "get_important_files"
             ],
-            "answer_length": 2251,
-            "read_file_calls": 18,
-            "search_code_calls": 4,
+            "answer_length": 3636,
+            "read_file_calls": 22,
+            "search_code_calls": 6,
             "has_citations_without_read": false,
             "grounding_valid": true
           },
@@ -334,16 +345,16 @@
             "verified_citations": 0,
             "min_citations_required": 2,
             "precision": 0.0,
-            "recall": 0.0,
+            "recall": 0.75,
             "f1": 0.0,
-            "tool_calls": 19,
+            "tool_calls": 23,
             "expected_tools": [
               "analyze_dependencies",
               "read_file"
             ],
-            "answer_length": 1415,
-            "read_file_calls": 12,
-            "search_code_calls": 2,
+            "answer_length": 2209,
+            "read_file_calls": 9,
+            "search_code_calls": 6,
             "has_citations_without_read": false,
             "grounding_valid": true
           },
@@ -351,33 +362,33 @@
             "id": "flow_request",
             "category": "code_flow",
             "difficulty": "hard",
-            "passed": false,
-            "citations": 0,
-            "verified_citations": 0,
-            "min_citations_required": 3,
-            "precision": 0.0,
-            "recall": 0.75,
+            "passed": true,
+            "citations": 7,
+            "verified_citations": 7,
+            "min_citations_required": 4,
+            "precision": 1.0,
+            "recall": 0.0,
             "f1": 0.0,
-            "tool_calls": 35,
+            "tool_calls": 23,
             "expected_tools": [
+              "find_entry_points",
               "read_file",
-              "search_code",
               "get_imports"
             ],
-            "answer_length": 1940,
-            "read_file_calls": 18,
-            "search_code_calls": 12,
+            "answer_length": 3090,
+            "read_file_calls": 11,
+            "search_code_calls": 7,
             "has_citations_without_read": false,
             "grounding_valid": true
           }
         ],
         "pass_at_k_results": null,
-        "passed": 0,
-        "failed": 3,
-        "pass_rate": 0.0
+        "passed": 1,
+        "failed": 2,
+        "pass_rate": 33.33333333333333
       },
-      "total_passed": 2,
-      "total_failed": 4
+      "total_passed": 3,
+      "total_failed": 3
     }
   ]
 }

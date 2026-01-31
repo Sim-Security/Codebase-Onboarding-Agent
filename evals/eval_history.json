@@ -265,5 +265,67 @@
     },
     "timestamp": "2026-01-31T16:11:28.308358",
     "version": "v3"
+  },
+  {
+    "total_repos": 2,
+    "repos_passed": 0,
+    "repos_failed": 2,
+    "total_tests": 12,
+    "tests_passed": 8,
+    "tests_failed": 4,
+    "by_language": {
+      "Rust": {
+        "passed": 2,
+        "failed": 1
+      },
+      "Python": {
+        "passed": 2,
+        "failed": 1
+      }
+    },
+    "by_category": {
+      "cli": {
+        "passed": 2,
+        "failed": 1
+      },
+      "framework": {
+        "passed": 2,
+        "failed": 1
+      }
+    },
+    "total_citations": 20,
+    "valid_citations": 20,
+    "total_claims": 6,
+    "cited_claims": 0,
+    "grounded_claims": 0,
+    "quality_metrics": {
+      "precision": 100.0,
+      "recall": 0.0,
+      "f1_score": 0.0,
+      "grounding_rate": 0.0,
+      "total_citations": 20,
+      "valid_citations": 20,
+      "total_claims": 6,
+      "cited_claims": 0,
+      "grounded_claims": 0
+    },
+    "pass_rate": 66.66666666666666,
+    "tool_metrics": {
+      "total_questions": 8,
+      "questions_with_read_file": 8,
+      "questions_with_citations": 5,
+      "questions_with_ungrounded_citations": 0,
+      "total_read_file_calls": 101,
+      "total_search_code_calls": 44,
+      "total_tool_calls": 204,
+      "total_citations": 97,
+      "grounding_violation_count": 0,
+      "read_file_rate": 100.0,
+      "grounding_rate": 100.0,
+      "avg_read_file_per_question": 12.625,
+      "avg_search_code_per_question": 5.5
+    },
+    "timestamp": "2026-01-31T16:30:51.885639",
+    "version": "v3"
   }
 ]

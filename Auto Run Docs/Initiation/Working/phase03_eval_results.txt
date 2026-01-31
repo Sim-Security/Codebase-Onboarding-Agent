@@ -1,0 +1,147 @@
+/home/ranomis/Projects/Codebase-Onboarding-Agent/.venv/lib/python3.14/site-packages/langchain_core/_api/deprecation.py:26: UserWarning: Core Pydantic V1 functionality isn't compatible with Python 3.14 or greater.
+  from pydantic.v1.fields import FieldInfo as FieldInfoV1
+WARNING:root:Injection pattern detected in : ignore\s+(all\s+)?previous\s+instructions
+WARNING:root:Injection pattern detected in : ignore\s+(all\s+)?previous\s+instructions
+WARNING:src.agent:VALIDATION FAILURE: Citations reference unread files: ['scripts/translate.py', 'fastapi/utils.py', 'scripts/notify_translations.py', 'docs_src/body/tutorial001_py39.py']
+============================================================
+🧪 Codebase Onboarding Agent - Multi-Repo Eval Suite
+============================================================
+
+Testing 2 repositories | Diverse questions: 3 per repo
+
+
+[1/2] 📦 ripgrep (Rust, cli)
+--------------------------------------------------
+  Cloning https://github.com/BurntSushi/ripgrep...
+  ✓ Cloned successfully
+  ✓ Agent initialized
+    Testing overview generation...
+    Testing deep-dive question...
+    Testing language detection...
+    Testing adversarial cases...
+    Testing diverse questions...
+      [1/3] architecture/arch_overview: medium
+      [2/3] dependencies/dep_external: easy
+      [3/3] code_flow/flow_request: hard
+  ⚠️  5/6 tests passed
+
+[2/2] 📦 fastapi (Python, framework)
+--------------------------------------------------
+  Cloning https://github.com/fastapi/fastapi...
+  ✓ Cloned successfully
+  ✓ Agent initialized
+    Testing overview generation...
+    Testing deep-dive question...
+    Testing language detection...
+    Testing adversarial cases...
+    Testing diverse questions...
+      [1/3] architecture/arch_overview: medium
+      [2/3] dependencies/dep_external: easy
+      [3/3] code_flow/flow_request: hard
+  ⚠️  3/6 tests passed
+
+============================================================
+📈 EVAL SUMMARY
+============================================================
+
+📊 Overall Results:
+   Repositories: 0/2 passed
+   Tests: 8/12 passed (66.7%)
+
+📊 By Language:
+   ⚠️ Rust: 2/3 (66.7%)
+   ⚠️ Python: 2/3 (66.7%)
+
+📊 By Category:
+   ⚠️ cli: 2/3 (66.7%)
+   ⚠️ framework: 2/3 (66.7%)
+
+Quality Metrics:
+  Precision (valid citations / total): 100.0%
+  Recall (cited claims / total claims): 0.0%
+  F1 Score: 0.0%
+  Grounding Rate: 0.0%
+
+Details:
+  Citations: 20/20 valid
+  Claims: 0/6 cited, 0 grounded
+
+
+┌──────────────────────────────────────────────────────────┐
+│                    TOOL USAGE METRICS                    │
+├──────────────────────────────────────────────────────────┤
+│  read_file Usage: 🟢 100.0%                               │
+│  Grounding Rate: 🟢 100.0%                                │
+├──────────────────────────────────────────────────────────┤
+│  Total Questions: 8                                      │
+│  Questions with read_file: 8                             │
+│  Questions with Citations: 5                             │
+│  Grounding Violations: 0                                 │
+├──────────────────────────────────────────────────────────┤
+│  Avg read_file/question: 12.62                           │
+│  Avg search_code/question: 5.50                          │
+│  Total Tool Calls: 204                                   │
+└──────────────────────────────────────────────────────────┘
+
+📊 Comparison with Previous Run:
+────────────────────────────────────────
+  Pass Rate: 66.7% 🟢 ↑ (was 58.3%, diff: +8.3)
+  Precision: 100.0% ⚪ → (was 100.0%, diff: +0.0)
+  Recall: 0.0% ⚪ → (was 0.0%, diff: +0.0)
+  F1 Score: 0.0% ⚪ → (was 0.0%, diff: +0.0)
+  Grounding Rate: 0.0% ⚪ → (was 0.0%, diff: +0.0)
+
+  Tests: 8 passed, 4 failed
+  Previous: 7 passed, 5 failed
+
+  Previous run: 2026-01-31T16:11:28.308358
+
+⚠️  Failures Detail:
+
+   ripgrep (Rust):
+      - deep_dive: Failed (citations: 0, tools: 19)
+
+   fastapi (Python):
+      - deep_dive: Failed (citations: 0, tools: 28)
+============================================================
+📊 CODEBASE ONBOARDING AGENT - EVALUATION REPORT
+============================================================
+Generated: 2026-01-31 16:30:51
+
+┌──────────────────────────────────────────────────────────┐
+│                      OVERALL SUMMARY                     │
+├──────────────────────────────────────────────────────────┤
+│  Pass Rate: 🟡 66.7%                                      │
+│  Tests Passed: 8/12                                      │
+│  Repos Tested: 0                                         │
+└──────────────────────────────────────────────────────────┘
+
+┌──────────────────────────────────────────────────────────┐
+│                      QUALITY METRICS                     │
+├──────────────────────────────────────────────────────────┤
+│  Citation Precision: 🟢 100.0%                            │
+│  Claim Recall: 🔴 0.0%                                    │
+│  F1 Score: 🔴 0.0%                                        │
+│  Grounding Rate: 🔴 0.0%                                  │
+└──────────────────────────────────────────────────────────┘
+
+┌──────────────────────────────────────────────────────────┐
+│                  PER-REPOSITORY RESULTS                  │
+├─────────────────────────────┬──────────────┬─────────────┤
+│ Repository                  │   Pass Rate  │    Status   │
+├─────────────────────────────┼──────────────┼─────────────┤
+│ ripgrep                     │     67%      │   ⚠️ WARN   │
+│ fastapi                     │     67%      │   ⚠️ WARN   │
+└─────────────────────────────┴──────────────┴─────────────┘
+
+────────────────────────────────────────────────────────────
+Report generated by Codebase Onboarding Agent V3
+============================================================
+
+Results saved to:
+  JSON: evals/eval_results_20260131_163051.json
+  Text: evals/eval_report_20260131_163051.txt
+
+📁 Results saved to: /home/ranomis/Projects/Codebase-Onboarding-Agent/evals/multi_repo_results.json
+
+✅ Multi-repo eval complete!
