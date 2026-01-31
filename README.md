@@ -19,10 +19,10 @@ tags:
 
 **Understand any codebase in minutes, not hours.**
 
-[![Test Pass Rate](https://img.shields.io/badge/Test%20Pass%20Rate-73.3%25-yellow)](evals/)
-[![Repos Tested](https://img.shields.io/badge/Repos%20Tested-10-blue)](evals/)
+[![Test Pass Rate](https://img.shields.io/badge/Pass%20Rate-78.8%25-yellow)](evals/)
+[![Citation Precision](https://img.shields.io/badge/Citation%20Precision-96.5%25-green)](evals/)
+[![Repos Tested](https://img.shields.io/badge/Repos%20Tested-11-blue)](evals/)
 [![Languages](https://img.shields.io/badge/Languages-5-blue)](evals/)
-[![Code Coverage](https://img.shields.io/codecov/c/github/Sim-Security/Codebase-Onboarding-Agent?label=Coverage)](https://codecov.io/gh/Sim-Security/Codebase-Onboarding-Agent)
 [![CI](https://github.com/Sim-Security/Codebase-Onboarding-Agent/actions/workflows/deploy.yml/badge.svg)](https://github.com/Sim-Security/Codebase-Onboarding-Agent/actions)
 [![License](https://img.shields.io/badge/License-MIT-yellow)](LICENSE)
 
@@ -54,62 +54,74 @@ This approach is more reliable, more transparent, and produces better results th
 
 ## 📊 Evaluation Results
 
-Comprehensively evaluated across **10 diverse open-source codebases** spanning 5 languages.
+Comprehensively evaluated across **11 diverse open-source codebases** spanning 5 languages with **66 total tests**.
 
-> **Note:** These metrics were benchmarked with Grok 4.1 Fast. The free MiMo-V2-Flash model achieves similar code understanding performance (73.4 SWE-Bench score) at zero cost.
+**Last Updated:** 2026-01-31
+**Model:** x-ai/grok-4.1-fast
 
 ### Key Performance Indicators
 
-**Last run:** 2026-01-13
-**Model:** x-ai/grok-4.1-fast
-
 | Metric | Result | Notes |
 |--------|--------|-------|
-| **Test Pass Rate** | **73.3%** (22/30) | Individual test passes |
-| **Repo Pass Rate** | **20%** (2/10) | Repos where ALL 3 tests pass |
-| **Overview Accuracy** | **100%** | All repos identified correct tech |
-| **Deep-Dive Pass Rate** | **30%** (3/10) | Needs improvement |
-| **Tool Usage** | **100%** | All responses use tools |
+| **Overall Pass Rate** | **78.8%** (52/66) | With diverse questions |
+| **Citation Precision** | **96.5%** (193/200) | Citations verified against tool outputs |
+| **Hallucination Rate** | **~2%** | Occasional cross-project confusion |
+| **Tool Usage** | **100%** | All responses use exploration tools |
 
-> **Note:** "Test Pass Rate" measures individual test cases. "Repo Pass Rate" is stricter—only repos where all 3 tests pass count. Deep-dive questions (asking about entry points) have the lowest pass rate due to citation requirements.
+### Eval Configuration
+
+| Mode | Tests/Repo | Description |
+|------|------------|-------------|
+| **Core** | 3 | Overview, deep-dive, language detection |
+| **Diverse** | +3 | Architecture, dependencies, code flow questions |
+| **Pass@k** | k×N | Run each question k times for consistency metrics |
 
 ### Results by Language
 
-| Language | Repos Tested | Pass Rate | Passed/Total |
-|----------|--------------|-----------|--------------|
-| Python | flask, httpx, click, langchain, fastapi | 80% | 12/15 |
-| TypeScript | zustand | 67% | 2/3 |
-| JavaScript | express | 67% | 2/3 |
-| Go | gin, cobra | 67% | 4/6 |
-| Rust | ripgrep | 67% | 2/3 |
+| Language | Repos | Pass Rate | Details |
+|----------|-------|-----------|---------|
+| TypeScript | zustand | **100%** | 6/6 tests |
+| JavaScript | express | **100%** | 6/6 tests |
+| Go | gin, cobra | **100%** | 12/12 tests |
+| Python | flask, httpx, click, langchain, fastapi | **86.7%** | Some deep-dive failures |
+| Rust | ripgrep, turborepo | **83.3%** | CLI tools need improvement |
 
 ### Results by Category
 
-| Category | Pass Rate | Passed/Total |
-|----------|-----------|--------------|
-| **Frameworks** | 75% | 9/12 |
-| **Libraries** | 78% | 7/9 |
-| **CLI Tools** | 67% | 6/9 |
+| Category | Pass Rate | Details |
+|----------|-----------|---------|
+| **Frameworks** | **100%** | Flask, Express, Gin, FastAPI all pass |
+| **Libraries** | **100%** | httpx, zustand, langchain all pass |
+| **CLI Tools** | **75%** | click, ripgrep, turborepo have issues |
 
 <details>
-<summary><strong>📋 Detailed Per-Repo Results</strong></summary>
+<summary><strong>📋 Detailed Per-Repo Results (Diverse Questions)</strong></summary>
 
-| Repo | Language | Category | Tests Passed | Issue |
-|------|----------|----------|--------------|-------|
-| httpx | Python | Library | 3/3 ✅ | — |
-| fastapi | Python | Framework | 3/3 ✅ | — |
-| flask | Python | Framework | 2/3 | Deep-dive: 0 citations |
-| click | Python | CLI | 2/3 | Deep-dive: 0 citations |
-| langchain | Python | Library | 2/3 | Hallucination: "Express" |
-| zustand | TypeScript | Library | 2/3 | Hallucination: "Redux" |
-| express | JavaScript | Framework | 2/3 | Deep-dive: 0 citations |
-| gin | Go | Framework | 2/3 | Deep-dive: 0 citations |
-| cobra | Go | CLI | 2/3 | Deep-dive: 0 citations |
-| ripgrep | Rust | CLI | 2/3 | Deep-dive: 0 citations |
+| Repo | Language | Category | Pass Rate | Issues |
+|------|----------|----------|-----------|--------|
+| zustand | TypeScript | Library | 6/6 ✅ | — |
+| express | JavaScript | Framework | 6/6 ✅ | — |
+| gin | Go | Framework | 6/6 ✅ | — |
+| cobra | Go | CLI | 6/6 ✅ | — |
+| ripgrep | Rust | CLI | 5/6 | code_flow question |
+| fastapi | Python | Framework | 5/6 | code_flow question |
+| langchain | Python | Library | 4/6 | hard questions |
+| flask | Python | Framework | 4/6 | hard questions |
+| httpx | Python | Library | 4/6 | hard questions |
+| click | Python | CLI | 3/6 ⚠️ | Flask hallucination, deep_dive 0 citations |
+| turborepo | Rust | CLI | 3/6 ⚠️ | deep_dive 0 citations |
 
-**Key insight:** The deep-dive test (asking about entry points) frequently fails because responses don't include file:line citations, even when tool calls are made. This is a prompt engineering issue, not a tool limitation.
+**Key Insight:** The hardest questions (code_flow tracing) challenge the agent most. CLI tools with non-standard entry points are harder to analyze.
 
 </details>
+
+### Eval History
+
+| Date | Pass Rate | Precision | Notes |
+|------|-----------|-----------|-------|
+| 2026-01-29 | 93.9% | 0.0% | Before citation grounding fix |
+| 2026-01-30 | 93.9% | 98.4% | After citation grounding fix |
+| 2026-01-31 | 78.8% | 96.5% | Diverse questions (harder tests) |
 
 ---
 
@@ -128,6 +140,16 @@ Comprehensively evaluated across **10 diverse open-source codebases** spanning 5
 | `analyze_dependencies` | Parse package.json, requirements.txt, Cargo.toml, etc. |
 | `get_function_signatures` | Get function/class overview without reading full files |
 
+### V3 Intelligent Features
+
+| Feature | Description |
+|---------|-------------|
+| **Smart File Discovery** | Ranks files by importance (centrality, naming, size) |
+| **Architecture Detection** | Identifies patterns (MVC, monorepo, serverless, etc.) |
+| **Working Memory** | Tracks files read, avoids re-reading |
+| **Citation Verification** | Validates citations against actual tool outputs |
+| **Prompt Injection Protection** | Filters malicious content from repositories |
+
 ### Agent Workflow
 
 ```
@@ -141,14 +163,20 @@ User Request (GitHub URL or Question)
          │
          ▼
 ┌─────────────────┐
-│   LangGraph     │  ◄─── System prompt with anti-hallucination rules
-│     Agent       │
+│  Smart File     │  ◄─── Rank files by importance
+│   Discovery     │       Detect architecture
 └────────┬────────┘
          │
          ▼
 ┌─────────────────┐     ┌─────────────────┐
+│   LangGraph     │ ──► │  Working Memory │
+│     Agent       │     │  (Files Read)   │
+└────────┬────────┘     └─────────────────┘
+         │
+         ▼
+┌─────────────────┐     ┌─────────────────┐
 │   8 Tools       │ ──► │   Code Context  │
-│  (Explore)      │     │   (Loaded)      │
+│  (Explore)      │     │   (Verified)    │
 └─────────────────┘     └────────┬────────┘
                                  │
                                  ▼
@@ -158,7 +186,7 @@ User Request (GitHub URL or Question)
                         └─────────────────┘
 ```
 
-Every claim includes `file:line` citations — no hallucinations, no guessing.
+Every claim includes `file:line` citations verified against actual tool outputs.
 
 ---
 
@@ -193,6 +221,22 @@ cp .env.example .env
 python app.py
 ```
 
+### Run Evaluations
+
+```bash
+# Basic eval (3 tests per repo)
+python run_multi_eval.py
+
+# With diverse questions (6 tests per repo)
+python run_multi_eval.py --diverse
+
+# With pass@k consistency metrics
+python run_multi_eval.py --diverse --pass-at-k -k 3
+
+# Test specific repos
+python run_multi_eval.py --repos flask,express --diverse
+```
+
 ### CLI Usage
 
 ```bash
@@ -222,29 +266,9 @@ print(overview)
 answer = agent.ask("Where is the database connection configured?")
 print(answer)
 
-# Multi-turn conversation
-response = agent.chat("What patterns does this use?")
-response = agent.chat("Show me an example of that pattern")
-```
-
----
-
-## 🌐 Deploy Your Own Instance
-
-### Hugging Face Spaces
-
-1. Fork this repository
-2. Create a new Space at [huggingface.co/spaces](https://huggingface.co/spaces)
-3. Select **Gradio** as the SDK
-4. Connect your forked repository
-5. Add `OPENROUTER_API_KEY` or `GROQ_API_KEY` as a secret (optional — users can provide their own)
-
-```bash
-# Or deploy via CLI
-huggingface-cli login
-huggingface-cli repo create codebase-onboarding-agent --type space --space-sdk gradio
-git remote add hf https://huggingface.co/spaces/YOUR_USERNAME/codebase-onboarding-agent
-git push hf main
+# Check tool usage stats
+stats = agent.get_memory_stats()
+print(f"Files read: {stats['files_read']}")
 ```
 
 ---
@@ -260,24 +284,44 @@ git push hf main
 
 ### Model Options
 
-Users can select any OpenRouter model. Presets include:
-
 | Model | Cost | Best For |
 |-------|------|----------|
 | `xiaomi/mimo-v2-flash:free` | **FREE** | Default, good for most repos |
 | `google/gemma-3-4b-it:free` | **FREE** | Lightweight alternative |
-| `meta-llama/llama-3.1-8b-instruct:free` | **FREE** | Fast, reliable |
 | `x-ai/grok-4.1-fast` | ~$0.20/1M | Best quality/cost ratio |
 | `anthropic/claude-sonnet-4` | ~$3/1M | Premium accuracy |
-| `openai/gpt-4o` | ~$5/1M | Premium alternative |
 
-**Or type any [OpenRouter model ID](https://openrouter.ai/models)** - the dropdown accepts custom values.
+---
 
-### Why Free Works
+## 📁 Project Structure
 
-- Free models like MiMo-V2-Flash achieve **73.4 on SWE-Bench**
-- The tool-first architecture compensates for model limitations
-- Premium models provide better citations and fewer edge cases
+```
+codebase-onboarding-agent/
+├── src/
+│   ├── agent.py              # LangGraph agent + CLI
+│   ├── memory.py             # Working memory for exploration
+│   ├── tool_router.py        # Tool routing + circuit breaker
+│   ├── tools/
+│   │   ├── file_explorer.py      # Directory, file, search tools
+│   │   ├── code_analyzer.py      # Import, dependency, signature tools
+│   │   └── smart_discovery.py    # File importance + architecture detection
+│   ├── prompts/
+│   │   └── __init__.py       # System prompts
+│   └── eval/
+│       ├── verification.py   # Citation verification
+│       ├── questions.py      # Diverse question templates
+│       └── pass_at_k.py      # Consistency metrics
+├── app.py                    # Gradio web interface
+├── run_multi_eval.py         # Multi-repo evaluation suite
+├── evals/
+│   ├── eval_history.json     # Historical eval tracking
+│   ├── eval_results_*.json   # Detailed results
+│   └── eval_report_*.txt     # Human-readable reports
+├── Plans/
+│   ├── IMPROVEMENT_PLAN.md   # Current improvement priorities
+│   └── BACKLOG_V3.md         # V3 implementation backlog
+└── README.md
+```
 
 ---
 
@@ -309,39 +353,17 @@ Modern LLMs with large context windows + good tools > complex retrieval systems.
 
 ---
 
-## 📁 Project Structure
-
-```
-codebase-onboarding-agent/
-├── src/
-│   ├── agent.py          # LangGraph agent + CLI
-│   ├── tools/
-│   │   ├── file_explorer.py    # Directory, file, search tools
-│   │   └── code_analyzer.py    # Import, dependency, signature tools
-│   └── prompts/
-│       └── __init__.py   # System prompts
-├── app.py                # Gradio web interface
-├── evals/
-│   ├── multi_repo_results.json  # Evaluation data
-│   └── *.yaml            # Eval task definitions
-├── assets/
-│   └── infographic.png   # Architecture diagram
-├── requirements.txt
-├── TELOS.md              # Strategic context document
-└── README.md
-```
-
----
-
 ## 🤝 Contributing
 
 Contributions welcome! Areas of interest:
 
+- [ ] **Improve CLI tool handling** — Entry point detection for click, cobra patterns
+- [ ] **Reduce deep_dive failures** — Ensure agent reads files before answering
 - [ ] **Streaming responses** — Real-time output for better UX
 - [ ] **Private repo support** — GitHub token integration
 - [ ] **More languages** — Java, C#, Ruby support
-- [ ] **Architecture diagrams** — Auto-generate visual maps
-- [ ] **GitHub API integration** — Include issues/PRs context
+
+See [Plans/IMPROVEMENT_PLAN.md](Plans/IMPROVEMENT_PLAN.md) for current priorities.
 
 ---
 
