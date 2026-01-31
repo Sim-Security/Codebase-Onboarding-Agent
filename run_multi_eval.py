@@ -191,6 +191,14 @@ import sys
 sys.path.insert(0, str(Path(__file__).parent))
 
 from src.agent import CodebaseOnboardingAgent
+from src.eval.category_metrics import (
+    aggregate_by_category,
+    format_category_metrics_table,
+    identify_problem_categories,
+)
+from src.eval.category_metrics import (
+    metrics_to_dict as category_metrics_to_dict,
+)
 from src.eval.pass_at_k import (
     aggregate_pass_at_k_results,
     format_pass_at_k_report,
@@ -1455,6 +1463,21 @@ def main():
         agg_tool_metrics = aggregate_tool_metrics(tool_metrics_list)
         print("\n" + format_tool_metrics_report(agg_tool_metrics, tool_metrics_list))
         summary["tool_metrics"] = metrics_to_dict(agg_tool_metrics)
+
+    # Phase-04: Per-Category Metrics
+    category_metrics = aggregate_by_category(all_results)
+    if category_metrics:
+        print("\n" + format_category_metrics_table(category_metrics))
+        summary["by_question_category"] = category_metrics_to_dict(category_metrics)
+
+        # Identify and report problem categories
+        problem_categories = identify_problem_categories(
+            category_metrics, threshold=70.0
+        )
+        if problem_categories:
+            print("\n⚠️  Problem Categories (pass rate < 70%):")
+            for cat, rate in problem_categories:
+                print(f"   • {cat}: {rate:.1f}%")
 
     # Pass@k Report (if enabled)
     if args.pass_at_k and pass_at_k_results_all:
