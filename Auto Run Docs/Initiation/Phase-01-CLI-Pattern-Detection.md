@@ -1,0 +1,49 @@
+# Phase 01: CLI Pattern Detection Enhancement
+
+This phase addresses the highest-impact improvement: fixing CLI tool analysis. The agent currently struggles with decorator-based entry points (`@click.command()`, `@app.command()`) and confuses similar projects (click vs Flask). By adding robust CLI framework detection patterns to the `find_entry_points` tool, we'll improve the 33% click pass rate and 67% turborepo pass rate significantly.
+
+## Tasks
+
+- [x] Add CLI framework detection patterns to `src/tools/code_analyzer.py`:
+  - Add a `CLI_FRAMEWORK_PATTERNS` dictionary at module level with regex patterns for:
+    - click: `r"@click\.(command|group|option|argument)"`
+    - typer: `r"@app\.(command|callback)"`
+    - argparse: `r"ArgumentParser\(\)"`
+    - fire: `r"fire\.Fire\("`
+    - docopt: `r"docopt\(__doc__"`
+    - rust clap: `r"#\[derive\(.*(?:Parser|Args|Subcommand)"`
+    - rust structopt: `r"#\[structopt"`
+    - go cobra: `r"cobra\.Command\{"`
+    - go urfave/cli: `r"cli\.App\{"`
+  - ✅ Completed: Added `CLI_FRAMEWORK_PATTERNS` dictionary at line 12-29 with all specified patterns organized by language (python, rust, go).
+
+- [ ] Enhance the `find_entry_points` function in `src/tools/code_analyzer.py`:
+  - After the existing entry point file detection, add a new section that searches for CLI patterns
+  - For Python files, search for `@click.command`, `@click.group`, `@app.command`, etc.
+  - For Rust files, search for `#[derive(Parser)]` and similar clap patterns
+  - For Go files, search for `cobra.Command` struct definitions
+  - Add matches to `found_entries` with descriptive notes like "CLI command decorator"
+  - Search in `setup.py` for `console_scripts` entry points
+  - Check for `__main__.py` files that import CLI frameworks
+
+- [ ] Add negative example disambiguation to `src/prompts/__init__.py`:
+  - Add a new section in SYSTEM_PROMPT after the tool descriptions:
+    ```
+    ## CRITICAL: Project Identity Rules
+
+    NEVER confuse similarly-named projects. Common confusions to avoid:
+    - click (Python CLI framework) is NOT Flask (Python web framework)
+    - cobra (Go CLI framework) is NOT gin (Go web framework)
+    - typer (Python CLI) is NOT FastAPI (Python web)
+    - clap (Rust CLI) is NOT actix/axum (Rust web)
+
+    Before describing ANY project, verify by reading actual source files.
+    If you see `@click.command` decorators, it's a CLI tool, not a web framework.
+    If you see `app = Flask(__name__)`, it's a web framework, not a CLI tool.
+    ```
+
+- [ ] Run the evaluation suite to verify improvements:
+  - Execute: `python run_multi_eval.py --repos click,cobra --diverse`
+  - Capture output to `Auto Run Docs/Initiation/Working/phase01_eval_results.txt`
+  - Check that click pass rate improves from 33% baseline
+  - Verify cobra maintains 100% pass rate (no regression)

@@ -9,6 +9,25 @@ from pathlib import Path
 
 from langchain_core.tools import tool
 
+# CLI framework detection patterns by language
+CLI_FRAMEWORK_PATTERNS = {
+    "python": {
+        "click": r"@click\.(command|group|option|argument)",
+        "typer": r"@app\.(command|callback)",
+        "argparse": r"ArgumentParser\(\)",
+        "fire": r"fire\.Fire\(",
+        "docopt": r"docopt\(__doc__",
+    },
+    "rust": {
+        "clap": r"#\[derive\(.*(?:Parser|Args|Subcommand)",
+        "structopt": r"#\[structopt",
+    },
+    "go": {
+        "cobra": r"cobra\.Command\{",
+        "urfave_cli": r"cli\.App\{",
+    },
+}
+
 # Entry point patterns by language
 ENTRY_POINT_PATTERNS = {
     "python": [
@@ -254,6 +273,109 @@ def find_entry_points(repo_path: str) -> str:
                         found_entries.append(
                             (name.strip(), "python", f"CLI: {target.strip()}")
                         )
+        except Exception:
+            pass
+
+    # Search for CLI framework patterns in source files
+    ignored_dirs = {"node_modules", ".git", "__pycache__", "venv", ".venv", "vendor"}
+
+    # Python CLI patterns
+    for py_file in repo.glob("**/*.py"):
+        parts = py_file.relative_to(repo).parts
+        if any(p in ignored_dirs for p in parts):
+            continue
+        try:
+            with open(py_file, "r", encoding="utf-8", errors="replace") as f:
+                content = f.read()
+            for framework, pattern in CLI_FRAMEWORK_PATTERNS["python"].items():
+                if re.search(pattern, content):
+                    rel_path = str(py_file.relative_to(repo))
+                    found_entries.append(
+                        (rel_path, "python", f"CLI: {framework} decorator")
+                    )
+                    break  # Only report first CLI framework match per file
+        except Exception:
+            pass
+
+    # Rust CLI patterns
+    for rs_file in repo.glob("**/*.rs"):
+        parts = rs_file.relative_to(repo).parts
+        if any(p in ignored_dirs for p in parts):
+            continue
+        try:
+            with open(rs_file, "r", encoding="utf-8", errors="replace") as f:
+                content = f.read()
+            for framework, pattern in CLI_FRAMEWORK_PATTERNS["rust"].items():
+                if re.search(pattern, content):
+                    rel_path = str(rs_file.relative_to(repo))
+                    found_entries.append((rel_path, "rust", f"CLI: {framework} derive"))
+                    break
+        except Exception:
+            pass
+
+    # Go CLI patterns
+    for go_file in repo.glob("**/*.go"):
+        parts = go_file.relative_to(repo).parts
+        if any(p in ignored_dirs for p in parts):
+            continue
+        try:
+            with open(go_file, "r", encoding="utf-8", errors="replace") as f:
+                content = f.read()
+            for framework, pattern in CLI_FRAMEWORK_PATTERNS["go"].items():
+                if re.search(pattern, content):
+                    rel_path = str(go_file.relative_to(repo))
+                    found_entries.append((rel_path, "go", f"CLI: {framework} command"))
+                    break
+        except Exception:
+            pass
+
+    # Check setup.py for console_scripts
+    setup_py = repo / "setup.py"
+    if setup_py.exists():
+        try:
+            with open(setup_py, "r", encoding="utf-8", errors="replace") as f:
+                content = f.read()
+            console_scripts_match = re.search(
+                r"console_scripts.*?=.*?\[(.*?)\]", content, re.DOTALL
+            )
+            if console_scripts_match:
+                scripts_text = console_scripts_match.group(1)
+                script_entries = re.findall(
+                    r"['\"]([^'\"=]+)=([^'\"]+)['\"]", scripts_text
+                )
+                for script_name, target in script_entries:
+                    found_entries.append(
+                        (
+                            script_name.strip(),
+                            "python",
+                            f"console_script: {target.strip()}",
+                        )
+                    )
+        except Exception:
+            pass
+
+    # Check __main__.py files that import CLI frameworks
+    for main_file in repo.glob("**/__main__.py"):
+        parts = main_file.relative_to(repo).parts
+        if any(p in ignored_dirs for p in parts):
+            continue
+        try:
+            with open(main_file, "r", encoding="utf-8", errors="replace") as f:
+                content = f.read()
+            cli_imports = []
+            if re.search(r"import\s+click|from\s+click", content):
+                cli_imports.append("click")
+            if re.search(r"import\s+typer|from\s+typer", content):
+                cli_imports.append("typer")
+            if re.search(r"import\s+fire|from\s+fire", content):
+                cli_imports.append("fire")
+            if re.search(r"import\s+argparse|from\s+argparse", content):
+                cli_imports.append("argparse")
+            if cli_imports:
+                rel_path = str(main_file.relative_to(repo))
+                found_entries.append(
+                    (rel_path, "python", f"CLI entry: imports {', '.join(cli_imports)}")
+                )
         except Exception:
             pass
 
