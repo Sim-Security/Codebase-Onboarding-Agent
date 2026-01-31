@@ -64,7 +64,7 @@ This phase addresses Priority 3 from the improvement plan: improving code flow t
         return any(kw in q_lower for kw in flow_keywords)
     ```
 
-- [ ] Add code_flow specific question templates to `src/eval/questions.py`:
+- [x] Add code_flow specific question templates to `src/eval/questions.py`: *(Already complete: Three new templates added at lines 114-137: `flow_main_function`, `flow_execution_path`, `flow_user_action`. All have `min_citations=4` and `expected_tools=["find_entry_points", "read_file", "get_imports"]`)*
   - Add 3-4 new code_flow templates with clear tracing requirements:
     - "Trace what happens when {main_function} is called from start to finish"
     - "What is the execution path from the entry point to {feature_area}?"
