@@ -197,6 +197,13 @@ from src.eval.pass_at_k import (
     run_with_pass_at_k,
 )
 from src.eval.questions import get_questions_for_repo
+from src.eval.tool_metrics import (
+    ToolUsageMetrics,
+    aggregate_tool_metrics,
+    extract_tool_metrics,
+    format_tool_metrics_report,
+    metrics_to_dict,
+)
 from src.eval.verification import (
     calculate_citation_metrics,
     extract_citations,
@@ -872,6 +879,11 @@ def run_repo_eval(repo: TestRepo, agent: CodebaseOnboardingAgent) -> dict:
         # Check if answer mentions relevant files
         file_refs, _ = check_content(answer, repo.expected_files)
 
+        # Phase-02: Track tool usage metrics for deep_dive
+        tool_usage_metrics = extract_tool_metrics(
+            tool_calls, answer, question_id=f"{repo.name}_deep_dive"
+        )
+
         results["tests"]["deep_dive"] = {
             "passed": citation_metrics["total_citations"] >= 2 and len(tool_calls) >= 2,
             "citations": citation_metrics["total_citations"],
@@ -882,6 +894,13 @@ def run_repo_eval(repo: TestRepo, agent: CodebaseOnboardingAgent) -> dict:
             "tool_calls": len(tool_calls),
             "file_refs_found": file_refs,
             "answer_length": len(answer),
+            # Phase-02: Tool usage metrics
+            "read_file_calls": tool_usage_metrics.read_file_calls,
+            "search_code_calls": tool_usage_metrics.search_code_calls,
+            "has_citations_without_read": tool_usage_metrics.has_citations_without_read,
+            "grounding_valid": tool_usage_metrics.grounding_valid,
+            "files_read": tool_usage_metrics.files_read,
+            "ungrounded_files": tool_usage_metrics.ungrounded_files,
         }
 
         if results["tests"]["deep_dive"]["passed"]:
@@ -1030,6 +1049,11 @@ def run_diverse_questions_eval(
                 citation_metrics = calculate_citation_metrics(answer, tool_outputs)
                 tool_calls = agent.get_tool_calls()
 
+                # Phase-02: Extract tool usage metrics
+                tool_usage_metrics = extract_tool_metrics(
+                    tool_calls, answer, question_id=f"{repo.name}_{q['id']}"
+                )
+
                 passed = (
                     citation_metrics["total_citations"] >= min_citations
                     and len(tool_calls) >= 2
@@ -1050,6 +1074,11 @@ def run_diverse_questions_eval(
                         "tool_calls": len(tool_calls),
                         "expected_tools": q["expected_tools"],
                         "answer_length": len(answer),
+                        # Phase-02: Tool usage metrics
+                        "read_file_calls": tool_usage_metrics.read_file_calls,
+                        "search_code_calls": tool_usage_metrics.search_code_calls,
+                        "has_citations_without_read": tool_usage_metrics.has_citations_without_read,
+                        "grounding_valid": tool_usage_metrics.grounding_valid,
                     }
                 )
             except Exception as e:
@@ -1383,6 +1412,49 @@ def main():
     # Add quality metrics to summary dict for JSON output
     summary["quality_metrics"] = quality_metrics
     summary["pass_rate"] = pass_rate
+
+    # Phase-02: Tool Usage Metrics Summary
+    tool_metrics_list = []
+    for result in all_results:
+        # Extract from deep_dive tests
+        deep_dive = result.get("tests", {}).get("deep_dive", {})
+        if deep_dive and "read_file_calls" in deep_dive:
+            tool_metrics_list.append(
+                ToolUsageMetrics(
+                    question_id=f"{result.get('repo', 'unknown')}_deep_dive",
+                    read_file_calls=deep_dive.get("read_file_calls", 0),
+                    search_code_calls=deep_dive.get("search_code_calls", 0),
+                    total_tool_calls=deep_dive.get("tool_calls", 0),
+                    citations_count=deep_dive.get("citations", 0),
+                    has_citations_without_read=deep_dive.get(
+                        "has_citations_without_read", False
+                    ),
+                    files_read=deep_dive.get("files_read", []),
+                    ungrounded_files=deep_dive.get("ungrounded_files", []),
+                )
+            )
+        # Extract from diverse questions
+        diverse = result.get("diverse_questions", {})
+        if diverse and diverse.get("questions"):
+            for q in diverse["questions"]:
+                if "read_file_calls" in q:
+                    tool_metrics_list.append(
+                        ToolUsageMetrics(
+                            question_id=f"{result.get('repo', 'unknown')}_{q.get('id', 'unknown')}",
+                            read_file_calls=q.get("read_file_calls", 0),
+                            search_code_calls=q.get("search_code_calls", 0),
+                            total_tool_calls=q.get("tool_calls", 0),
+                            citations_count=q.get("citations", 0),
+                            has_citations_without_read=q.get(
+                                "has_citations_without_read", False
+                            ),
+                        )
+                    )
+
+    if tool_metrics_list:
+        agg_tool_metrics = aggregate_tool_metrics(tool_metrics_list)
+        print("\n" + format_tool_metrics_report(agg_tool_metrics, tool_metrics_list))
+        summary["tool_metrics"] = metrics_to_dict(agg_tool_metrics)
 
     # Pass@k Report (if enabled)
     if args.pass_at_k and pass_at_k_results_all:

@@ -473,6 +473,153 @@ class TestVerificationModule:
         assert "utils.py" in result["unread_cited_files"]
         assert "main.py" not in result["unread_cited_files"]
 
+    # =========================================================================
+    # Phase-02: Tool Metrics Tests
+    # =========================================================================
+
+    def test_extract_tool_metrics_basic(self):
+        """Should extract basic tool metrics from tool calls and response."""
+        from src.eval.tool_metrics import extract_tool_metrics
+
+        tool_calls = [
+            {"name": "search_code", "args": {"pattern": "main"}},
+            {"name": "read_file", "args": {"file_path": "/repo/src/main.py"}},
+            {"name": "read_file", "args": {"file_path": "/repo/src/utils.py"}},
+        ]
+        response = "The main function is at main.py:42 and helper at utils.py:10"
+
+        metrics = extract_tool_metrics(tool_calls, response, "test_question")
+
+        assert metrics.question_id == "test_question"
+        assert metrics.read_file_calls == 2
+        assert metrics.search_code_calls == 1
+        assert metrics.total_tool_calls == 3
+        assert metrics.citations_count == 2
+        assert metrics.grounding_valid is True
+        assert len(metrics.ungrounded_files) == 0
+
+    def test_extract_tool_metrics_no_read_file(self):
+        """Should flag citations without read_file as ungrounded."""
+        from src.eval.tool_metrics import extract_tool_metrics
+
+        tool_calls = [
+            {"name": "search_code", "args": {"pattern": "main"}},
+            {"name": "list_directory_structure", "args": {"path": "/repo"}},
+        ]
+        response = "Found code at main.py:42"
+
+        metrics = extract_tool_metrics(tool_calls, response, "test_q2")
+
+        assert metrics.read_file_calls == 0
+        assert metrics.citations_count == 1
+        assert metrics.has_citations_without_read is True
+        assert metrics.grounding_valid is False
+
+    def test_extract_tool_metrics_partial_grounding(self):
+        """Should identify files cited but not read."""
+        from src.eval.tool_metrics import extract_tool_metrics
+
+        tool_calls = [
+            {"name": "read_file", "args": {"file_path": "/repo/src/main.py"}},
+        ]
+        response = "See main.py:42 and utils.py:10"
+
+        metrics = extract_tool_metrics(tool_calls, response, "test_q3")
+
+        assert metrics.read_file_calls == 1
+        assert metrics.citations_count == 2
+        assert metrics.grounding_valid is False
+        assert "utils.py" in metrics.ungrounded_files
+
+    def test_aggregate_tool_metrics(self):
+        """Should aggregate metrics across multiple questions."""
+        from src.eval.tool_metrics import (
+            ToolUsageMetrics,
+            aggregate_tool_metrics,
+        )
+
+        metrics_list = [
+            ToolUsageMetrics(
+                question_id="q1",
+                read_file_calls=2,
+                search_code_calls=1,
+                total_tool_calls=3,
+                citations_count=2,
+                has_citations_without_read=False,
+            ),
+            ToolUsageMetrics(
+                question_id="q2",
+                read_file_calls=0,
+                search_code_calls=2,
+                total_tool_calls=2,
+                citations_count=1,
+                has_citations_without_read=True,
+            ),
+            ToolUsageMetrics(
+                question_id="q3",
+                read_file_calls=1,
+                search_code_calls=0,
+                total_tool_calls=1,
+                citations_count=0,
+            ),
+        ]
+
+        agg = aggregate_tool_metrics(metrics_list)
+
+        assert agg.total_questions == 3
+        assert agg.questions_with_read_file == 2  # q1 and q3
+        assert agg.questions_with_citations == 2  # q1 and q2
+        assert agg.questions_with_ungrounded_citations == 1  # q2
+        assert agg.total_read_file_calls == 3
+        assert agg.total_search_code_calls == 3
+        assert agg.grounding_violation_count == 1
+
+    def test_aggregate_tool_metrics_rates(self):
+        """Should calculate correct rates."""
+        from src.eval.tool_metrics import (
+            ToolUsageMetrics,
+            aggregate_tool_metrics,
+        )
+
+        metrics_list = [
+            ToolUsageMetrics(
+                question_id="q1",
+                read_file_calls=1,
+                citations_count=1,
+            ),
+            ToolUsageMetrics(
+                question_id="q2",
+                read_file_calls=1,
+                citations_count=1,
+            ),
+        ]
+
+        agg = aggregate_tool_metrics(metrics_list)
+
+        assert agg.read_file_rate == 100.0  # 2/2 questions have read_file
+        assert agg.grounding_rate == 100.0  # No violations
+        assert agg.avg_read_file_per_question == 1.0
+
+    def test_metrics_to_dict(self):
+        """Should convert metrics to dictionary for JSON serialization."""
+        from src.eval.tool_metrics import ToolUsageMetrics, metrics_to_dict
+
+        metrics = ToolUsageMetrics(
+            question_id="test",
+            read_file_calls=2,
+            search_code_calls=1,
+            citations_count=3,
+            has_citations_without_read=False,
+            files_read=["a.py", "b.py"],
+        )
+
+        result = metrics_to_dict(metrics)
+
+        assert isinstance(result, dict)
+        assert result["question_id"] == "test"
+        assert result["read_file_calls"] == 2
+        assert result["grounding_valid"] is True
+
 
 # =============================================================================
 # Provider Configuration Tests

@@ -38,12 +38,23 @@ This phase addresses the second high-impact issue: the agent sometimes answers d
 
   **Completed:** Implemented comprehensive validation in `_run()` using the new `validate_tool_usage()` function. Added `validation_failures` counter to `CircuitBreakerState` in `tool_router.py`. The validation logs warnings for two failure cases: (1) citations exist but no read_file calls were made, and (2) citations reference files that were never read. The counter is incremented via `self.tool_tracker.circuit_breaker.validation_failures` and exposed in `get_stats()`. Also fixed pytest.ini ROS plugin conflict.
 
-- [ ] Add tool usage metrics to eval runner:
+- [x] Add tool usage metrics to eval runner:
   - In `run_multi_eval.py` or create a new `src/eval/tool_metrics.py`:
     - Track `read_file_calls` count per question
     - Track `search_code_calls` count per question
     - Flag questions where answer had citations but no `read_file` calls
     - Output metrics alongside pass/fail in eval results
+
+  **Completed:** Created `src/eval/tool_metrics.py` with comprehensive tool usage tracking:
+  - `ToolUsageMetrics` dataclass tracks per-question metrics: read_file_calls, search_code_calls, citations_count, has_citations_without_read, files_read, ungrounded_files
+  - `AggregateToolMetrics` dataclass provides summary stats with derived rates: read_file_rate, grounding_rate, avg_read_file_per_question
+  - `extract_tool_metrics()` extracts metrics from tool calls and response
+  - `aggregate_tool_metrics()` aggregates across multiple questions
+  - `format_tool_metrics_report()` formats metrics for display with violation details
+  - `metrics_to_dict()` converts for JSON serialization
+  - Integrated into `run_multi_eval.py`: deep_dive tests and diverse questions now include tool usage metrics (read_file_calls, search_code_calls, has_citations_without_read, grounding_valid)
+  - Summary output includes Tool Usage Metrics section showing read_file usage rate, grounding rate, and any violations
+  - Added 6 unit tests covering: basic extraction, no-read-file scenarios, partial grounding, aggregation, rate calculation, and dict conversion
 
 - [ ] Run evaluation to verify improvements:
   - Execute: `python run_multi_eval.py --repos click,turborepo --diverse`
