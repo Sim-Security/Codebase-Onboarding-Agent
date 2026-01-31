@@ -201,6 +201,9 @@ from src.eval.category_metrics import (
 )
 from src.eval.pass_at_k import (
     aggregate_pass_at_k_results,
+    detect_flaky_tests,
+    flaky_tests_to_dict,
+    format_flaky_tests_report,
     format_pass_at_k_report,
     run_with_pass_at_k,
 )
@@ -1208,8 +1211,18 @@ def main():
         type=str,
         help="Comma-separated list of repo names to test (default: all)",
     )
+    parser.add_argument(
+        "--detect-flaky",
+        action="store_true",
+        help="Run each test 3 times to detect flaky tests (implies --pass-at-k with k=3)",
+    )
 
     args = parser.parse_args()
+
+    # --detect-flaky implies --pass-at-k with k=3
+    if args.detect_flaky:
+        args.pass_at_k = True
+        args.k = 3
 
     # Filter repos if specified
     repos_to_test = TEST_REPOS
@@ -1229,7 +1242,9 @@ def main():
     config_lines = [f"Testing {len(repos_to_test)} repositories"]
     if args.diverse:
         config_lines.append(f"Diverse questions: {args.num_questions} per repo")
-    if args.pass_at_k:
+    if args.detect_flaky:
+        config_lines.append(f"Flaky detection: k={args.k}")
+    elif args.pass_at_k:
         config_lines.append(f"Pass@k metrics: k={args.k}")
     print("\n" + " | ".join(config_lines) + "\n")
 
@@ -1490,6 +1505,15 @@ def main():
         summary["pass_at_k_aggregate"] = aggregate_pass_at_k_results(
             pass_at_k_results_all
         )
+
+    # Phase-04: Flaky test detection (if --detect-flaky is set)
+    if args.detect_flaky and pass_at_k_results_all:
+        flaky_tests = detect_flaky_tests(pass_at_k_results_all, k=args.k)
+        print(format_flaky_tests_report(flaky_tests))
+
+        # Add flaky tests to summary for JSON output
+        if flaky_tests:
+            summary["flaky_tests"] = flaky_tests_to_dict(flaky_tests)
 
     # EVAL-003: Historical comparison
     # Get previous result before saving (so we compare with actual previous)

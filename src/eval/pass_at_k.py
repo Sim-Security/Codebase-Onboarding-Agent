@@ -16,6 +16,35 @@ from typing import Callable
 
 
 @dataclass
+class FlakyTest:
+    """Detailed information about a flaky test.
+
+    A test is considered flaky if it passes some runs but fails others
+    (i.e., 0 < pass_count < k).
+    """
+
+    test_id: str
+    pass_count: int
+    fail_count: int
+    total_runs: int
+    pass_rate: float  # 0.0 to 1.0
+    errors: list[str] = field(default_factory=list)  # Error messages from failed runs
+    avg_duration_ms: float = 0.0
+
+    @property
+    def flakiness_score(self) -> float:
+        """Calculate flakiness score from 0 to 1.
+
+        Score of 0 = completely stable (all pass or all fail)
+        Score of 1 = maximally flaky (50/50 pass/fail)
+        """
+        if self.total_runs == 0:
+            return 0.0
+        # Distance from 0 or 1, normalized
+        return 2 * min(self.pass_rate, 1 - self.pass_rate)
+
+
+@dataclass
 class RunResult:
     """Result of a single test run."""
 
@@ -248,3 +277,105 @@ def format_pass_at_k_report(results: list[PassAtKResult], k: int) -> str:
         )
 
     return "\n".join(lines)
+
+
+def detect_flaky_tests(results: list[PassAtKResult], k: int = 3) -> list[FlakyTest]:
+    """
+    Detect flaky tests from pass@k results.
+
+    A test is flaky if it passes some runs but fails others (0 < pass_count < k).
+    This indicates non-deterministic behavior that should be investigated.
+
+    Args:
+        results: List of PassAtKResult from running tests multiple times
+        k: Expected number of runs per test (used for validation)
+
+    Returns:
+        List of FlakyTest objects with pass/fail breakdown, sorted by flakiness score
+    """
+    flaky_tests = []
+
+    for result in results:
+        # A test is flaky if 0 < passes < k (not always pass, not always fail)
+        if 0 < result.passes < result.k:
+            # Collect error messages from failed runs
+            errors = [run.error for run in result.runs if not run.passed and run.error]
+
+            # Calculate average duration
+            durations = [run.duration_ms for run in result.runs if run.duration_ms > 0]
+            avg_duration = statistics.mean(durations) if durations else 0.0
+
+            flaky_test = FlakyTest(
+                test_id=result.test_id,
+                pass_count=result.passes,
+                fail_count=result.failures,
+                total_runs=result.k,
+                pass_rate=result.pass_at_1,
+                errors=errors,
+                avg_duration_ms=avg_duration,
+            )
+            flaky_tests.append(flaky_test)
+
+    # Sort by flakiness score (most flaky first)
+    flaky_tests.sort(key=lambda x: x.flakiness_score, reverse=True)
+
+    return flaky_tests
+
+
+def format_flaky_tests_report(flaky_tests: list[FlakyTest]) -> str:
+    """Format flaky tests as a human-readable report with investigation suggestions."""
+    if not flaky_tests:
+        return "\n✅ No flaky tests detected - all tests show consistent behavior."
+
+    lines = []
+    lines.append(f"\n{'=' * 60}")
+    lines.append("⚠️  FLAKY TEST DETECTION REPORT")
+    lines.append(f"{'=' * 60}")
+    lines.append(f"\nFound {len(flaky_tests)} flaky test(s):\n")
+
+    for i, test in enumerate(flaky_tests, 1):
+        lines.append(f"  {i}. {test.test_id}")
+        lines.append(
+            f"     Pass Rate: {test.pass_count}/{test.total_runs} ({test.pass_rate * 100:.0f}%)"
+        )
+        lines.append(f"     Flakiness Score: {test.flakiness_score:.2f}")
+        if test.avg_duration_ms > 0:
+            lines.append(f"     Avg Duration: {test.avg_duration_ms:.0f}ms")
+        if test.errors:
+            lines.append("     Errors:")
+            # Show up to 3 unique errors
+            unique_errors = list(dict.fromkeys(test.errors))[:3]
+            for error in unique_errors:
+                # Truncate long error messages
+                error_display = error[:80] + "..." if len(error) > 80 else error
+                lines.append(f"       • {error_display}")
+        lines.append("")
+
+    # Investigation suggestions
+    lines.append("─" * 60)
+    lines.append("🔍 Investigation Suggestions:")
+    lines.append("─" * 60)
+    lines.append("  • Check for timing-dependent logic or race conditions")
+    lines.append("  • Look for external dependencies (network, filesystem)")
+    lines.append("  • Verify test isolation (shared state between runs)")
+    lines.append("  • Review error messages for patterns or root causes")
+    lines.append("  • Consider adding retries or stabilization logic")
+
+    return "\n".join(lines)
+
+
+def flaky_tests_to_dict(flaky_tests: list[FlakyTest]) -> list[dict]:
+    """Convert FlakyTest objects to dictionaries for JSON serialization."""
+    return [
+        {
+            "test_id": test.test_id,
+            "pass_count": test.pass_count,
+            "fail_count": test.fail_count,
+            "total_runs": test.total_runs,
+            "pass_rate": test.pass_rate,
+            "flakiness_score": test.flakiness_score,
+            "errors": test.errors,
+            "avg_duration_ms": test.avg_duration_ms,
+        }
+        for test in flaky_tests
+    ]

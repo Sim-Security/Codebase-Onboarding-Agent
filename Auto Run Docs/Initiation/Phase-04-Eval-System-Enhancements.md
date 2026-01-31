@@ -56,7 +56,7 @@ This phase implements the eval system improvements from the improvement plan's T
   - 18 unit tests in `tests/test_regression.py` (all passing)
   - Leverages existing `evals/eval_history.json` structure (flat list format)
 
-- [ ] Add flaky test detection:
+- [x] Add flaky test detection:
   - In `src/eval/pass_at_k.py`, add flaky test tracking:
     - `detect_flaky_tests(results: list[dict], k: int) -> list[dict]` function
     - A test is flaky if it passes some runs but fails others (0 < pass_count < k)
@@ -65,6 +65,16 @@ This phase implements the eval system improvements from the improvement plan's T
     - Runs each test 3 times
     - Reports which tests are inconsistent
     - Suggests investigation for flaky tests
+
+  **Completed 2026-01-31**: Created flaky test detection functionality:
+  - `FlakyTest` dataclass with fields: test_id, pass_count, fail_count, total_runs, pass_rate, errors, avg_duration_ms
+  - `flakiness_score` property (0-1 scale, 1.0 = maximally flaky at 50/50 pass/fail)
+  - `detect_flaky_tests(results, k)` function that identifies tests with 0 < passes < k
+  - `format_flaky_tests_report()` for human-readable output with investigation suggestions
+  - `flaky_tests_to_dict()` for JSON serialization
+  - `--detect-flaky` flag (implies --pass-at-k with k=3) in run_multi_eval.py
+  - Integration outputs flaky test report and adds to JSON summary
+  - 18 unit tests in `tests/test_flaky_detection.py` (all passing)
 
 - [ ] Add question difficulty analysis:
   - In `src/eval/questions.py`, update `QuestionTemplate` to include:
