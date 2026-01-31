@@ -17,7 +17,7 @@ This phase addresses the highest-impact improvement: fixing CLI tool analysis. T
     - go urfave/cli: `r"cli\.App\{"`
   - ✅ Completed: Added `CLI_FRAMEWORK_PATTERNS` dictionary at line 12-29 with all specified patterns organized by language (python, rust, go).
 
-- [ ] Enhance the `find_entry_points` function in `src/tools/code_analyzer.py`:
+- [x] Enhance the `find_entry_points` function in `src/tools/code_analyzer.py`:
   - After the existing entry point file detection, add a new section that searches for CLI patterns
   - For Python files, search for `@click.command`, `@click.group`, `@app.command`, etc.
   - For Rust files, search for `#[derive(Parser)]` and similar clap patterns
@@ -25,6 +25,7 @@ This phase addresses the highest-impact improvement: fixing CLI tool analysis. T
   - Add matches to `found_entries` with descriptive notes like "CLI command decorator"
   - Search in `setup.py` for `console_scripts` entry points
   - Check for `__main__.py` files that import CLI frameworks
+  - ✅ Completed: Implementation already existed at lines 279-380. Added comprehensive test suite with 10 new tests covering all CLI frameworks (click, typer, argparse, fire, clap, structopt, cobra, urfave/cli) plus console_scripts and __main__.py detection. Tests added to `tests/test_tools.py::TestFindEntryPoints` and fixture `temp_repo_with_cli_frameworks` in `tests/conftest.py`. All 14 TestFindEntryPoints tests pass.
 
 - [ ] Add negative example disambiguation to `src/prompts/__init__.py`:
   - Add a new section in SYSTEM_PROMPT after the tool descriptions:

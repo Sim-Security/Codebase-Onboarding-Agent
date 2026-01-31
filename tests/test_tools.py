@@ -420,6 +420,99 @@ class TestFindEntryPoints:
         venv_entries = [l for l in main_lines if "venv" in l]
         assert len(venv_entries) == 0
 
+    def test_detects_click_decorators(self, temp_repo_with_cli_frameworks: Path):
+        """Should detect Click CLI decorators."""
+        result = find_entry_points.invoke(
+            {"repo_path": str(temp_repo_with_cli_frameworks)}
+        )
+
+        assert "cli_click.py" in result
+        assert "click" in result.lower()
+
+    def test_detects_typer_decorators(self, temp_repo_with_cli_frameworks: Path):
+        """Should detect Typer CLI decorators."""
+        result = find_entry_points.invoke(
+            {"repo_path": str(temp_repo_with_cli_frameworks)}
+        )
+
+        assert "cli_typer.py" in result
+        assert "typer" in result.lower()
+
+    def test_detects_argparse(self, temp_repo_with_cli_frameworks: Path):
+        """Should detect argparse CLI."""
+        result = find_entry_points.invoke(
+            {"repo_path": str(temp_repo_with_cli_frameworks)}
+        )
+
+        assert "cli_argparse.py" in result
+        assert "argparse" in result.lower()
+
+    def test_detects_fire(self, temp_repo_with_cli_frameworks: Path):
+        """Should detect Python Fire CLI."""
+        result = find_entry_points.invoke(
+            {"repo_path": str(temp_repo_with_cli_frameworks)}
+        )
+
+        assert "cli_fire.py" in result
+        assert "fire" in result.lower()
+
+    def test_detects_main_with_cli_imports(self, temp_repo_with_cli_frameworks: Path):
+        """Should detect __main__.py files importing CLI frameworks."""
+        result = find_entry_points.invoke(
+            {"repo_path": str(temp_repo_with_cli_frameworks)}
+        )
+
+        assert "__main__.py" in result
+        assert "imports click" in result.lower() or "cli entry" in result.lower()
+
+    def test_detects_console_scripts_in_setup_py(
+        self, temp_repo_with_cli_frameworks: Path
+    ):
+        """Should detect console_scripts in setup.py."""
+        result = find_entry_points.invoke(
+            {"repo_path": str(temp_repo_with_cli_frameworks)}
+        )
+
+        assert "mycli" in result
+        assert "myapp" in result
+        assert "console_script" in result.lower()
+
+    def test_detects_rust_clap(self, temp_repo_with_cli_frameworks: Path):
+        """Should detect Rust clap CLI derive macros."""
+        result = find_entry_points.invoke(
+            {"repo_path": str(temp_repo_with_cli_frameworks)}
+        )
+
+        assert "main.rs" in result
+        assert "clap" in result.lower()
+
+    def test_detects_rust_structopt(self, temp_repo_with_cli_frameworks: Path):
+        """Should detect Rust structopt derive macros."""
+        result = find_entry_points.invoke(
+            {"repo_path": str(temp_repo_with_cli_frameworks)}
+        )
+
+        assert "old_cli.rs" in result
+        assert "structopt" in result.lower()
+
+    def test_detects_go_cobra(self, temp_repo_with_cli_frameworks: Path):
+        """Should detect Go cobra CLI commands."""
+        result = find_entry_points.invoke(
+            {"repo_path": str(temp_repo_with_cli_frameworks)}
+        )
+
+        assert "root.go" in result
+        assert "cobra" in result.lower()
+
+    def test_detects_go_urfave_cli(self, temp_repo_with_cli_frameworks: Path):
+        """Should detect Go urfave/cli app definitions."""
+        result = find_entry_points.invoke(
+            {"repo_path": str(temp_repo_with_cli_frameworks)}
+        )
+
+        assert "cli_urfave.go" in result
+        assert "urfave" in result.lower() or "cli" in result.lower()
+
 
 # =============================================================================
 # Test: analyze_dependencies
