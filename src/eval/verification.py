@@ -605,3 +605,119 @@ def get_grounded_citations_only(response: str, tool_outputs: list[str]) -> list[
             grounded.append(citation)
 
     return grounded
+
+
+def get_files_read_from_tool_calls(tool_calls: list[dict]) -> set[str]:
+    """
+    Extract file paths from all read_file tool calls.
+
+    Args:
+        tool_calls: List of tool call dictionaries with format:
+                    {"name": str, "args": dict} where args contains "file_path"
+
+    Returns:
+        Set of file paths that were actually read via read_file tool
+    """
+    files_read = set()
+
+    for tc in tool_calls:
+        tool_name = tc.get("name", "")
+        if tool_name == "read_file":
+            args = tc.get("args", {})
+            if isinstance(args, dict):
+                file_path = args.get("file_path", "")
+                if file_path:
+                    files_read.add(file_path)
+
+    return files_read
+
+
+@dataclass
+class ToolUsageValidationResult:
+    """Result of tool usage validation."""
+
+    has_read_file: bool
+    files_read_count: int
+    citations_count: int
+    valid: bool
+    files_read: set[str]
+    cited_files: set[str]
+    unread_cited_files: set[str]
+
+
+def validate_tool_usage(tool_calls: list[dict], response: str) -> dict:
+    """
+    Validate that read_file was called before citations appear in the response.
+
+    This function checks that the agent properly read files before citing them,
+    which is critical for grounded responses. Citations from files that were
+    never read via read_file are considered invalid.
+
+    Args:
+        tool_calls: List of tool call dictionaries from the agent run.
+                    Format: {"name": str, "args": dict}
+        response: The agent's final text response
+
+    Returns:
+        {
+            "has_read_file": bool,       # True if any read_file calls were made
+            "files_read_count": int,     # Number of unique files read
+            "citations_count": int,      # Number of citations in response
+            "valid": bool,               # True if citations are properly grounded
+            "files_read": list[str],     # List of files that were read
+            "cited_files": list[str],    # List of files cited in response
+            "unread_cited_files": list[str]  # Files cited but never read
+        }
+    """
+    # Get files read via read_file tool
+    files_read = get_files_read_from_tool_calls(tool_calls)
+
+    # Extract citations from response
+    citations = extract_citations(response)
+    citations_count = len(citations)
+
+    # Get unique cited files (extract just the filename for comparison)
+    cited_files = set()
+    for citation in citations:
+        file_path = citation.get("file", "")
+        if file_path:
+            cited_files.add(file_path)
+
+    # Determine which cited files were not read
+    # We need to handle both full paths and relative paths
+    unread_cited_files = set()
+    for cited_file in cited_files:
+        # Check if cited file matches any read file (exact or as suffix)
+        file_was_read = False
+        cited_basename = cited_file.split("/")[-1]
+
+        for read_file in files_read:
+            read_basename = read_file.split("/")[-1]
+            # Match if exact path, or if the basenames match and cited is a suffix
+            if (
+                read_file == cited_file
+                or read_file.endswith(cited_file)
+                or cited_file.endswith(read_file)
+                or cited_basename == read_basename
+            ):
+                file_was_read = True
+                break
+
+        if not file_was_read:
+            unread_cited_files.add(cited_file)
+
+    # Validation passes if:
+    # 1. No citations exist (nothing to validate), OR
+    # 2. read_file was called AND no cited files are unread
+    has_read_file = len(files_read) > 0
+    valid = citations_count == 0 or (has_read_file and len(unread_cited_files) == 0)
+
+    return {
+        "has_read_file": has_read_file,
+        "files_read_count": len(files_read),
+        "citations_count": citations_count,
+        "valid": valid,
+        "files_read": list(files_read),
+        "cited_files": list(cited_files),
+        "unread_cited_files": list(unread_cited_files),
+    }

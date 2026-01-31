@@ -17,7 +17,7 @@ This phase addresses the second high-impact issue: the agent sometimes answers d
 
   **Completed:** Enhanced DEEP_DIVE_PROMPT with prominent MANDATORY STEPS section, FAILURE MODES TO AVOID section (3 anti-patterns), ABSOLUTE RULE section emphasizing the read_file requirement, and added a VALIDATION CHECKLIST for agent self-verification.
 
-- [ ] Add tool usage validation helper in `src/eval/verification.py`:
+- [x] Add tool usage validation helper in `src/eval/verification.py`:
   - Create function `validate_tool_usage(tool_calls: list[dict], response: str) -> dict`:
     - Check if `read_file` was called before any citations appear
     - Count number of unique files read
@@ -25,6 +25,8 @@ This phase addresses the second high-impact issue: the agent sometimes answers d
   - Create function `get_files_read_from_tool_calls(tool_calls: list[dict]) -> set[str]`:
     - Extract file paths from all `read_file` tool calls
     - Return set of file paths that were actually read
+
+  **Completed:** Added `get_files_read_from_tool_calls()` that extracts file paths from read_file tool calls, and `validate_tool_usage()` that validates citations are properly grounded in files that were actually read. Also added `ToolUsageValidationResult` dataclass. Functions include path matching that handles both exact paths and basename matching for flexibility. Added 6 unit tests to `tests/test_agent.py` covering: unique file extraction, empty tool calls, valid citations, invalid citations (no read_file), no citations case, and partial read scenarios.
 
 - [ ] Add validation in `CodebaseOnboardingAgent._run()` in `src/agent.py`:
   - After extracting the final response and before returning it, add validation:

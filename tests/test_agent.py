@@ -370,6 +370,109 @@ class TestVerificationModule:
         assert "f1" in metrics
         assert metrics["total_citations"] == 2
 
+    def test_get_files_read_from_tool_calls(self):
+        """Should extract file paths from read_file tool calls."""
+        from src.eval.verification import get_files_read_from_tool_calls
+
+        tool_calls = [
+            {"name": "search_code", "args": {"pattern": "main"}},
+            {"name": "read_file", "args": {"file_path": "/repo/src/main.py"}},
+            {"name": "read_file", "args": {"file_path": "/repo/src/utils.py"}},
+            {"name": "list_directory_structure", "args": {"path": "/repo"}},
+            {
+                "name": "read_file",
+                "args": {"file_path": "/repo/src/main.py"},
+            },  # Duplicate
+        ]
+
+        files_read = get_files_read_from_tool_calls(tool_calls)
+
+        assert len(files_read) == 2  # Unique files only
+        assert "/repo/src/main.py" in files_read
+        assert "/repo/src/utils.py" in files_read
+
+    def test_get_files_read_from_tool_calls_empty(self):
+        """Should return empty set when no read_file calls."""
+        from src.eval.verification import get_files_read_from_tool_calls
+
+        tool_calls = [
+            {"name": "search_code", "args": {"pattern": "main"}},
+            {"name": "list_directory_structure", "args": {"path": "/repo"}},
+        ]
+
+        files_read = get_files_read_from_tool_calls(tool_calls)
+
+        assert len(files_read) == 0
+
+    def test_validate_tool_usage_valid(self):
+        """Should validate when read_file called before citations."""
+        from src.eval.verification import validate_tool_usage
+
+        tool_calls = [
+            {"name": "search_code", "args": {"pattern": "main"}},
+            {"name": "read_file", "args": {"file_path": "/repo/src/main.py"}},
+        ]
+        response = "The main function is defined at main.py:42"
+
+        result = validate_tool_usage(tool_calls, response)
+
+        assert result["has_read_file"] is True
+        assert result["files_read_count"] == 1
+        assert result["citations_count"] == 1
+        assert result["valid"] is True
+        assert len(result["unread_cited_files"]) == 0
+
+    def test_validate_tool_usage_invalid_no_read(self):
+        """Should be invalid when citations exist but no read_file calls."""
+        from src.eval.verification import validate_tool_usage
+
+        tool_calls = [
+            {"name": "search_code", "args": {"pattern": "main"}},
+        ]
+        response = "The main function is at main.py:42 and helper at utils.py:10"
+
+        result = validate_tool_usage(tool_calls, response)
+
+        assert result["has_read_file"] is False
+        assert result["files_read_count"] == 0
+        assert result["citations_count"] == 2
+        assert result["valid"] is False
+        assert "main.py" in result["unread_cited_files"]
+        assert "utils.py" in result["unread_cited_files"]
+
+    def test_validate_tool_usage_no_citations(self):
+        """Should be valid when no citations exist (nothing to validate)."""
+        from src.eval.verification import validate_tool_usage
+
+        tool_calls = [
+            {"name": "search_code", "args": {"pattern": "main"}},
+        ]
+        response = "The codebase appears to be a Python project."
+
+        result = validate_tool_usage(tool_calls, response)
+
+        assert result["has_read_file"] is False
+        assert result["citations_count"] == 0
+        assert result["valid"] is True  # No citations = valid
+
+    def test_validate_tool_usage_partial_read(self):
+        """Should be invalid when only some cited files were read."""
+        from src.eval.verification import validate_tool_usage
+
+        tool_calls = [
+            {"name": "read_file", "args": {"file_path": "/repo/src/main.py"}},
+        ]
+        response = "Found main.py:42 and also utils.py:10"
+
+        result = validate_tool_usage(tool_calls, response)
+
+        assert result["has_read_file"] is True
+        assert result["files_read_count"] == 1
+        assert result["citations_count"] == 2
+        assert result["valid"] is False  # utils.py wasn't read
+        assert "utils.py" in result["unread_cited_files"]
+        assert "main.py" not in result["unread_cited_files"]
+
 
 # =============================================================================
 # Provider Configuration Tests
