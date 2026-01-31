@@ -103,6 +103,7 @@ class CircuitBreakerState:
     calls_without_new_info: int = 0
     is_tripped: bool = False
     trip_reason: str = ""
+    validation_failures: int = 0  # EVAL-005: Track citation validation failures
 
 
 class ToolUsageTracker:
@@ -206,6 +207,7 @@ class ToolUsageTracker:
             "unique_files": unique_files,
             "new_info_calls": new_info_calls,
             "is_tripped": self.circuit_breaker.is_tripped,
+            "validation_failures": self.circuit_breaker.validation_failures,  # EVAL-005
         }
 
     def reset(self):

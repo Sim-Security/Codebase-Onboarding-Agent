@@ -28,7 +28,7 @@ from .errors import (
     get_friendly_error,
     is_retryable_error,
 )
-from .eval.verification import filter_ungrounded_citations
+from .eval.verification import filter_ungrounded_citations, validate_tool_usage
 from .memory import WorkingMemory
 from .tool_router import ToolRouter, ToolUsageTracker
 
@@ -378,6 +378,30 @@ Start by exploring, then READ key files, then answer with citations from files y
                 break
 
         if final_response:
+            # EVAL-005: Validate tool usage - ensure read_file was called before citations
+            validation_result = validate_tool_usage(
+                self.last_tool_calls, final_response
+            )
+
+            if validation_result["citations_count"] > 0:
+                if not validation_result["has_read_file"]:
+                    logger.warning(
+                        f"VALIDATION FAILURE: Response has {validation_result['citations_count']} citations "
+                        f"but no read_file calls were made"
+                    )
+                    self.tool_tracker.circuit_breaker.validation_failures += 1
+                elif not validation_result["valid"]:
+                    logger.warning(
+                        f"VALIDATION FAILURE: Citations reference unread files: "
+                        f"{validation_result['unread_cited_files']}"
+                    )
+                    self.tool_tracker.circuit_breaker.validation_failures += 1
+                else:
+                    logger.debug(
+                        f"Validation passed: {validation_result['files_read_count']} files read, "
+                        f"{validation_result['citations_count']} citations verified"
+                    )
+
             # CITE-FIX: Validate and filter citations
             from .eval.verification import extract_citations
 
