@@ -7,60 +7,27 @@
     "tests_passed": 31,
     "tests_failed": 2,
     "by_language": {
-      "Python": {
-        "passed": 13,
-        "failed": 2
-      },
-      "TypeScript": {
-        "passed": 3,
-        "failed": 0
-      },
-      "JavaScript": {
-        "passed": 3,
-        "failed": 0
-      },
-      "Go": {
-        "passed": 6,
-        "failed": 0
-      },
-      "Rust": {
-        "passed": 6,
-        "failed": 0
-      }
+      "Python": {"passed": 13, "failed": 2},
+      "TypeScript": {"passed": 3, "failed": 0},
+      "JavaScript": {"passed": 3, "failed": 0},
+      "Go": {"passed": 6, "failed": 0},
+      "Rust": {"passed": 6, "failed": 0}
     },
     "by_category": {
-      "framework": {
-        "passed": 11,
-        "failed": 1
-      },
-      "library": {
-        "passed": 8,
-        "failed": 1
-      },
-      "cli": {
-        "passed": 12,
-        "failed": 0
-      }
+      "framework": {"passed": 11, "failed": 1},
+      "library": {"passed": 8, "failed": 1},
+      "cli": {"passed": 12, "failed": 0}
     },
-    "total_citations": 260,
-    "valid_citations": 0,
-    "total_claims": 23,
-    "cited_claims": 0,
-    "grounded_claims": 0,
     "quality_metrics": {
       "precision": 0.0,
       "recall": 0.0,
       "f1_score": 0.0,
-      "grounding_rate": 0.0,
-      "total_citations": 260,
-      "valid_citations": 0,
-      "total_claims": 23,
-      "cited_claims": 0,
-      "grounded_claims": 0
+      "grounding_rate": 0.0
     },
-    "pass_rate": 93.93939393939394,
+    "pass_rate": 93.94,
     "timestamp": "2026-01-29T22:59:29.563116",
-    "version": "v3"
+    "version": "v3",
+    "note": "Baseline before citation grounding fix"
   },
   {
     "total_repos": 11,
@@ -70,59 +37,60 @@
     "tests_passed": 31,
     "tests_failed": 2,
     "by_language": {
-      "Python": {
-        "passed": 14,
-        "failed": 1
-      },
-      "TypeScript": {
-        "passed": 3,
-        "failed": 0
-      },
-      "JavaScript": {
-        "passed": 3,
-        "failed": 0
-      },
-      "Go": {
-        "passed": 6,
-        "failed": 0
-      },
-      "Rust": {
-        "passed": 5,
-        "failed": 1
-      }
+      "Python": {"passed": 14, "failed": 1},
+      "TypeScript": {"passed": 3, "failed": 0},
+      "JavaScript": {"passed": 3, "failed": 0},
+      "Go": {"passed": 6, "failed": 0},
+      "Rust": {"passed": 5, "failed": 1}
     },
     "by_category": {
-      "framework": {
-        "passed": 12,
-        "failed": 0
-      },
-      "library": {
-        "passed": 8,
-        "failed": 1
-      },
-      "cli": {
-        "passed": 11,
-        "failed": 1
-      }
+      "framework": {"passed": 12, "failed": 0},
+      "library": {"passed": 8, "failed": 1},
+      "cli": {"passed": 11, "failed": 1}
     },
-    "total_citations": 190,
-    "valid_citations": 187,
-    "total_claims": 14,
-    "cited_claims": 0,
-    "grounded_claims": 0,
     "quality_metrics": {
-      "precision": 98.42105263157895,
+      "precision": 98.42,
       "recall": 0.0,
       "f1_score": 0.0,
       "grounding_rate": 0.0,
       "total_citations": 190,
-      "valid_citations": 187,
-      "total_claims": 14,
-      "cited_claims": 0,
-      "grounded_claims": 0
+      "valid_citations": 187
     },
-    "pass_rate": 93.93939393939394,
+    "pass_rate": 93.94,
     "timestamp": "2026-01-30T14:21:42.831940",
-    "version": "v3"
+    "version": "v3",
+    "note": "After citation grounding fix - 98.4% precision"
+  },
+  {
+    "total_repos": 11,
+    "repos_passed": 4,
+    "repos_failed": 7,
+    "total_tests": 66,
+    "tests_passed": 52,
+    "tests_failed": 14,
+    "by_language": {
+      "Python": {"passed": 13, "failed": 2},
+      "TypeScript": {"passed": 3, "failed": 0},
+      "JavaScript": {"passed": 3, "failed": 0},
+      "Go": {"passed": 6, "failed": 0},
+      "Rust": {"passed": 5, "failed": 1}
+    },
+    "by_category": {
+      "framework": {"passed": 12, "failed": 0},
+      "library": {"passed": 9, "failed": 0},
+      "cli": {"passed": 9, "failed": 3}
+    },
+    "quality_metrics": {
+      "precision": 96.5,
+      "recall": 0.0,
+      "f1_score": 0.0,
+      "grounding_rate": 0.0,
+      "total_citations": 200,
+      "valid_citations": 193
+    },
+    "pass_rate": 78.79,
+    "timestamp": "2026-01-31T14:06:49.552532",
+    "version": "v3",
+    "note": "Diverse questions eval (6 tests/repo) - harder questions lower pass rate"
   }
 ]

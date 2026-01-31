@@ -191,6 +191,12 @@ import sys
 sys.path.insert(0, str(Path(__file__).parent))
 
 from src.agent import CodebaseOnboardingAgent
+from src.eval.pass_at_k import (
+    aggregate_pass_at_k_results,
+    format_pass_at_k_report,
+    run_with_pass_at_k,
+)
+from src.eval.questions import get_questions_for_repo
 from src.eval.verification import (
     calculate_citation_metrics,
     extract_citations,
@@ -920,15 +926,275 @@ def run_repo_eval(repo: TestRepo, agent: CodebaseOnboardingAgent) -> dict:
     return results
 
 
+def run_diverse_questions_eval(
+    repo: TestRepo,
+    agent: CodebaseOnboardingAgent,
+    num_questions: int = 3,
+    use_pass_at_k: bool = False,
+    k: int = 2,
+) -> dict:
+    """
+    Run evaluation using diverse question templates.
+
+    Args:
+        repo: Test repository configuration
+        agent: Initialized agent
+        num_questions: Number of diverse questions to ask
+        use_pass_at_k: Whether to run each question k times for consistency metrics
+        k: Number of times to run each question (if use_pass_at_k=True)
+
+    Returns:
+        Dictionary with per-question results and optional pass@k metrics
+    """
+    # Get diverse questions for this repo
+    questions = get_questions_for_repo(
+        language=repo.language,
+        category=repo.category,
+        num_questions=num_questions,
+    )
+
+    results = {
+        "repo": repo.name,
+        "num_questions": len(questions),
+        "questions": [],
+        "pass_at_k_results": [] if use_pass_at_k else None,
+    }
+
+    for i, q in enumerate(questions, 1):
+        print(
+            f"      [{i}/{len(questions)}] {q['category']}/{q['id']}: {q['difficulty']}"
+        )
+        agent.reset_conversation()
+
+        if use_pass_at_k:
+            # Run with pass@k metrics
+            # Bind q to current value using default argument
+            def make_run_question(question_data):
+                def run_question():
+                    answer = retry_on_error(
+                        lambda qd=question_data: agent.ask(qd["question"])
+                    )
+                    tool_outputs = agent.get_tool_outputs()
+                    citation_metrics = calculate_citation_metrics(answer, tool_outputs)
+
+                    # Check if question passes based on expected criteria
+                    passed = (
+                        citation_metrics["total_citations"]
+                        >= question_data["min_citations"]
+                        and len(agent.get_tool_calls()) >= 2
+                    )
+
+                    metrics = {
+                        "citations": citation_metrics["total_citations"],
+                        "verified_citations": citation_metrics["verified_citations"],
+                        "precision": citation_metrics["precision"],
+                        "recall": citation_metrics["recall"],
+                        "f1": citation_metrics["f1"],
+                        "tool_calls": len(agent.get_tool_calls()),
+                        "answer_length": len(answer),
+                    }
+
+                    agent.reset_conversation()  # Reset for next run
+                    return passed, metrics
+
+                return run_question
+
+            pass_at_k_result = run_with_pass_at_k(
+                test_fn=make_run_question(q),
+                test_id=f"{repo.name}_{q['id']}",
+                k=k,
+                stop_on_pass=False,  # Run all k times for consistency data
+            )
+
+            results["pass_at_k_results"].append(pass_at_k_result)
+            results["questions"].append(
+                {
+                    "id": q["id"],
+                    "category": q["category"],
+                    "difficulty": q["difficulty"],
+                    "passed": pass_at_k_result.passes > 0,
+                    "pass_at_1": pass_at_k_result.pass_at_1,
+                    "pass_at_k": pass_at_k_result.pass_at_k,
+                    "consistency": pass_at_k_result.consistency,
+                    "avg_metrics": pass_at_k_result.avg_metrics,
+                }
+            )
+        else:
+            # Single run (original behavior)
+            try:
+                # Bind q to current value using default argument
+                question_text = q["question"]
+                min_citations = q["min_citations"]
+                answer = retry_on_error(lambda qt=question_text: agent.ask(qt))
+                tool_outputs = agent.get_tool_outputs()
+                citation_metrics = calculate_citation_metrics(answer, tool_outputs)
+                tool_calls = agent.get_tool_calls()
+
+                passed = (
+                    citation_metrics["total_citations"] >= min_citations
+                    and len(tool_calls) >= 2
+                )
+
+                results["questions"].append(
+                    {
+                        "id": q["id"],
+                        "category": q["category"],
+                        "difficulty": q["difficulty"],
+                        "passed": passed,
+                        "citations": citation_metrics["total_citations"],
+                        "verified_citations": citation_metrics["verified_citations"],
+                        "min_citations_required": q["min_citations"],
+                        "precision": citation_metrics["precision"],
+                        "recall": citation_metrics["recall"],
+                        "f1": citation_metrics["f1"],
+                        "tool_calls": len(tool_calls),
+                        "expected_tools": q["expected_tools"],
+                        "answer_length": len(answer),
+                    }
+                )
+            except Exception as e:
+                results["questions"].append(
+                    {
+                        "id": q["id"],
+                        "category": q["category"],
+                        "difficulty": q["difficulty"],
+                        "passed": False,
+                        "error": str(e),
+                    }
+                )
+
+    # Calculate summary
+    passed_count = sum(1 for q in results["questions"] if q.get("passed", False))
+    results["passed"] = passed_count
+    results["failed"] = len(results["questions"]) - passed_count
+    results["pass_rate"] = (
+        passed_count / len(results["questions"]) * 100 if results["questions"] else 0
+    )
+
+    # Aggregate pass@k if used
+    if use_pass_at_k and results["pass_at_k_results"]:
+        results["pass_at_k_summary"] = aggregate_pass_at_k_results(
+            results["pass_at_k_results"]
+        )
+
+    return results
+
+
+def run_enhanced_eval(
+    repo: TestRepo,
+    agent: CodebaseOnboardingAgent,
+    include_diverse: bool = True,
+    include_pass_at_k: bool = False,
+    diverse_questions: int = 3,
+    k: int = 2,
+) -> dict:
+    """
+    Enhanced eval combining original tests + diverse questions + pass@k.
+
+    Args:
+        repo: Test repository configuration
+        agent: Initialized agent
+        include_diverse: Whether to run diverse question tests
+        include_pass_at_k: Whether to use pass@k metrics
+        diverse_questions: Number of diverse questions per repo
+        k: Number of runs per question for pass@k
+
+    Returns:
+        Combined results dictionary
+    """
+    # Run original tests first
+    base_results = run_repo_eval(repo, agent)
+
+    if include_diverse:
+        print("    Testing diverse questions...")
+        diverse_results = run_diverse_questions_eval(
+            repo=repo,
+            agent=agent,
+            num_questions=diverse_questions,
+            use_pass_at_k=include_pass_at_k,
+            k=k,
+        )
+
+        # Merge results
+        base_results["diverse_questions"] = diverse_results
+        base_results["total_passed"] = (
+            base_results["passed"] + diverse_results["passed"]
+        )
+        base_results["total_failed"] = (
+            base_results["failed"] + diverse_results["failed"]
+        )
+
+        if include_pass_at_k and diverse_results.get("pass_at_k_summary"):
+            base_results["pass_at_k_summary"] = diverse_results["pass_at_k_summary"]
+    else:
+        base_results["total_passed"] = base_results["passed"]
+        base_results["total_failed"] = base_results["failed"]
+
+    return base_results
+
+
 def main():
+    import argparse
+
+    parser = argparse.ArgumentParser(
+        description="Codebase Onboarding Agent - Multi-Repo Eval Suite"
+    )
+    parser.add_argument(
+        "--diverse",
+        action="store_true",
+        help="Include diverse question tests (default: False)",
+    )
+    parser.add_argument(
+        "--pass-at-k",
+        action="store_true",
+        help="Run with pass@k metrics for consistency testing (default: False)",
+    )
+    parser.add_argument(
+        "--num-questions",
+        type=int,
+        default=3,
+        help="Number of diverse questions per repo (default: 3)",
+    )
+    parser.add_argument(
+        "-k",
+        type=int,
+        default=2,
+        help="Number of runs per question for pass@k (default: 2)",
+    )
+    parser.add_argument(
+        "--repos",
+        type=str,
+        help="Comma-separated list of repo names to test (default: all)",
+    )
+
+    args = parser.parse_args()
+
+    # Filter repos if specified
+    repos_to_test = TEST_REPOS
+    if args.repos:
+        repo_names = [r.strip().lower() for r in args.repos.split(",")]
+        repos_to_test = [r for r in TEST_REPOS if r.name.lower() in repo_names]
+        if not repos_to_test:
+            print(f"❌ No matching repos found for: {args.repos}")
+            print(f"   Available: {', '.join(r.name for r in TEST_REPOS)}")
+            return False
+
     print("=" * 60)
     print("🧪 Codebase Onboarding Agent - Multi-Repo Eval Suite")
     print("=" * 60)
-    print(f"\nTesting {len(TEST_REPOS)} repositories across multiple languages\n")
+
+    # Show configuration
+    config_lines = [f"Testing {len(repos_to_test)} repositories"]
+    if args.diverse:
+        config_lines.append(f"Diverse questions: {args.num_questions} per repo")
+    if args.pass_at_k:
+        config_lines.append(f"Pass@k metrics: k={args.k}")
+    print("\n" + " | ".join(config_lines) + "\n")
 
     all_results = []
+    pass_at_k_results_all = []  # Collect all pass@k results for final report
     summary = {
-        "total_repos": len(TEST_REPOS),
+        "total_repos": len(repos_to_test),
         "repos_passed": 0,
         "repos_failed": 0,
         "total_tests": 0,
@@ -944,9 +1210,9 @@ def main():
         "grounded_claims": 0,
     }
 
-    for i, repo in enumerate(TEST_REPOS, 1):
+    for i, repo in enumerate(repos_to_test, 1):
         print(
-            f"\n[{i}/{len(TEST_REPOS)}] 📦 {repo.name} ({repo.language}, {repo.category})"
+            f"\n[{i}/{len(repos_to_test)}] 📦 {repo.name} ({repo.language}, {repo.category})"
         )
         print("-" * 50)
 
@@ -993,14 +1259,38 @@ def main():
             shutil.rmtree(repo_path, ignore_errors=True)
             continue
 
-        # Run eval
-        result = run_repo_eval(repo, agent)
+        # Run eval - enhanced or basic
+        if args.diverse or args.pass_at_k:
+            result = run_enhanced_eval(
+                repo=repo,
+                agent=agent,
+                include_diverse=args.diverse,
+                include_pass_at_k=args.pass_at_k,
+                diverse_questions=args.num_questions,
+                k=args.k,
+            )
+            # Use total counts if available (from enhanced eval)
+            passed_count = result.get("total_passed", result["passed"])
+            failed_count = result.get("total_failed", result["failed"])
+
+            # Collect pass@k results
+            if args.pass_at_k and result.get("diverse_questions", {}).get(
+                "pass_at_k_results"
+            ):
+                pass_at_k_results_all.extend(
+                    result["diverse_questions"]["pass_at_k_results"]
+                )
+        else:
+            result = run_repo_eval(repo, agent)
+            passed_count = result["passed"]
+            failed_count = result["failed"]
+
         all_results.append(result)
 
         # Update summary
-        summary["total_tests"] += result["passed"] + result["failed"]
-        summary["tests_passed"] += result["passed"]
-        summary["tests_failed"] += result["failed"]
+        summary["total_tests"] += passed_count + failed_count
+        summary["tests_passed"] += passed_count
+        summary["tests_failed"] += failed_count
 
         # Aggregate quality metrics from test results
         for test_name, test_result in result.get("tests", {}).items():
@@ -1026,14 +1316,14 @@ def main():
                         test_result.get("claims", 0),
                     )
 
-        if result["failed"] == 0:
+        if failed_count == 0:
             summary["repos_passed"] += 1
-            print(f"  ✅ All tests passed ({result['passed']}/3)")
+            print(
+                f"  ✅ All tests passed ({passed_count}/{passed_count + failed_count})"
+            )
         else:
             summary["repos_failed"] += 1
-            print(
-                f"  ⚠️  {result['passed']}/{result['passed'] + result['failed']} tests passed"
-            )
+            print(f"  ⚠️  {passed_count}/{passed_count + failed_count} tests passed")
 
         # Track by language
         lang = repo.language
@@ -1094,6 +1384,13 @@ def main():
     summary["quality_metrics"] = quality_metrics
     summary["pass_rate"] = pass_rate
 
+    # Pass@k Report (if enabled)
+    if args.pass_at_k and pass_at_k_results_all:
+        print(format_pass_at_k_report(pass_at_k_results_all, args.k))
+        summary["pass_at_k_aggregate"] = aggregate_pass_at_k_results(
+            pass_at_k_results_all
+        )
+
     # EVAL-003: Historical comparison
     # Get previous result before saving (so we compare with actual previous)
     previous = get_previous_result()
@@ -1137,20 +1434,44 @@ def main():
                             )
 
     # Save results (legacy format)
+    # Custom serializer for dataclasses
+    def serialize_for_json(obj):
+        if hasattr(obj, "__dataclass_fields__"):
+            from dataclasses import asdict
+
+            return asdict(obj)
+        elif hasattr(obj, "__dict__"):
+            return obj.__dict__
+        return str(obj)
+
+    # Clean pass_at_k_results from all_results (convert dataclasses to dicts)
+    cleaned_results = []
+    for result in all_results:
+        clean_result = result.copy()
+        if "diverse_questions" in clean_result and clean_result["diverse_questions"]:
+            dq = clean_result["diverse_questions"].copy()
+            if "pass_at_k_results" in dq and dq["pass_at_k_results"]:
+                # Convert PassAtKResult objects to dicts
+                dq["pass_at_k_results"] = [
+                    serialize_for_json(r) for r in dq["pass_at_k_results"]
+                ]
+            clean_result["diverse_questions"] = dq
+        cleaned_results.append(clean_result)
+
     results_file = Path(__file__).parent / "evals" / "multi_repo_results.json"
     report = {
         "timestamp": datetime.now().isoformat(),
         "model": os.getenv("OPENROUTER_MODEL", "x-ai/grok-4.1-fast"),
         "summary": summary,
-        "results": all_results,
+        "results": cleaned_results,
     }
 
     with open(results_file, "w") as f:
-        json.dump(report, f, indent=2)
+        json.dump(report, f, indent=2, default=serialize_for_json)
 
     # EVAL-004: Save and print improved report
-    json_path, text_path = save_report(summary, all_results)
-    print(format_eval_report(summary, all_results))
+    json_path, text_path = save_report(summary, cleaned_results)
+    print(format_eval_report(summary, cleaned_results))
     print(f"\nResults saved to:\n  JSON: {json_path}\n  Text: {text_path}")
 
     print(f"\n📁 Results saved to: {results_file}")
