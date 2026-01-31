@@ -27,7 +27,7 @@ This phase addresses the highest-impact improvement: fixing CLI tool analysis. T
   - Check for `__main__.py` files that import CLI frameworks
   - ✅ Completed: Implementation already existed at lines 279-380. Added comprehensive test suite with 10 new tests covering all CLI frameworks (click, typer, argparse, fire, clap, structopt, cobra, urfave/cli) plus console_scripts and __main__.py detection. Tests added to `tests/test_tools.py::TestFindEntryPoints` and fixture `temp_repo_with_cli_frameworks` in `tests/conftest.py`. All 14 TestFindEntryPoints tests pass.
 
-- [ ] Add negative example disambiguation to `src/prompts/__init__.py`:
+- [x] Add negative example disambiguation to `src/prompts/__init__.py`:
   - Add a new section in SYSTEM_PROMPT after the tool descriptions:
     ```
     ## CRITICAL: Project Identity Rules
@@ -42,6 +42,7 @@ This phase addresses the highest-impact improvement: fixing CLI tool analysis. T
     If you see `@click.command` decorators, it's a CLI tool, not a web framework.
     If you see `app = Flask(__name__)`, it's a web framework, not a CLI tool.
     ```
+  - ✅ Completed: Added "## CRITICAL: Project Identity Rules" section at lines 21-31 in `src/prompts/__init__.py`, placed after the tool descriptions and before the "## Approach" section. All 134 passing tests remain passing (5 pre-existing failures unrelated to this change).
 
 - [ ] Run the evaluation suite to verify improvements:
   - Execute: `python run_multi_eval.py --repos click,cobra --diverse`
