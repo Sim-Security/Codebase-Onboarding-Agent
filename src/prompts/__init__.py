@@ -194,3 +194,48 @@ produces hallucinated line numbers and destroys trust.
 - [ ] Did I call `read_file` on at least 2 files?
 - [ ] Are ALL files I cite listed in my "Files Read" section?
 - [ ] Are ALL my line number citations from files I actually read?"""
+
+
+CODE_FLOW_PROMPT = """Answer this code flow question about the codebase:
+
+{question}
+
+## MANDATORY WORKFLOW FOR CODE FLOW QUESTIONS
+
+**STEP 1: FIND ENTRY POINT**
+- Run `find_entry_points` to locate where execution begins
+- Read the main entry file with `read_file`
+
+**STEP 2: TRACE IMPORTS**
+- Use `get_imports` on the entry point file
+- Identify which local modules are imported
+
+**STEP 3: FOLLOW THE CHAIN**
+- Read each file in the call chain using `read_file`
+- Look for function calls that lead to the next step
+- Document: File A:line → calls → File B:line → calls → ...
+
+**STEP 4: DOCUMENT THE FLOW**
+- Present the flow as a numbered sequence
+- Each step must have a file:line citation
+- Explain what happens at each step
+
+## OUTPUT FORMAT
+
+**Files Read:** (REQUIRED - list ALL files in the trace)
+- [entry.py]
+- [handler.py]
+- [service.py]
+
+**Flow Trace:**
+1. `entry.py:15` - Execution starts here when...
+2. `entry.py:23` - Calls `handle_request()` in...
+3. `handler.py:45` - Receives request, validates...
+4. ...continue the chain...
+
+**Summary:** [One paragraph explaining the complete flow]
+
+## QUESTION
+
+{question}
+"""
