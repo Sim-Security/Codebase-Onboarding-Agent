@@ -72,7 +72,7 @@ This phase addresses Priority 5 from the improvement plan: performance improveme
     - `TestResponseCache`: 9 tests for cache operations
     - `TestAgentCacheIntegration`: 7 tests for agent integration
 
-- [ ] Add progress tracking for long operations:
+- [x] Add progress tracking for long operations:
   - In `src/agent.py`, add progress callbacks:
     - Create `ProgressCallback` protocol: `def __call__(self, step: str, detail: str)`
     - Pass optional callback to `_run()` method
@@ -84,6 +84,33 @@ This phase addresses Priority 5 from the improvement plan: performance improveme
     - Show which tool is being called
     - Show file being read
     - Show search pattern being used
+
+  **COMPLETED (2026-01-31):**
+  - Created `ProgressCallback` protocol in `src/agent.py` (UX-010):
+    - `@runtime_checkable` protocol with `__call__(self, step: str, detail: str) -> None`
+    - `ProgressCallbackType` type alias supporting callable, protocol, or None
+    - Steps include: "thinking", "tool_start", "tool_end"
+  - Added `_format_tool_detail()` helper function for human-readable tool descriptions:
+    - Formats all 9 tools with contextual messages (matches `_get_tool_status_indicator` in app.py)
+  - Updated `_run()` method with `progress_callback` parameter:
+    - Internal `notify_progress()` helper safely calls callback with exception handling
+    - Notifies on cache check, agent thinking, tool completion, and response complete
+  - Updated public methods to accept and pass through progress callback:
+    - `get_overview(progress_callback=None)`
+    - `ask(question, use_self_correction=False, progress_callback=None)`
+    - `chat(message, progress_callback=None)`
+  - Added Gradio progress integration in `app.py`:
+    - `_create_gradio_progress_callback()` bridges `ProgressCallback` protocol to `gr.Progress()`
+    - Incremental progress tracking with emoji indicators (🤔 thinking, 🔧 tool_start, ✓ tool_end)
+    - Caps at 95% since total steps are unknown
+    - Updated `generate_overview()` and `chat()` functions to use progress callbacks
+  - Added comprehensive tests in `tests/test_progress.py` (34 tests, all passing):
+    - `TestProgressCallbackProtocol`: 5 tests for protocol compliance
+    - `TestFormatToolDetail`: 14 tests for tool detail formatting
+    - `TestAgentProgressIntegration`: 5 tests for method signature validation
+    - `TestGradioProgressBridge`: 7 tests for Gradio integration
+    - `TestProgressCallbackErrorHandling`: 1 test for error handling
+    - `TestProgressCallbackWithCache`: 2 tests for cache interaction
 
 - [ ] Optimize tool execution where possible:
   - In `src/agent.py`, identify opportunities for parallel tool calls:

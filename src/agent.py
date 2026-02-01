@@ -7,7 +7,14 @@ Supports multiple LLM providers: OpenRouter (default), Groq.
 import logging
 import os
 from pathlib import Path
-from typing import Annotated, AsyncIterator, TypedDict
+from typing import (
+    Annotated,
+    AsyncIterator,
+    Callable,
+    Protocol,
+    TypedDict,
+    runtime_checkable,
+)
 
 from langchain_core.messages import AIMessage, HumanMessage, SystemMessage, ToolMessage
 from langchain_openai import ChatOpenAI
@@ -34,6 +41,95 @@ from .memory import WorkingMemory
 from .tool_router import ToolRouter, ToolUsageTracker
 
 logger = logging.getLogger(__name__)
+
+
+# =============================================================================
+# UX-010: Progress Tracking for Long Operations
+# =============================================================================
+
+
+@runtime_checkable
+class ProgressCallback(Protocol):
+    """
+    Protocol for progress callbacks during long-running operations.
+
+    UX-010: Provides real-time progress updates to UI components.
+
+    The callback receives:
+        step: A short identifier for the current step type
+              - "thinking": Agent is processing/reasoning
+              - "tool_start": A tool is about to be called
+              - "tool_end": A tool has finished executing
+        detail: Human-readable detail about the step
+              - For tool_start: Tool name and key arguments
+              - For tool_end: Brief summary of result
+              - For thinking: What the agent is considering
+    """
+
+    def __call__(self, step: str, detail: str) -> None:
+        """
+        Called when progress occurs.
+
+        Args:
+            step: The step type (e.g., "thinking", "tool_start", "tool_end")
+            detail: Human-readable description of the progress
+        """
+        ...
+
+
+# Type alias for progress callback functions
+ProgressCallbackType = Callable[[str, str], None] | ProgressCallback | None
+
+
+def _format_tool_detail(tool_name: str, tool_args: dict) -> str:
+    """
+    Format tool call details for progress display.
+
+    Args:
+        tool_name: Name of the tool being called
+        tool_args: Arguments passed to the tool
+
+    Returns:
+        Human-readable description of the tool call
+    """
+    if tool_name == "read_file":
+        file_path = tool_args.get("file_path", "unknown")
+        filename = Path(file_path).name if file_path else "file"
+        return f"Reading {filename}"
+
+    elif tool_name == "search_code":
+        pattern = tool_args.get("pattern", "")
+        return f"Searching for '{pattern}'"
+
+    elif tool_name == "find_files_by_pattern":
+        pattern = tool_args.get("pattern", "")
+        return f"Finding files matching '{pattern}'"
+
+    elif tool_name == "list_directory_structure":
+        return "Exploring directory structure"
+
+    elif tool_name == "get_imports":
+        file_path = tool_args.get("file_path", "unknown")
+        filename = Path(file_path).name if file_path else "file"
+        return f"Analyzing imports in {filename}"
+
+    elif tool_name == "find_entry_points":
+        return "Finding entry points"
+
+    elif tool_name == "analyze_dependencies":
+        return "Analyzing dependencies"
+
+    elif tool_name == "get_function_signatures":
+        file_path = tool_args.get("file_path", "unknown")
+        filename = Path(file_path).name if file_path else "file"
+        return f"Getting function signatures from {filename}"
+
+    elif tool_name == "get_important_files":
+        return "Identifying important files"
+
+    else:
+        return f"Running {tool_name}"
+
 
 # ORCH-005: Planning prompt for plan-then-execute pattern
 PLANNING_PROMPT = """You are planning how to explore a codebase to answer a question.
@@ -298,18 +394,39 @@ class CodebaseOnboardingAgent:
         self.cache = ResponseCache(repo_path=self.repo_path) if use_cache else None
         self._cache_hit = False  # Track if last response was from cache
 
-    def _run(self, user_message: str) -> str:
-        """Run a single interaction with the agent."""
+    def _run(
+        self, user_message: str, progress_callback: ProgressCallbackType = None
+    ) -> str:
+        """
+        Run a single interaction with the agent.
+
+        Args:
+            user_message: The user's message/question
+            progress_callback: Optional callback for progress updates (UX-010)
+
+        Returns:
+            The agent's response string
+        """
         self._cache_hit = False  # Reset cache hit flag
+
+        # UX-010: Helper to safely call progress callback
+        def notify_progress(step: str, detail: str) -> None:
+            if progress_callback:
+                try:
+                    progress_callback(step, detail)
+                except Exception as e:
+                    logger.debug(f"Progress callback error: {e}")
 
         # UX-009: Check cache before running
         if self.use_cache and self.cache:
+            notify_progress("thinking", "Checking cache...")
             cache_key = CacheKey.create(self.repo_path, user_message, self.model)
             cached_response, cached_tool_calls = self.cache.get_with_tool_calls(
                 cache_key
             )
             if cached_response:
                 logger.info("Returning cached response")
+                notify_progress("thinking", "Found cached response")
                 self._cache_hit = True
                 self.last_tool_calls = cached_tool_calls
                 # Add to conversation history for context continuity
@@ -343,6 +460,8 @@ Start by exploring, then READ key files, then answer with citations from files y
             "messages": self.conversation_history.copy(),
             "repo_path": self.repo_path,
         }
+
+        notify_progress("thinking", "Analyzing codebase...")
 
         try:
             # UX-003: Use retry wrapper for transient errors
@@ -382,6 +501,13 @@ Start by exploring, then READ key files, then answer with citations from files y
                     )
                     if tool_name:
                         self.tool_router.record_tool_call(tool_name)
+                        # UX-010: Notify about tool call (after the fact for sync)
+                        notify_progress(
+                            "tool_end",
+                            _format_tool_detail(
+                                tool_name, tool_args if tool_args else {}
+                            ),
+                        )
             # Capture tool outputs from ToolMessages (EVAL-005)
             elif isinstance(msg, ToolMessage) and hasattr(msg, "content"):
                 self.last_tool_outputs.append(msg.content)
@@ -492,11 +618,20 @@ Start by exploring, then READ key files, then answer with citations from files y
         # UX-006: Prune history to prevent context overflow
         self._prune_history()
 
+        notify_progress("thinking", "Response complete")
         return final_response or "No response generated"
 
-    def get_overview(self) -> str:
-        """Generate a comprehensive overview of the codebase."""
-        return self._run(OVERVIEW_PROMPT)
+    def get_overview(self, progress_callback: ProgressCallbackType = None) -> str:
+        """
+        Generate a comprehensive overview of the codebase.
+
+        Args:
+            progress_callback: Optional callback for progress updates (UX-010)
+
+        Returns:
+            Overview of the codebase
+        """
+        return self._run(OVERVIEW_PROMPT, progress_callback=progress_callback)
 
     def _is_code_flow_question(self, question: str) -> bool:
         """Detect if the question is about code flow tracing."""
@@ -516,8 +651,23 @@ Start by exploring, then READ key files, then answer with citations from files y
         q_lower = question.lower()
         return any(kw in q_lower for kw in flow_keywords)
 
-    def ask(self, question: str, use_self_correction: bool = False) -> str:
-        """Ask a specific question about the codebase."""
+    def ask(
+        self,
+        question: str,
+        use_self_correction: bool = False,
+        progress_callback: ProgressCallbackType = None,
+    ) -> str:
+        """
+        Ask a specific question about the codebase.
+
+        Args:
+            question: The question to ask
+            use_self_correction: Whether to use self-correction mode
+            progress_callback: Optional callback for progress updates (UX-010)
+
+        Returns:
+            Answer to the question
+        """
         if use_self_correction:
             return self.run_with_self_correction(question)
 
@@ -526,11 +676,20 @@ Start by exploring, then READ key files, then answer with citations from files y
             prompt = CODE_FLOW_PROMPT.format(question=question)
         else:
             prompt = DEEP_DIVE_PROMPT.format(question=question)
-        return self._run(prompt)
+        return self._run(prompt, progress_callback=progress_callback)
 
-    def chat(self, message: str) -> str:
-        """General chat about the codebase."""
-        return self._run(message)
+    def chat(self, message: str, progress_callback: ProgressCallbackType = None) -> str:
+        """
+        General chat about the codebase.
+
+        Args:
+            message: The chat message
+            progress_callback: Optional callback for progress updates (UX-010)
+
+        Returns:
+            Chat response
+        """
+        return self._run(message, progress_callback=progress_callback)
 
     def reset_conversation(self):
         """Reset conversation and memory."""

@@ -231,20 +231,63 @@ Both options are completely free with generous rate limits!""",
         return f"❌ Failed to initialize agent: {e}", state
 
 
-def generate_overview(state: dict) -> str:
-    """Generate a codebase overview using session state."""
+def _create_gradio_progress_callback(progress):
+    """
+    Create a progress callback that updates Gradio's progress indicator.
+
+    UX-010: Bridges the ProgressCallback protocol with Gradio's progress API.
+
+    Args:
+        progress: Gradio progress object (gr.Progress)
+
+    Returns:
+        Callback function compatible with ProgressCallback protocol
+    """
+    step_count = [0]  # Mutable counter for progress tracking
+
+    def callback(step: str, detail: str) -> None:
+        step_count[0] += 1
+        # Cap at 95% since we don't know total steps
+        pct = min(0.95, 0.1 + (step_count[0] * 0.05))
+
+        if step == "thinking":
+            progress(pct, desc=f"🤔 {detail}")
+        elif step == "tool_start":
+            progress(pct, desc=f"🔧 {detail}...")
+        elif step == "tool_end":
+            progress(pct, desc=f"✓ {detail}")
+        else:
+            progress(pct, desc=detail)
+
+    return callback
+
+
+def generate_overview(state: dict, progress=gr.Progress()) -> str:
+    """
+    Generate a codebase overview using session state.
+
+    UX-010: Uses progress callback to show tool execution status.
+    """
     if not state["agent"]:
         return "❌ Please initialize the agent first by entering a repository URL"
 
     try:
-        return state["agent"].get_overview()
+        progress(0.05, desc="🚀 Starting overview generation...")
+        callback = _create_gradio_progress_callback(progress)
+        result = state["agent"].get_overview(progress_callback=callback)
+        progress(1.0, desc="✅ Overview complete")
+        return result
     except Exception as e:
         # UX-004: Use friendly error messages
         return get_friendly_error(e)
 
 
-def chat(message: str, history: list, state: dict) -> str:
-    """Chat with the agent about the codebase using session state."""
+def chat(message: str, history: list, state: dict, progress=gr.Progress()) -> str:
+    """
+    Chat with the agent about the codebase using session state.
+
+    UX-010: Uses progress callback to show tool execution status.
+    """
     if not state["agent"]:
         return "❌ Please initialize the agent first by entering a repository URL"
 
@@ -252,7 +295,11 @@ def chat(message: str, history: list, state: dict) -> str:
         return "Please enter a question"
 
     try:
-        return state["agent"].chat(message)
+        progress(0.05, desc="🚀 Processing question...")
+        callback = _create_gradio_progress_callback(progress)
+        result = state["agent"].chat(message, progress_callback=callback)
+        progress(1.0, desc="✅ Response complete")
+        return result
     except Exception as e:
         # UX-004: Use friendly error messages
         return get_friendly_error(e)
