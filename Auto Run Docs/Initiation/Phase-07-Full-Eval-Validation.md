@@ -49,7 +49,7 @@ This final phase runs a comprehensive evaluation across all test repositories to
   - code_flow and debugging categories need more work
   - 3 deep_dive failures with 0 citations still present
 
-- [ ] Generate per-category breakdown:
+- [x] Generate per-category breakdown:
   - Use the category metrics added in Phase 4
   - Create a summary table showing:
     - Architecture questions pass rate
@@ -57,6 +57,33 @@ This final phase runs a comprehensive evaluation across all test repositories to
     - Code flow questions pass rate
     - Debugging questions pass rate
     - Specific file questions pass rate
+
+  **Per-Category Results (2026-01-31):**
+
+  | Category | Pass Rate | Passed | Failed | Avg Citations | Status |
+  |----------|-----------|--------|--------|---------------|--------|
+  | overview | 100.0% | 11 | 0 | 13.3 | ✅ Excellent |
+  | language_detection | 100.0% | 11 | 0 | 0.0 | ✅ Excellent |
+  | identity | 90.9% | 10 | 1 | 6.5 | ✅ Good |
+  | architecture | 81.8% | 18 | 4 | 17.8 | ✅ Good |
+  | specific_file | 81.8% | 9 | 2 | 30.0 | ✅ Good |
+  | dependencies | 72.7% | 8 | 3 | 23.0 | ⚠️ Needs Work |
+  | code_flow | 63.6% | 7 | 4 | 6.5 | 🔴 Problem |
+  | debugging | 45.5% | 5 | 6 | 9.3 | 🔴 Critical |
+
+  **Problem Categories (pass rate < 70%):**
+  - `debugging`: 45.5% — Hardest category, questions about error handling/debugging locations
+  - `code_flow`: 63.6% — Dropped 22.2% from baseline average of 81.8%
+
+  **Difficulty Analysis:**
+  - Easy questions: 81.8% avg pass rate
+  - Medium questions: 68.2% avg pass rate
+  - Hard questions: 63.6% avg pass rate
+
+  **Difficulty Mismatches (questions harder than expected):**
+  - `debug_where`: Expected "medium" → Actual "hard" (45.5% pass rate)
+  - `dep_external`: Expected "easy" → Actual "medium" (72.7% pass rate)
+  - `specific_main`: Expected "easy" → Actual "medium" (81.8% pass rate)
 
 - [ ] Generate per-repo breakdown:
   - Show results for each of the 11 repositories:
