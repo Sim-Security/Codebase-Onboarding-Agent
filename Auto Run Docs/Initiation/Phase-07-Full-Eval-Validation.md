@@ -85,7 +85,7 @@ This final phase runs a comprehensive evaluation across all test repositories to
   - `dep_external`: Expected "easy" → Actual "medium" (72.7% pass rate)
   - `specific_main`: Expected "easy" → Actual "medium" (81.8% pass rate)
 
-- [ ] Generate per-repo breakdown:
+- [x] Generate per-repo breakdown:
   - Show results for each of the 11 repositories:
     - zustand (TypeScript): Expected 100%
     - express (JavaScript): Expected 100%
@@ -98,6 +98,63 @@ This final phase runs a comprehensive evaluation across all test repositories to
     - httpx (Python): Target >90%
     - click (Python): Target >80% (was 33%)
     - turborepo (Rust): Target >80% (was 67%)
+
+  **Per-Repository Results (2026-01-31):**
+
+  | Repository | Language | Category | Pass Rate | Core Tests | Diverse Tests | Target | Status |
+  |------------|----------|----------|-----------|------------|---------------|--------|--------|
+  | zustand | TypeScript | library | **100%** | 3/3 | 6/6 | 100% | ✅ Met |
+  | gin | Go | framework | **100%** | 3/3 | 6/6 | 100% | ✅ Met |
+  | express | JavaScript | framework | **89%** | 3/3 | 5/6 | 100% | ⚠️ Close |
+  | cobra | Go | cli | **89%** | 3/3 | 5/6 | 100% | ⚠️ Close |
+  | flask | Python | framework | **78%** | 3/3 | 4/6 | >90% | ❌ Not Met |
+  | httpx | Python | library | **89%** | 3/3 | 5/6 | >90% | ⚠️ Close |
+  | click | Python | cli | **89%** | 2/3 | 6/6 | >80% | ✅ Met |
+  | fastapi | Python | framework | **78%** | 3/3 | 4/6 | >90% | ❌ Not Met |
+  | ripgrep | Rust | cli | **67%** | 3/3 | 3/6 | >90% | ❌ Not Met |
+  | langchain | Python | library | **56%** | 2/3 | 3/6 | >85% | ❌ Not Met |
+  | turborepo | Rust | cli | **44%** | 2/3 | 2/6 | >80% | ❌ Not Met |
+
+  **By Language Performance:**
+  | Language | Tests | Passed | Failed | Pass Rate | Status |
+  |----------|-------|--------|--------|-----------|--------|
+  | TypeScript | 3 | 3 | 0 | **100%** | ✅ |
+  | JavaScript | 3 | 3 | 0 | **100%** | ✅ |
+  | Go | 6 | 6 | 0 | **100%** | ✅ |
+  | Rust | 6 | 5 | 1 | **83.3%** | ⚠️ |
+  | Python | 15 | 13 | 2 | **86.7%** | ⚠️ |
+
+  **By Project Type Performance:**
+  | Type | Tests | Passed | Failed | Pass Rate | Status |
+  |------|-------|--------|--------|-----------|--------|
+  | framework | 12 | 12 | 0 | **100%** | ✅ |
+  | library | 9 | 8 | 1 | **88.9%** | ⚠️ |
+  | cli | 12 | 10 | 2 | **83.3%** | ⚠️ |
+
+  **Key Findings by Repository:**
+
+  ✅ **Perfect Performers (100%):**
+  - `zustand` - TypeScript library, clean API, excellent docs
+  - `gin` - Go framework, straightforward architecture
+
+  ⚠️ **Near-Target (80-99%):**
+  - `express` - Failed on 1 diverse question (identity_check)
+  - `cobra` - Failed on 1 diverse question (code_flow)
+  - `httpx` - Failed on 1 diverse question (debugging)
+  - `click` - Major improvement from 33% baseline, now at 89%
+
+  ❌ **Below Target (<80%):**
+  - `flask` - Struggled with debugging and code_flow
+  - `fastapi` - Failed code_flow and debugging questions
+  - `ripgrep` - Rust complexity, 3 diverse failures
+  - `langchain` - Complex monorepo, deep_dive 0-citation issue
+  - `turborepo` - Deep_dive 0-citation, plus multiple diverse failures
+
+  **Root Cause Analysis:**
+  - **Deep-dive 0-citation failures** (click, langchain, turborepo): Agent reads files but doesn't cite them
+  - **Rust projects underperform**: Complex module systems and cargo workspaces
+  - **Large monorepos struggle**: langchain and turborepo have complex structures
+  - **debugging category**: Hardest across all repos (45.5% avg)
 
 - [ ] Create summary report:
   - Write `Auto Run Docs/Initiation/Working/IMPROVEMENT_RESULTS.md` with:
