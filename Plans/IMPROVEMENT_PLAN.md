@@ -1,53 +1,60 @@
 # Codebase-Onboarding-Agent: Improvement Plan
 
-**Last Updated:** 2026-01-31
-**Current Metrics:** 78.8% pass rate, 96.5% citation precision
-**Methodology:** Diverse question evals across 11 repos, 5 languages, 66 tests
+**Last Updated:** 2026-01-31 (Post Phase 7 Full Evaluation)
+**Current Metrics:** 79.8% pass rate, 94.5% citation precision, 0.0% hallucination rate
+**Methodology:** Full evaluation with 99 tests across 11 repos, 5 languages, 8 question categories
 
 ---
 
 ## Executive Summary
 
-The agent has made significant progress since the initial analysis:
+The v2.0 improvement initiative (Phases 1-7) has been completed. All seven phases of enhancements were implemented and validated.
 
-| Metric | Before (2026-01-29) | After (2026-01-31) | Target |
-|--------|---------------------|--------------------| -------|
-| **Pass Rate** | 93.9% (33 tests) | 78.8% (66 tests) | >90% |
-| **Citation Precision** | 0% (broken) | 96.5% (193/200) | >95% ✅ |
-| **Hallucination Rate** | ~20% | ~2% | <5% ✅ |
-| **Tool Usage** | Variable | 100% | 100% ✅ |
+| Metric | Baseline | After Phase 7 | Target | Status |
+|--------|----------|---------------|--------|--------|
+| **Pass Rate** | 78.8% (66 tests) | 79.8% (99 tests) | >90% | ⚠️ +1.0% (not met) |
+| **Citation Precision** | 96.5% | 94.5% | >95% | ⚠️ -2.0% (slight regression) |
+| **Hallucination Rate** | ~2% | **0.0%** | <2% | ✅ Exceeded |
+| **Tool Usage (read_file)** | Variable | 98.7% | 100% | ✅ Near-perfect |
+| **Grounding Rate** | N/A | **100%** | 100% | ✅ Perfect |
 
-**Note:** Pass rate dropped because we added harder "diverse" questions (code_flow, architecture, debugging). This reveals real weaknesses, not a regression.
+**Key Achievement:** Hallucination rate reduced from ~2% to 0.0% - complete elimination of Flask/click confusion and other misidentifications.
+
+**Note:** The expanded test suite (99 vs 66 tests) with new categories (identity, specific_file) provides more comprehensive coverage but also reveals harder edge cases.
 
 ---
 
-## Current State Summary
+## Current State Summary (Post Phase 7)
 
 ### What's Working Well
 
 | Component | Status | Evidence |
 |-----------|--------|----------|
-| Citation Verification | ✅ Excellent | 96.5% precision - citations verified against tool outputs |
-| Anti-Hallucination | ✅ Strong | ~2% rate, down from ~20% |
-| Framework Analysis | ✅ Perfect | Flask, Express, Gin, FastAPI all 100% pass |
-| Library Analysis | ✅ Perfect | httpx, zustand, langchain all pass |
-| Go Language | ✅ Perfect | 12/12 tests pass (gin, cobra) |
-| JavaScript | ✅ Perfect | 6/6 tests pass (express) |
-| TypeScript | ✅ Perfect | 6/6 tests pass (zustand) |
+| Anti-Hallucination | ✅ **Perfect** | **0.0% rate** - complete elimination |
+| Tool Grounding | ✅ **Perfect** | **100% grounding rate** - all citations verified |
+| Tool Usage | ✅ Excellent | **98.7% read_file usage** |
+| Overview Questions | ✅ Perfect | 100% pass rate (11/11) |
+| Language Detection | ✅ Perfect | 100% pass rate (11/11) |
+| Identity Questions | ✅ Excellent | 90.9% pass rate (10/11) |
+| Go Language | ✅ Perfect | 100% pass rate (gin, cobra) |
+| TypeScript | ✅ Perfect | 100% pass rate (zustand) |
+| **click CLI** | ✅ **Major Improvement** | **89% (was 33%)** - +56% improvement |
 
 ### What Needs Work
 
 | Component | Status | Evidence |
 |-----------|--------|----------|
-| CLI Tools | ⚠️ 75% | click (33%), turborepo (67%) struggle |
-| Code Flow Tracing | ⚠️ Weak | Hardest question category |
-| Deep-Dive Citations | ⚠️ Variable | Some repos return 0 citations |
-| Python CLI (click) | ❌ 33% | Flask hallucination, 0 citations |
-| Rust CLI (turborepo) | ⚠️ 67% | 0 citations on deep_dive |
+| Debugging Questions | ❌ **Critical** | **45.5% pass rate** - hardest category |
+| Code Flow Questions | ❌ Below target | **63.6% pass rate** (target >85%) |
+| Dependencies Questions | ⚠️ Below target | **72.7% pass rate** (target >85%) |
+| langchain Repo | ❌ Below target | **56% pass rate** - complex monorepo |
+| turborepo Repo | ❌ Below target | **44% pass rate** - Rust workspace complexity |
+| ripgrep Repo | ⚠️ Below target | **67% pass rate** (was 83%, regression) |
+| Citation Precision | ⚠️ Slight regression | **94.5%** (was 96.5%) |
 
 ---
 
-## Priority 1: Fix CLI Tool Analysis (HIGH IMPACT)
+## Priority 1: Fix CLI Tool Analysis (HIGH IMPACT) ✅ COMPLETED
 
 ### Problem
 CLI tools with non-standard entry points are harder to analyze. The agent struggles to find:
@@ -55,98 +62,67 @@ CLI tools with non-standard entry points are harder to analyze. The agent strugg
 - `entry_points` in `setup.py` or `pyproject.toml`
 - Rust binary crates with complex `main.rs`
 
-### Current Results
-| Repo | Type | Pass Rate | Issues |
-|------|------|-----------|--------|
-| click | Python CLI | 33% (2/6) | Flask hallucination, 0 citations |
-| turborepo | Rust CLI | 67% (4/6) | 0 citations on deep_dive |
-| cobra | Go CLI | 100% (6/6) | Works well |
-| ripgrep | Rust CLI | 83% (5/6) | code_flow question fails |
+### Final Results (Phase 7)
+| Repo | Type | Baseline | Final | Target | Status |
+|------|------|----------|-------|--------|--------|
+| **click** | Python CLI | **33%** | **89%** | >80% | ✅ **+56% improvement** |
+| cobra | Go CLI | 100% | 89% | 100% | ⚠️ Slight regression |
+| ripgrep | Rust CLI | 83% | 67% | >90% | ❌ Regression |
+| turborepo | Rust CLI | 67% | 44% | >80% | ❌ Regression |
 
-### Solution
+### What Was Implemented (Phases 1, 6)
 
-1. **Improve entry point detection** in `find_entry_points` tool:
-   ```python
-   # Add CLI framework patterns
-   CLI_PATTERNS = {
-       "click": r"@click\.(command|group)",
-       "typer": r"@app\.(command|callback)",
-       "argparse": r"ArgumentParser\(\)",
-       "cobra": r"cobra\.Command",
-   }
-   ```
+1. ✅ **Added CLI_FRAMEWORK_PATTERNS** with 9 framework patterns:
+   - click, typer, argparse, fire, docopt (Python)
+   - clap, structopt (Rust)
+   - cobra, urfave/cli (Go)
 
-2. **Add negative examples to prompts** for common confusions:
-   ```python
-   # In SYSTEM_PROMPT
-   """
-   IMPORTANT: Do NOT confuse similar-named projects:
-   - click (Python CLI) is NOT Flask (Python web)
-   - cobra (Go CLI) is NOT gin (Go web)
-   - typer is NOT FastAPI
-   """
-   ```
+2. ✅ **Added Project Identity Rules** to prompts:
+   - Explicit disambiguation between similar projects
+   - COMMON MISTAKES TO AVOID section
+   - PROJECT IDENTITY VERIFICATION workflow
 
-3. **Enforce tool usage for CLI repos**:
-   ```python
-   # Before answering about CLIs, MUST call:
-   # 1. search_code for decorator patterns
-   # 2. find_entry_points
-   # 3. read_file on entry point files
-   ```
+3. ✅ **Implemented `validate_project_identity()`** function
 
-### Files to Modify
-- `src/tools/code_analyzer.py` - Improve `find_entry_points`
-- `src/prompts/__init__.py` - Add negative examples
-- `src/eval/questions.py` - Add CLI-specific question templates
+### Remaining Issues
+- Rust CLI projects (ripgrep, turborepo) regressed - needs Cargo workspace support
+- Go CLI (cobra) slight regression - needs investigation
 
 ---
 
-## Priority 2: Fix Deep-Dive 0 Citation Failures (HIGH IMPACT)
+## Priority 2: Fix Deep-Dive 0 Citation Failures (HIGH IMPACT) ✅ COMPLETED
 
 ### Problem
 Agent sometimes answers deep-dive questions without calling `read_file`, resulting in 0 citations.
 
-### Current Evidence
-- click: deep_dive 0 citations
-- turborepo: deep_dive 0 citations
-- Some repos pass overview but fail deep_dive
+### Final Results (Phase 7)
+- ✅ **read_file usage: 98.7%** (near-perfect)
+- ✅ **Grounding rate: 100%** (all citations verified against tool outputs)
+- ⚠️ Some deep_dive 0-citation failures still occur (click, langchain, turborepo)
 
-### Solution
+### What Was Implemented (Phase 2)
 
-1. **Enforce tool usage in DEEP_DIVE_PROMPT**:
-   ```python
-   DEEP_DIVE_PROMPT = """
-   MANDATORY STEPS before answering:
-   1. Call search_code to find relevant patterns
-   2. Call read_file on at least 2 relevant files
-   3. Include file:line citations for EVERY claim
+1. ✅ **Strengthened DEEP_DIVE_PROMPT** with MANDATORY STEPS section:
+   - Required tool calls before answering
+   - Explicit file:line citation requirements
+   - INVALID RESPONSE warning
 
-   INVALID RESPONSE: Answering without tool calls
-   """
-   ```
+2. ✅ **Added `validate_tool_usage()` function** in agent loop:
+   - Enforces read_file calls for deep_dive questions
+   - Tracks validation failures
 
-2. **Add validation in agent loop**:
-   ```python
-   if prompt_type == "deep_dive":
-       if not any(tc.name == "read_file" for tc in tool_calls):
-           return "Error: Must read files before answering"
-   ```
+3. ✅ **Created `src/eval/tool_metrics.py`**:
+   - Comprehensive tool usage tracking
+   - read_file, search_code, get_imports call counts
+   - Grounding rate calculation
 
-3. **Track tool usage in evals**:
-   ```python
-   metrics["read_file_calls"] = count_tool_calls("read_file")
-   metrics["search_code_calls"] = count_tool_calls("search_code")
-   ```
-
-### Files to Modify
-- `src/prompts/__init__.py` - Strengthen DEEP_DIVE_PROMPT
-- `src/agent.py` - Add tool usage validation
-- `run_multi_eval.py` - Track tool usage metrics
+### Remaining Issues
+- Citation *formatting* in output still inconsistent (citations exist but not always displayed)
+- Need post-processing to ensure citations appear in final response
 
 ---
 
-## Priority 3: Improve Code Flow Tracing (MEDIUM IMPACT)
+## Priority 3: Improve Code Flow Tracing (MEDIUM IMPACT) ⚠️ PARTIALLY COMPLETED
 
 ### Problem
 "code_flow" questions are the hardest category. Agent struggles to trace:
@@ -154,176 +130,267 @@ Agent sometimes answers deep-dive questions without calling `read_file`, resulti
 - User input → Validation → Processing → Output
 - Import chains and dependency graphs
 
-### Current Evidence
-- ripgrep: code_flow question failed
-- fastapi: code_flow question failed
-- Several Python repos struggle with this
+### Final Results (Phase 7)
+- ⚠️ **code_flow pass rate: 63.6%** (target was >85%)
+- Regression from baseline estimate of ~70%
+- +8.3% improvement on targeted tests during Phase 3
 
-### Solution
+### What Was Implemented (Phase 3)
 
-1. **Add dedicated code flow prompt**:
-   ```python
-   CODE_FLOW_PROMPT = """
-   To trace code flow:
-   1. Start at the entry point (find_entry_points)
-   2. Follow imports (get_imports)
-   3. Read each file in the chain
-   4. Document: File A:line → calls → File B:line → calls → ...
-   """
-   ```
+1. ✅ **Added CODE_FLOW_PROMPT** template with 4-step workflow:
+   - Entry point identification
+   - Import chain following
+   - File reading sequence
+   - Call graph documentation
 
-2. **Consider adding a `trace_call_graph` tool**:
-   ```python
-   def trace_call_graph(function_name: str, max_depth: int = 3):
-       """Trace callers and callees of a function."""
-       # Use AST analysis to find:
-       # - Where function is defined
-       # - What it calls
-       # - What calls it
-   ```
+2. ✅ **Enhanced `_is_code_flow_question()` detection** with expanded keywords
 
-3. **Add code_flow-specific test cases**:
-   ```python
-   CODE_FLOW_QUESTIONS = [
-       "How does a request flow from the route handler to the database?",
-       "Trace the execution path when a user logs in",
-       "What happens when {main_function} is called?",
-   ]
-   ```
+3. ✅ **Added 3 new code_flow question templates**
 
-### Files to Modify
-- `src/prompts/__init__.py` - Add CODE_FLOW_PROMPT
-- `src/tools/code_analyzer.py` - Consider `trace_call_graph` tool
-- `src/eval/questions.py` - Improve code_flow questions
+### Remaining Issues
+- Complex cross-file call chains still difficult
+- Need AST-based `trace_call_graph` tool
+- Visual flow diagrams would help
+
+### Recommended Next Steps
+1. Implement `trace_call_graph` tool using AST analysis
+2. Add cross-file function resolution
+3. Support visual/mermaid flow diagrams in responses
 
 ---
 
-## Priority 4: Reduce Hallucinations Further (LOW - Already Good)
+## Priority 4: Reduce Hallucinations Further ✅ COMPLETED (EXCEEDED TARGET)
 
-### Current State
-- ~2% hallucination rate (down from ~20%)
-- Main issue: Click ↔ Flask confusion
+### Final Results (Phase 7)
+- ✅ **Hallucination rate: 0.0%** (target was <2%)
+- Complete elimination of Flask/click confusion
+- 100% correct project identification on all 99 tests
 
-### Root Cause
-Similar naming and Python web/CLI ecosystem confusion.
+### What Was Implemented (Phase 6)
 
-### Solution
-Already mostly solved. Remaining fixes:
+1. ✅ **Added PROJECT IDENTITY VERIFICATION** section to prompts:
+   - Mandatory checks before answering
+   - Cross-reference package names with directory structure
 
-1. **Add explicit disambiguation in prompts**
-2. **Consider repo metadata validation** - check `setup.py`/`pyproject.toml` for package name
-3. **Add hallucination test cases** to eval
+2. ✅ **Added COMMON MISTAKES TO AVOID** section:
+   - Explicit disambiguation rules
+   - Flask ≠ click, gin ≠ cobra, etc.
+
+3. ✅ **Created `validate_project_identity()` function**:
+   - Validates project identification before response
+   - Prevents common confusions
+
+4. ✅ **Added 3 identity question templates** for testing
 
 ---
 
-## Priority 5: Performance Improvements (MEDIUM)
+## Priority 5: Performance Improvements (MEDIUM) ✅ COMPLETED
 
-### Current State
-- Synchronous blocking
-- No streaming
-- No caching
+### Final Results (Phase 7)
+- ✅ Streaming responses with contextual tool status
+- ✅ 7-day file-based response caching
+- ✅ 78 unit tests for streaming/caching, all passing
 
-### Solutions (from original plan, still valid)
+### What Was Implemented (Phase 5)
 
-1. **Streaming responses** - Already planned
-2. **Response caching** - Cache by repo hash
-3. **Parallel tool calls** - Where independent
+1. ✅ **Streaming responses**:
+   - Enhanced Gradio UI with real-time progress indicators
+   - Contextual tool status messages
+   - `ProgressCallback` protocol
 
-### Files to Modify
-- `src/agent.py` - Add streaming, caching
-- `app.py` - Gradio streaming UI
+2. ✅ **Response caching**:
+   - Created `src/cache.py` with 7-day TTL
+   - File-based cache with automatic invalidation
+   - Cache by repo hash
+
+3. ✅ **Parallel tool execution documented**:
+   - Identified opportunities for parallelization
+   - Architecture designed for future implementation
 
 ---
 
 ## Eval System Improvements
 
 ### Completed ✅
-- [x] Citation verification against tool outputs (96.5% precision)
-- [x] Question diversity (16 templates, 5 categories)
+- [x] Citation verification against tool outputs (94.5% precision)
+- [x] Question diversity (19+ templates, 8 categories)
 - [x] Pass@k metrics support
-- [x] Multi-repo testing (11 repos, 5 languages)
+- [x] Multi-repo testing (11 repos, 5 languages, 99 tests)
 - [x] Claim counting (heuristic but functional)
+- [x] **Per-category metrics** (Phase 4) - `src/eval/category_metrics.py`
+- [x] **Regression tracking** (Phase 4) - `src/eval/regression.py` with `RegressionWarning` system
+- [x] **Flaky test detection** (Phase 4) - `--detect-flaky` flag
+- [x] **Difficulty analysis** (Phase 4) - `DifficultyMismatch` tracking
+- [x] **Tool usage metrics** (Phase 2) - `src/eval/tool_metrics.py`
+- [x] **Hallucination tracking** (Phase 6) - 0.0% rate achieved
 
 ### TODO
 - [ ] Semantic correctness verification (LLM-based grading)
-- [ ] Regression tracking (compare runs over time)
-- [ ] Per-category metrics (track code_flow vs overview separately)
-- [ ] Flaky test detection and reporting
 - [ ] CI integration for eval runs
+- [ ] Automated eval dashboard
 
 ---
 
-## Results by Category (Latest Eval)
+## Results by Category (Phase 7 Final Eval - 99 Tests)
 
-| Category | Pass Rate | Notes |
-|----------|-----------|-------|
-| **Frameworks** | 100% | Flask, Express, Gin, FastAPI |
-| **Libraries** | 100% | httpx, zustand, langchain |
-| **CLI Tools** | 75% | click, cobra, ripgrep, turborepo |
+### By Project Type
+| Type | Tests | Passed | Pass Rate | Status |
+|------|-------|--------|-----------|--------|
+| **Frameworks** | 36 | 31 | 86.1% | ⚠️ |
+| **Libraries** | 27 | 22 | 81.5% | ⚠️ |
+| **CLI Tools** | 36 | 26 | 72.2% | ⚠️ |
 
-| Question Type | Difficulty | Pass Rate (est) |
-|---------------|------------|-----------------|
-| overview | Easy | ~95% |
-| language_detection | Easy | ~100% |
-| architecture | Medium | ~85% |
-| dependencies | Medium | ~90% |
-| code_flow | Hard | ~70% |
-| debugging | Hard | ~75% |
+### By Question Category
+| Category | Pass Rate | Passed/Total | Avg Citations | Status |
+|----------|-----------|--------------|---------------|--------|
+| overview | **100%** | 11/11 | 13.3 | ✅ Excellent |
+| language_detection | **100%** | 11/11 | 0.0 | ✅ Excellent |
+| identity | **90.9%** | 10/11 | 6.5 | ✅ Good |
+| architecture | **81.8%** | 18/22 | 17.8 | ✅ Good |
+| specific_file | **81.8%** | 9/11 | 30.0 | ✅ Good |
+| dependencies | **72.7%** | 8/11 | 23.0 | ⚠️ Needs work |
+| code_flow | **63.6%** | 7/11 | 6.5 | 🔴 Problem |
+| debugging | **45.5%** | 5/11 | 9.3 | 🔴 Critical |
+
+### By Difficulty Level
+| Difficulty | Pass Rate | Notes |
+|------------|-----------|-------|
+| Easy | 81.8% | Better than baseline |
+| Medium | 68.2% | Needs improvement |
+| Hard | 63.6% | Significant gap |
+
+### By Repository
+| Repository | Language | Pass Rate | Target | Status |
+|------------|----------|-----------|--------|--------|
+| zustand | TypeScript | **100%** | 100% | ✅ Met |
+| gin | Go | **100%** | 100% | ✅ Met |
+| express | JavaScript | 89% | 100% | ⚠️ Close |
+| cobra | Go | 89% | 100% | ⚠️ Close |
+| httpx | Python | 89% | >90% | ⚠️ Close |
+| **click** | Python | **89%** | >80% | ✅ **Major improvement** |
+| flask | Python | 78% | >90% | ❌ Below |
+| fastapi | Python | 78% | >90% | ❌ Below |
+| ripgrep | Rust | 67% | >90% | ❌ Regression |
+| langchain | Python | 56% | >85% | ❌ Below |
+| turborepo | Rust | 44% | >80% | ❌ Regression |
 
 ---
 
 ## Implementation Roadmap
 
-### This Week: CLI Tool Fixes
-1. Improve entry point detection for click/typer patterns
-2. Add negative examples to prevent Flask/click confusion
-3. Enforce tool usage on deep_dive questions
+### ✅ COMPLETED (Phases 1-7)
+1. ✅ CLI entry point detection with 9 framework patterns
+2. ✅ Project identity verification to prevent hallucinations
+3. ✅ Tool usage enforcement for deep_dive questions
+4. ✅ Code flow prompt template
+5. ✅ Per-category metrics and regression detection
+6. ✅ Streaming responses and caching
+7. ✅ Full evaluation suite (99 tests)
 
-### Next Week: Code Flow Tracing
-1. Add dedicated code flow prompt
-2. Consider `trace_call_graph` tool
-3. Add more code_flow test cases
+### NEXT PRIORITIES (Future Work)
 
-### Ongoing: Eval System
-1. Track per-category metrics
-2. Add regression detection
-3. Integrate with CI
+#### High Priority (Would significantly improve pass rate)
+1. **debugging category improvements** - Currently at 45.5%, needs dedicated error flow tracing
+2. **Rust/Cargo workspace support** - ripgrep and turborepo regressed
+3. **Monorepo handling** - langchain at 56%, needs hierarchical exploration
+4. **Citation formatting enforcement** - Ensure citations appear in final output
+
+#### Medium Priority (Quality improvements)
+5. **AST-based `trace_call_graph` tool** - For code_flow improvements
+6. **Error handling pattern detection** - For debugging questions
+7. **CI integration** - Automated eval runs on PRs
+
+#### Lower Priority (Nice to have)
+8. **Semantic correctness grading** - LLM-based response validation
+9. **Eval dashboard** - Visual tracking over time
+10. **Cache improvements** - Semantic similarity matching
 
 ---
 
 ## Files Summary
 
-### High Priority Modifications
+### Completed Modifications (Phases 1-7)
 
-| File | Changes Needed |
-|------|---------------|
-| `src/tools/code_analyzer.py` | Improve `find_entry_points` for CLI patterns |
-| `src/prompts/__init__.py` | Add negative examples, strengthen DEEP_DIVE_PROMPT |
-| `src/agent.py` | Add tool usage validation |
-| `src/eval/questions.py` | Add CLI-specific questions |
+| File | Changes Made | Phase |
+|------|--------------|-------|
+| `src/tools/code_analyzer.py` | ✅ Added CLI_FRAMEWORK_PATTERNS, improved find_entry_points | 1 |
+| `src/prompts/__init__.py` | ✅ Added identity rules, deep_dive enforcement, code_flow prompt | 1, 2, 3, 6 |
+| `src/agent.py` | ✅ Added tool usage validation, streaming support | 2, 5 |
+| `src/eval/questions.py` | ✅ Added CLI and identity question templates | 1, 6 |
+| `src/eval/tool_metrics.py` | ✅ Created for tool usage tracking | 2 |
+| `src/eval/category_metrics.py` | ✅ Created for per-category analysis | 4 |
+| `src/eval/regression.py` | ✅ Created for regression detection | 4 |
+| `src/cache.py` | ✅ Created for response caching | 5 |
+| `run_multi_eval.py` | ✅ Enhanced with per-category metrics, flaky detection | 4 |
+| `app.py` | ✅ Added streaming UI with tool status | 5 |
 
-### Medium Priority
+### Future Modifications Needed
 
-| File | Changes Needed |
-|------|---------------|
-| `run_multi_eval.py` | Track per-category metrics |
-| `src/agent.py` | Streaming support |
-| `app.py` | Streaming UI |
+| File | Changes Needed | Priority |
+|------|---------------|----------|
+| `src/tools/code_analyzer.py` | Add `trace_call_graph` tool | Medium |
+| `src/prompts/__init__.py` | Add debugging-specific prompt | High |
+| `src/tools/code_analyzer.py` | Add Cargo workspace detection | High |
+| `run_multi_eval.py` | CI integration, dashboard output | Medium |
 
 ---
 
 ## Success Metrics
 
-| Metric | Current | Target | Measurement |
-|--------|---------|--------|-------------|
-| **Overall Pass Rate** | 78.8% | >90% | `run_multi_eval.py --diverse` |
-| **CLI Pass Rate** | 75% | >90% | CLI repos only |
-| **Citation Precision** | 96.5% | >95% | ✅ Achieved |
-| **Code Flow Pass Rate** | ~70% | >85% | code_flow questions |
-| **Hallucination Rate** | ~2% | <5% | ✅ Achieved |
+| Metric | Baseline | Final | Target | Status |
+|--------|----------|-------|--------|--------|
+| **Overall Pass Rate** | 78.8% | 79.8% | >90% | ⚠️ +1.0% (not met) |
+| **CLI Pass Rate** | 75% | 72.2% | >90% | ⚠️ Slight regression |
+| **Citation Precision** | 96.5% | 94.5% | >95% | ⚠️ -2.0% (slight regression) |
+| **Code Flow Pass Rate** | ~70% | 63.6% | >85% | ❌ Regression |
+| **Hallucination Rate** | ~2% | **0.0%** | <2% | ✅ **Exceeded** |
+| **Tool Usage Rate** | Variable | 98.7% | 100% | ✅ Near-perfect |
+| **Grounding Rate** | N/A | **100%** | 100% | ✅ **Perfect** |
+
+### Category-Specific Targets for Future Work
+
+| Category | Current | Target | Gap |
+|----------|---------|--------|-----|
+| debugging | 45.5% | >80% | -34.5% |
+| code_flow | 63.6% | >85% | -21.4% |
+| dependencies | 72.7% | >85% | -12.3% |
+
+### Repository-Specific Targets for Future Work
+
+| Repository | Current | Target | Gap |
+|------------|---------|--------|-----|
+| turborepo | 44% | >80% | -36% |
+| langchain | 56% | >85% | -29% |
+| ripgrep | 67% | >90% | -23% |
+| flask | 78% | >90% | -12% |
+| fastapi | 78% | >90% | -12% |
+
+---
+
+## Summary
+
+The v2.0 improvement initiative (Phases 1-7) achieved:
+
+**✅ Successes:**
+- Hallucination rate: 0.0% (target <2%) - **EXCEEDED**
+- Grounding rate: 100% (target 100%) - **MET**
+- Tool usage: 98.7% (target 100%) - **NEAR-PERFECT**
+- click CLI: 89% (was 33%) - **+56% IMPROVEMENT**
+- Streaming and caching implemented
+- Comprehensive eval system with 168+ unit tests
+
+**⚠️ Not Met:**
+- Overall pass rate: 79.8% (target >90%)
+- Citation precision: 94.5% (target >95%)
+- Code flow: 63.6% (target >85%)
+- Debugging: 45.5% (target >80%)
+
+**Next Steps:**
+Focus on debugging category (45.5%), Rust workspace support (turborepo at 44%), and monorepo handling (langchain at 56%).
 
 ---
 
 **End of Improvement Plan**
 
-*Updated based on diverse question evals (2026-01-31)*
+*Updated after Phase 7 full evaluation (2026-01-31)*
+*See `Auto Run Docs/Initiation/Working/IMPROVEMENT_RESULTS.md` for detailed results*
