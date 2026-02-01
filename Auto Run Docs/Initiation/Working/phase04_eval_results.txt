@@ -1,0 +1,238 @@
+/home/ranomis/Projects/Codebase-Onboarding-Agent/.venv/lib/python3.14/site-packages/langchain_core/_api/deprecation.py:26: UserWarning: Core Pydantic V1 functionality isn't compatible with Python 3.14 or greater.
+  from pydantic.v1.fields import FieldInfo as FieldInfoV1
+============================================================
+🧪 Codebase Onboarding Agent - Multi-Repo Eval Suite
+============================================================
+
+Testing 5 repositories | Diverse questions: 3 per repo
+
+
+[1/5] 📦 flask (Python, framework)
+--------------------------------------------------
+  Cloning https://github.com/pallets/flask...
+  ✓ Cloned successfully
+  ✓ Agent initialized
+    Testing overview generation...
+    Testing deep-dive question...
+WARNING:root:Injection pattern detected in /tmp/eval-flask/src/flask/app.py: act\s+as\s+(?:if\s+you\s+are|a|an)\s+
+WARNING:root:Injection pattern detected in /tmp/eval-flask/src/flask/app.py: act\s+as\s+(?:if\s+you\s+are|a|an)\s+
+    Testing language detection...
+WARNING:root:Injection pattern detected in /tmp/eval-flask/src/flask/app.py: act\s+as\s+(?:if\s+you\s+are|a|an)\s+
+    Testing adversarial cases...
+WARNING:root:Injection pattern detected in : ignore\s+(all\s+)?previous\s+instructions
+    Testing diverse questions...
+      [1/3] architecture/arch_overview: medium
+WARNING:root:Injection pattern detected in /tmp/eval-flask/src/flask/app.py: act\s+as\s+(?:if\s+you\s+are|a|an)\s+
+WARNING:root:Injection pattern detected in /tmp/eval-flask/src/flask/sansio/app.py: act\s+as\s+(?:if\s+you\s+are|a|an)\s+
+      [2/3] dependencies/dep_external: easy
+WARNING:src.agent:VALIDATION FAILURE: Citations reference unread files: ['src/flask/testing.py']
+      [3/3] code_flow/flow_request: hard
+WARNING:root:Injection pattern detected in /tmp/eval-flask/src/flask/sansio/app.py: act\s+as\s+(?:if\s+you\s+are|a|an)\s+
+WARNING:root:Injection pattern detected in /tmp/eval-flask/src/flask/app.py: act\s+as\s+(?:if\s+you\s+are|a|an)\s+
+  ✅ All tests passed (6/6)
+
+[2/5] 📦 click (Python, cli)
+--------------------------------------------------
+  Cloning https://github.com/pallets/click...
+  ✓ Cloned successfully
+  ✓ Agent initialized
+    Testing overview generation...
+    Testing deep-dive question...
+    Testing language detection...
+    Testing adversarial cases...
+WARNING:root:Injection pattern detected in : ignore\s+(all\s+)?previous\s+instructions
+    Testing diverse questions...
+      [1/3] architecture/arch_overview: medium
+WARNING:root:Injection pattern detected in tests/conftest.py: ignore\s+(all\s+)?previous\s+instructions
+      [2/3] dependencies/dep_external: easy
+      [3/3] code_flow/flow_request: hard
+  ⚠️  3/6 tests passed
+
+[3/5] 📦 express (JavaScript, framework)
+--------------------------------------------------
+  Cloning https://github.com/expressjs/express...
+  ✓ Cloned successfully
+  ✓ Agent initialized
+    Testing overview generation...
+    Testing deep-dive question...
+    Testing language detection...
+    Testing adversarial cases...
+WARNING:root:Injection pattern detected in : ignore\s+(all\s+)?previous\s+instructions
+    Testing diverse questions...
+      [1/3] architecture/arch_overview: medium
+      [2/3] dependencies/dep_external: easy
+      [3/3] code_flow/flow_request: hard
+  ✅ All tests passed (6/6)
+
+[4/5] 📦 gin (Go, framework)
+--------------------------------------------------
+  Cloning https://github.com/gin-gonic/gin...
+  ✓ Cloned successfully
+  ✓ Agent initialized
+    Testing overview generation...
+    Testing deep-dive question...
+    Testing language detection...
+    Testing adversarial cases...
+WARNING:root:Injection pattern detected in : ignore\s+(all\s+)?previous\s+instructions
+    Testing diverse questions...
+      [1/3] architecture/arch_overview: medium
+      [2/3] dependencies/dep_external: easy
+      [3/3] code_flow/flow_request: hard
+  ✅ All tests passed (6/6)
+
+[5/5] 📦 ripgrep (Rust, cli)
+--------------------------------------------------
+  Cloning https://github.com/BurntSushi/ripgrep...
+  ✓ Cloned successfully
+  ✓ Agent initialized
+    Testing overview generation...
+    Testing deep-dive question...
+    Testing language detection...
+    Testing adversarial cases...
+WARNING:root:Injection pattern detected in : ignore\s+(all\s+)?previous\s+instructions
+    Testing diverse questions...
+      [1/3] architecture/arch_overview: medium
+      [2/3] dependencies/dep_external: easy
+      [3/3] code_flow/flow_request: hard
+  ⚠️  5/6 tests passed
+
+============================================================
+📈 EVAL SUMMARY
+============================================================
+
+📊 Overall Results:
+   Repositories: 3/5 passed
+   Tests: 26/30 passed (86.7%)
+
+📊 By Language:
+   ⚠️ Python: 5/6 (83.3%)
+   ✅ JavaScript: 3/3 (100.0%)
+   ✅ Go: 3/3 (100.0%)
+   ✅ Rust: 3/3 (100.0%)
+
+📊 By Category:
+   ✅ framework: 9/9 (100.0%)
+   ⚠️ cli: 5/6 (83.3%)
+
+Quality Metrics:
+  Precision (valid citations / total): 94.0%
+  Recall (cited claims / total claims): 0.0%
+  F1 Score: 0.0%
+  Grounding Rate: 0.0%
+
+Details:
+  Citations: 78/83 valid
+  Claims: 0/6 cited, 0 grounded
+
+
+┌──────────────────────────────────────────────────────────┐
+│                    TOOL USAGE METRICS                    │
+├──────────────────────────────────────────────────────────┤
+│  read_file Usage: 🟢 100.0%                               │
+│  Grounding Rate: 🟢 100.0%                                │
+├──────────────────────────────────────────────────────────┤
+│  Total Questions: 20                                     │
+│  Questions with read_file: 20                            │
+│  Questions with Citations: 17                            │
+│  Grounding Violations: 0                                 │
+├──────────────────────────────────────────────────────────┤
+│  Avg read_file/question: 12.70                           │
+│  Avg search_code/question: 4.55                          │
+│  Total Tool Calls: 466                                   │
+└──────────────────────────────────────────────────────────┘
+
+┌──────────────────────────────────────────────────────────────────────┐
+│                         PER-CATEGORY METRICS                         │
+├────────────────────┬────────────┬────────────┬────────────┬────────────┤
+│ Category           │  Pass Rate │   Passed   │   Failed   │  Avg Cites │
+├────────────────────┼────────────┼────────────┼────────────┼────────────┤
+│ 🟡 dependencies     │   60.0%    │     3      │     2      │    11.6    │
+│ 🟢 architecture     │   80.0%    │     8      │     2      │    20.2    │
+│ 🟢 code_flow        │   100.0%   │     5      │     0      │    7.6     │
+│ 🟢 overview         │   100.0%   │     5      │     0      │    8.4     │
+│ 🟢 language_detectio│   100.0%   │     5      │     0      │    0.0     │
+└────────────────────┴────────────┴────────────┴────────────┴────────────┘
+
+⚠️  Problem Categories (pass rate < 70%):
+   • dependencies: 60.0%
+
+┌──────────────────────────────────────────────────────────┐
+│                    DIFFICULTY ANALYSIS                   │
+├──────────────────────────────────────────────────────────┤
+│  Expected Difficulty Summary:                            │
+│    🟡 Easy: 60.0% avg pass rate (n=1)                     │
+│    🟢 Medium: 80.0% avg pass rate (n=1)                   │
+│    🟢 Hard: 100.0% avg pass rate (n=1)                    │
+├──────────────────────────────────────────────────────────┤
+│  ⚠️  Difficulty Mismatches:                              │
+│    ⬆️ dep_external: expected 'easy' → actual 'hard' (pass rate: 60.0%, n=5)│
+│    ⬇️ flow_request: expected 'hard' → actual 'easy' (pass rate: 100.0%, n=5)│
+└──────────────────────────────────────────────────────────┘
+
+⚠️  1 question(s) are harder than expected
+ℹ️  1 question(s) are easier than expected
+
+📊 Comparison with Previous Run:
+────────────────────────────────────────
+  Pass Rate: 86.7% 🟢 ↑ (was 66.7%, diff: +20.0)
+  Precision: 94.0% 🔴 ↓ (was 100.0%, diff: -6.0)
+  Recall: 0.0% ⚪ → (was 0.0%, diff: +0.0)
+  F1 Score: 0.0% ⚪ → (was 0.0%, diff: +0.0)
+  Grounding Rate: 0.0% ⚪ → (was 0.0%, diff: +0.0)
+
+  Tests: 26 passed, 4 failed
+  Previous: 8 passed, 4 failed
+
+  Previous run: 2026-01-31T16:30:51.885639
+
+✅ No regressions detected
+
+⚠️  Failures Detail:
+
+   click (Python):
+      - deep_dive: Failed (citations: 0, tools: 27)
+============================================================
+📊 CODEBASE ONBOARDING AGENT - EVALUATION REPORT
+============================================================
+Generated: 2026-01-31 17:28:53
+
+┌──────────────────────────────────────────────────────────┐
+│                      OVERALL SUMMARY                     │
+├──────────────────────────────────────────────────────────┤
+│  Pass Rate: 🟢 86.7%                                      │
+│  Tests Passed: 26/30                                     │
+│  Repos Tested: 0                                         │
+└──────────────────────────────────────────────────────────┘
+
+┌──────────────────────────────────────────────────────────┐
+│                      QUALITY METRICS                     │
+├──────────────────────────────────────────────────────────┤
+│  Citation Precision: 🟢 94.0%                             │
+│  Claim Recall: 🔴 0.0%                                    │
+│  F1 Score: 🔴 0.0%                                        │
+│  Grounding Rate: 🔴 0.0%                                  │
+└──────────────────────────────────────────────────────────┘
+
+┌──────────────────────────────────────────────────────────┐
+│                  PER-REPOSITORY RESULTS                  │
+├─────────────────────────────┬──────────────┬─────────────┤
+│ Repository                  │   Pass Rate  │    Status   │
+├─────────────────────────────┼──────────────┼─────────────┤
+│ flask                       │     100%     │    ✅ PASS   │
+│ click                       │     67%      │   ⚠️ WARN   │
+│ express                     │     100%     │    ✅ PASS   │
+│ gin                         │     100%     │    ✅ PASS   │
+│ ripgrep                     │     100%     │    ✅ PASS   │
+└─────────────────────────────┴──────────────┴─────────────┘
+
+────────────────────────────────────────────────────────────
+Report generated by Codebase Onboarding Agent V3
+============================================================
+
+Results saved to:
+  JSON: evals/eval_results_20260131_172853.json
+  Text: evals/eval_report_20260131_172853.txt
+
+📁 Results saved to: /home/ranomis/Projects/Codebase-Onboarding-Agent/evals/multi_repo_results.json
+
+✅ Multi-repo eval complete!

@@ -327,5 +327,181 @@
     },
     "timestamp": "2026-01-31T16:30:51.885639",
     "version": "v3"
+  },
+  {
+    "total_repos": 5,
+    "repos_passed": 3,
+    "repos_failed": 2,
+    "total_tests": 30,
+    "tests_passed": 26,
+    "tests_failed": 4,
+    "by_language": {
+      "Python": {
+        "passed": 5,
+        "failed": 1
+      },
+      "JavaScript": {
+        "passed": 3,
+        "failed": 0
+      },
+      "Go": {
+        "passed": 3,
+        "failed": 0
+      },
+      "Rust": {
+        "passed": 3,
+        "failed": 0
+      }
+    },
+    "by_category": {
+      "framework": {
+        "passed": 9,
+        "failed": 0
+      },
+      "cli": {
+        "passed": 5,
+        "failed": 1
+      }
+    },
+    "total_citations": 83,
+    "valid_citations": 78,
+    "total_claims": 6,
+    "cited_claims": 0,
+    "grounded_claims": 0,
+    "quality_metrics": {
+      "precision": 93.97590361445783,
+      "recall": 0.0,
+      "f1_score": 0.0,
+      "grounding_rate": 0.0,
+      "total_citations": 83,
+      "valid_citations": 78,
+      "total_claims": 6,
+      "cited_claims": 0,
+      "grounded_claims": 0
+    },
+    "pass_rate": 86.66666666666667,
+    "tool_metrics": {
+      "total_questions": 20,
+      "questions_with_read_file": 20,
+      "questions_with_citations": 17,
+      "questions_with_ungrounded_citations": 0,
+      "total_read_file_calls": 254,
+      "total_search_code_calls": 91,
+      "total_tool_calls": 466,
+      "total_citations": 298,
+      "grounding_violation_count": 0,
+      "read_file_rate": 100.0,
+      "grounding_rate": 100.0,
+      "avg_read_file_per_question": 12.7,
+      "avg_search_code_per_question": 4.55
+    },
+    "by_question_category": {
+      "architecture": {
+        "category": "architecture",
+        "total": 10,
+        "passed": 8,
+        "failed": 2,
+        "pass_rate": 80.0,
+        "total_citations": 202,
+        "verified_citations": 197,
+        "avg_citations": 20.2,
+        "citation_accuracy": 97.52475247524752
+      },
+      "dependencies": {
+        "category": "dependencies",
+        "total": 5,
+        "passed": 3,
+        "failed": 2,
+        "pass_rate": 60.0,
+        "total_citations": 58,
+        "verified_citations": 53,
+        "avg_citations": 11.6,
+        "citation_accuracy": 91.37931034482759
+      },
+      "code_flow": {
+        "category": "code_flow",
+        "total": 5,
+        "passed": 5,
+        "failed": 0,
+        "pass_rate": 100.0,
+        "total_citations": 38,
+        "verified_citations": 38,
+        "avg_citations": 7.6,
+        "citation_accuracy": 100.0
+      },
+      "overview": {
+        "category": "overview",
+        "total": 5,
+        "passed": 5,
+        "failed": 0,
+        "pass_rate": 100.0,
+        "total_citations": 42,
+        "verified_citations": 42,
+        "avg_citations": 8.4,
+        "citation_accuracy": 100.0
+      },
+      "language_detection": {
+        "category": "language_detection",
+        "total": 5,
+        "passed": 5,
+        "failed": 0,
+        "pass_rate": 100.0,
+        "total_citations": 0,
+        "verified_citations": 0,
+        "avg_citations": 0.0,
+        "citation_accuracy": 0.0
+      }
+    },
+    "difficulty_analysis": {
+      "template_stats": {
+        "arch_overview": {
+          "expected_difficulty": "medium",
+          "pass_count": 4,
+          "total": 5,
+          "pass_rate": 80.0,
+          "actual_difficulty": "medium"
+        },
+        "dep_external": {
+          "expected_difficulty": "easy",
+          "pass_count": 3,
+          "total": 5,
+          "pass_rate": 60.0,
+          "actual_difficulty": "hard"
+        },
+        "flow_request": {
+          "expected_difficulty": "hard",
+          "pass_count": 5,
+          "total": 5,
+          "pass_rate": 100.0,
+          "actual_difficulty": "easy"
+        }
+      },
+      "mismatches": [
+        {
+          "template_id": "dep_external",
+          "expected_difficulty": "easy",
+          "actual_difficulty": "hard",
+          "pass_rate": 60.0,
+          "total_runs": 5,
+          "direction": "harder_than_expected"
+        },
+        {
+          "template_id": "flow_request",
+          "expected_difficulty": "hard",
+          "actual_difficulty": "easy",
+          "pass_rate": 100.0,
+          "total_runs": 5,
+          "direction": "easier_than_expected"
+        }
+      ],
+      "summary": {
+        "total_templates": 3,
+        "total_mismatches": 2,
+        "harder_than_expected": 1,
+        "easier_than_expected": 1
+      }
+    },
+    "timestamp": "2026-01-31T17:28:53.530023",
+    "version": "v3"
   }
 ]
