@@ -22,6 +22,7 @@ from tenacity import (
     wait_exponential,
 )
 
+from .cache import CacheKey, ResponseCache
 from .errors import (
     ContextLimitError,
     RetryableError,
@@ -73,7 +74,7 @@ Based on your reflection, recommend ONE action:
 Reply with ONLY: CONTINUE, PIVOT, or SYNTHESIZE
 """
 
-from .prompts import DEEP_DIVE_PROMPT, OVERVIEW_PROMPT, SYSTEM_PROMPT
+from .prompts import CODE_FLOW_PROMPT, DEEP_DIVE_PROMPT, OVERVIEW_PROMPT, SYSTEM_PROMPT
 from .tools import (
     analyze_dependencies,
     find_entry_points,
@@ -257,6 +258,7 @@ class CodebaseOnboardingAgent:
         api_key: str | None = None,
         model: str | None = None,
         provider: str = "openrouter",
+        use_cache: bool = True,
     ):
         """
         Initialize the agent for a specific repository.
@@ -266,10 +268,15 @@ class CodebaseOnboardingAgent:
             api_key: API key (uses env var if not provided)
             model: Model to use (defaults based on provider)
             provider: LLM provider - "openrouter" or "groq"
+            use_cache: Whether to use response caching (default: True)
         """
         self.repo_path = str(Path(repo_path).resolve())
         if not Path(self.repo_path).exists():
             raise ValueError(f"Repository path does not exist: {self.repo_path}")
+
+        # Store model identifier for caching
+        self.model = model or DEFAULT_MODELS.get(provider, DEFAULT_MODELS["openrouter"])
+        self.provider = provider
 
         self.agent = create_agent(api_key, model, provider)
         self.conversation_history: list = []
@@ -286,8 +293,31 @@ class CodebaseOnboardingAgent:
         self.tool_router = ToolRouter()
         self.tool_tracker = ToolUsageTracker()
 
+        # UX-009: Response caching
+        self.use_cache = use_cache
+        self.cache = ResponseCache(repo_path=self.repo_path) if use_cache else None
+        self._cache_hit = False  # Track if last response was from cache
+
     def _run(self, user_message: str) -> str:
         """Run a single interaction with the agent."""
+        self._cache_hit = False  # Reset cache hit flag
+
+        # UX-009: Check cache before running
+        if self.use_cache and self.cache:
+            cache_key = CacheKey.create(self.repo_path, user_message, self.model)
+            cached_response, cached_tool_calls = self.cache.get_with_tool_calls(
+                cache_key
+            )
+            if cached_response:
+                logger.info("Returning cached response")
+                self._cache_hit = True
+                self.last_tool_calls = cached_tool_calls
+                # Add to conversation history for context continuity
+                self.conversation_history.append(HumanMessage(content=user_message))
+                self.conversation_history.append(AIMessage(content=cached_response))
+                self._prune_history()
+                return cached_response
+
         # ORCH-006: Check circuit breaker before continuing
         is_thrashing, reason = self.tool_tracker.check_thrashing()
         if is_thrashing:
@@ -449,6 +479,16 @@ Start by exploring, then READ key files, then answer with citations from files y
 
             self.conversation_history.append(AIMessage(content=final_response))
 
+            # UX-009: Cache successful response
+            if self.use_cache and self.cache:
+                cache_key = CacheKey.create(self.repo_path, user_message, self.model)
+                self.cache.set(
+                    cache_key,
+                    final_response,
+                    tool_calls=self.last_tool_calls,
+                    repo_path=self.repo_path,
+                )
+
         # UX-006: Prune history to prevent context overflow
         self._prune_history()
 
@@ -458,11 +498,34 @@ Start by exploring, then READ key files, then answer with citations from files y
         """Generate a comprehensive overview of the codebase."""
         return self._run(OVERVIEW_PROMPT)
 
+    def _is_code_flow_question(self, question: str) -> bool:
+        """Detect if the question is about code flow tracing."""
+        flow_keywords = [
+            "trace",
+            "flow",
+            "what happens",
+            "how does",
+            "execution",
+            "call sequence",
+            "step by step",
+            "walk through",
+            "execution path",
+            "called in what order",
+            "sequence of calls",
+        ]
+        q_lower = question.lower()
+        return any(kw in q_lower for kw in flow_keywords)
+
     def ask(self, question: str, use_self_correction: bool = False) -> str:
         """Ask a specific question about the codebase."""
         if use_self_correction:
             return self.run_with_self_correction(question)
-        prompt = DEEP_DIVE_PROMPT.format(question=question)
+
+        # Use CODE_FLOW_PROMPT for code flow questions
+        if self._is_code_flow_question(question):
+            prompt = CODE_FLOW_PROMPT.format(question=question)
+        else:
+            prompt = DEEP_DIVE_PROMPT.format(question=question)
         return self._run(prompt)
 
     def chat(self, message: str) -> str:
@@ -477,6 +540,31 @@ Start by exploring, then READ key files, then answer with citations from files y
         self.working_memory = WorkingMemory()
         self.tool_router.reset()
         self.tool_tracker.reset()
+        self._cache_hit = False
+
+    def was_cache_hit(self) -> bool:
+        """Check if the last response was served from cache."""
+        return self._cache_hit
+
+    def invalidate_cache(self) -> int:
+        """
+        Invalidate cache entries for this repository.
+
+        Call this when the repository has changed and cached responses
+        may be stale.
+
+        Returns:
+            Number of entries invalidated
+        """
+        if self.cache:
+            return self.cache.invalidate(self.repo_path)
+        return 0
+
+    def get_cache_stats(self) -> dict:
+        """Get statistics about the response cache."""
+        if self.cache:
+            return self.cache.get_stats()
+        return {"entries": 0, "total_size_bytes": 0, "cache_enabled": False}
 
     def _update_memory_from_tool_call(
         self, tool_name: str, tool_input: dict, tool_output: str
@@ -998,7 +1086,11 @@ Start by exploring, then READ key files, then answer with citations from files y
 
     async def stream_ask(self, question: str) -> AsyncIterator[dict]:
         """Stream a question response."""
-        prompt = DEEP_DIVE_PROMPT.format(question=question)
+        # Use CODE_FLOW_PROMPT for code flow questions
+        if self._is_code_flow_question(question):
+            prompt = CODE_FLOW_PROMPT.format(question=question)
+        else:
+            prompt = DEEP_DIVE_PROMPT.format(question=question)
         async for event in self.stream(prompt):
             yield event
 
@@ -1023,10 +1115,18 @@ def run_cli():
     parser.add_argument(
         "--model", type=str, help="Model to use (defaults based on provider)"
     )
+    parser.add_argument(
+        "--no-cache",
+        action="store_true",
+        help="Disable response caching",
+    )
     args = parser.parse_args()
 
     agent = CodebaseOnboardingAgent(
-        args.repo_path, provider=args.provider, model=args.model
+        args.repo_path,
+        provider=args.provider,
+        model=args.model,
+        use_cache=not args.no_cache,
     )
 
     if args.overview:

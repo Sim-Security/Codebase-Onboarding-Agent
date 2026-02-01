@@ -32,7 +32,7 @@ This phase addresses Priority 5 from the improvement plan: performance improveme
   - Streaming was already implemented via `agent.stream()` - this enhancement adds user-friendly tool status messages
   - Added tests in `tests/test_streaming.py`
 
-- [ ] Add response caching based on repo state:
+- [x] Add response caching based on repo state:
   - Create `src/cache.py` with:
     - `get_repo_hash(repo_path: str) -> str`: Compute hash of repo state (git HEAD + file mtimes for key files)
     - `CacheKey` dataclass: `{repo_hash: str, question_hash: str, model: str}`
@@ -45,6 +45,32 @@ This phase addresses Priority 5 from the improvement plan: performance improveme
     - Check cache before calling `_run()`
     - Store results after successful runs
     - Add `--no-cache` flag to bypass cache
+
+  **COMPLETED (2026-01-31):**
+  - Created `src/cache.py` with comprehensive caching infrastructure:
+    - `get_repo_hash()`: Computes SHA256 hash based on git HEAD + key file mtimes (requirements.txt, pyproject.toml, package.json, etc.)
+    - `CacheKey` dataclass with `repo_hash`, `question_hash`, `model` fields and factory method `create()`
+    - `CacheEntry` dataclass with expiration checking (7 day default)
+    - `ResponseCache` class with:
+      - `get(key)` / `get_with_tool_calls(key)`: Retrieve cached responses
+      - `set(key, response, tool_calls)`: Store responses
+      - `invalidate(repo_path)`: Remove entries with stale repo hash
+      - `clear()`: Remove all entries
+      - `get_stats()`: Return cache statistics
+    - File-based cache in `.cache/` directory with auto-created `.gitignore`
+  - Integrated caching into `CodebaseOnboardingAgent`:
+    - Added `use_cache` parameter (default: True)
+    - Cache check at start of `_run()` method
+    - Cache storage after successful responses
+    - Added `was_cache_hit()`, `invalidate_cache()`, `get_cache_stats()` methods
+    - `reset_conversation()` resets cache hit flag
+  - Added `--no-cache` CLI flag to disable caching
+  - Added comprehensive tests in `tests/test_cache.py` (30 tests, all passing):
+    - `TestGetRepoHash`: 5 tests for hash generation
+    - `TestCacheKey`: 6 tests for key creation
+    - `TestCacheEntry`: 3 tests for expiration
+    - `TestResponseCache`: 9 tests for cache operations
+    - `TestAgentCacheIntegration`: 7 tests for agent integration
 
 - [ ] Add progress tracking for long operations:
   - In `src/agent.py`, add progress callbacks:
