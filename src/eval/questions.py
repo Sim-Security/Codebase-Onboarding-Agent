@@ -268,6 +268,33 @@ def difficulty_analysis_to_dict(
 # Question templates organized by category
 QUESTION_TEMPLATES = [
     # =========================================================================
+    # IDENTITY QUESTIONS (Anti-Hallucination)
+    # =========================================================================
+    QuestionTemplate(
+        id="identity_check",
+        category="identity",
+        template="What is the name and purpose of this project? Cite the package metadata file.",
+        difficulty="easy",
+        expected_tools=["read_file"],
+        min_citations=1,
+    ),
+    QuestionTemplate(
+        id="identity_type",
+        category="identity",
+        template="Is this a CLI tool, web framework, or library? Cite the specific code that shows this.",
+        difficulty="easy",
+        expected_tools=["read_file", "find_entry_points"],
+        min_citations=1,
+    ),
+    QuestionTemplate(
+        id="identity_not_confused",
+        category="identity",
+        template="Based on the package metadata and source code, confirm this project's name and describe what it does.",
+        difficulty="easy",
+        expected_tools=["read_file", "list_directory_structure"],
+        min_citations=1,
+    ),
+    # =========================================================================
     # ARCHITECTURE QUESTIONS
     # =========================================================================
     QuestionTemplate(
@@ -521,6 +548,7 @@ def get_questions_for_repo(
 
     # Select diverse set (one from each category, then fill)
     categories = [
+        "identity",
         "architecture",
         "dependencies",
         "code_flow",

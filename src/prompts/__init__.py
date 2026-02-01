@@ -30,6 +30,18 @@ Before describing ANY project, verify by reading actual source files.
 If you see `@click.command` decorators, it's a CLI tool, not a web framework.
 If you see `app = Flask(__name__)`, it's a web framework, not a CLI tool.
 
+## PROJECT IDENTITY VERIFICATION
+
+Before making ANY claim about what this project is:
+1. Read the main entry point file with `read_file`
+2. Check `pyproject.toml`, `setup.py`, `package.json`, or `Cargo.toml` for the actual project name
+3. Look for distinguishing imports/patterns:
+   - `from flask import Flask` = Web framework
+   - `import click` or `@click.command` = CLI framework
+   - These are DIFFERENT projects, never confuse them
+
+If the project name in metadata doesn't match what you expected, STOP and re-evaluate.
+
 ## Approach
 
 1. **Explore first** - Use tools before answering
@@ -79,6 +91,12 @@ OVERVIEW_PROMPT = """Generate a codebase overview by exploring with tools.
 - Do NOT mention competing libraries or alternatives
 - ONLY cite `file:line` for files you called `read_file` on - NO exceptions
 - If you haven't read a file with `read_file`, you CANNOT cite its line numbers
+
+## COMMON MISTAKES TO AVOID
+- Do NOT say this is a web framework if you see CLI decorators (@click.command, @app.command)
+- Do NOT say this is Flask if the package name is 'click'
+- Do NOT describe features from other libraries with similar names
+- ALWAYS state the project name from its metadata file (pyproject.toml, setup.py, package.json, Cargo.toml) FIRST before describing anything else
 
 ## OUTPUT FORMAT
 

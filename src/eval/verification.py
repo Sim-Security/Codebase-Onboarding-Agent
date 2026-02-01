@@ -721,3 +721,204 @@ def validate_tool_usage(tool_calls: list[dict], response: str) -> dict:
         "cited_files": list(cited_files),
         "unread_cited_files": list(unread_cited_files),
     }
+
+
+@dataclass
+class ProjectIdentityResult:
+    """Result of project identity validation."""
+
+    valid: bool
+    expected_name: str
+    expected_type: str
+    name_found: bool
+    type_correct: bool
+    error: Optional[str] = None
+
+
+def validate_project_identity(response: str, repo_metadata: dict) -> bool:
+    """
+    Validate that the response correctly identifies the project.
+
+    This function checks whether the agent correctly identifies:
+    1. The project name (from package metadata files)
+    2. The project type (CLI vs web vs library)
+
+    Args:
+        response: The agent's text response
+        repo_metadata: Dictionary with project metadata:
+                       {"name": str, "type": str}
+                       - name: The actual project name from metadata files
+                       - type: One of "cli", "web", "library", "unknown"
+
+    Returns:
+        True if the response correctly identifies the project, False otherwise
+    """
+    expected_name = repo_metadata.get("name", "").lower()
+    expected_type = repo_metadata.get("type", "unknown").lower()
+
+    if not expected_name:
+        # No name to validate against
+        return True
+
+    response_lower = response.lower()
+
+    # Check 1: Does the response mention the correct project name?
+    name_found = expected_name in response_lower
+
+    # Check 2: Does the response describe the correct project type?
+    type_correct = True  # Default to True if type is unknown
+
+    if expected_type == "cli":
+        # CLI projects should NOT be described as web frameworks
+        web_indicators = [
+            "web framework",
+            "web application",
+            "http server",
+            "rest api",
+            "web server",
+            "handles http requests",
+            "routes http",
+            "web development",
+        ]
+        cli_indicators = [
+            "cli",
+            "command-line",
+            "command line",
+            "terminal",
+            "commandline",
+            "cli framework",
+            "cli tool",
+            "cli library",
+        ]
+
+        # Fail if response describes it as a web framework
+        has_web_description = any(ind in response_lower for ind in web_indicators)
+        has_cli_description = any(ind in response_lower for ind in cli_indicators)
+
+        # It's wrong if it says it's a web framework OR if it doesn't mention CLI
+        if has_web_description:
+            type_correct = False
+        elif not has_cli_description:
+            # No CLI description found - might be a hallucination
+            type_correct = False
+
+    elif expected_type == "web":
+        # Web projects should NOT be described as CLI tools
+        cli_indicators = [
+            "cli tool",
+            "command-line interface",
+            "terminal application",
+            "cli framework",
+            "command line tool",
+        ]
+        web_indicators = [
+            "web",
+            "http",
+            "server",
+            "api",
+            "routes",
+            "framework",
+        ]
+
+        has_cli_description = any(ind in response_lower for ind in cli_indicators)
+        has_web_description = any(ind in response_lower for ind in web_indicators)
+
+        if has_cli_description:
+            type_correct = False
+        elif not has_web_description:
+            type_correct = False
+
+    # Both checks must pass
+    return name_found and type_correct
+
+
+def get_project_identity_details(
+    response: str, repo_metadata: dict
+) -> ProjectIdentityResult:
+    """
+    Get detailed results of project identity validation.
+
+    Similar to validate_project_identity but returns detailed information
+    about what passed and what failed.
+
+    Args:
+        response: The agent's text response
+        repo_metadata: Dictionary with project metadata:
+                       {"name": str, "type": str}
+
+    Returns:
+        ProjectIdentityResult with validation details
+    """
+    expected_name = repo_metadata.get("name", "").lower()
+    expected_type = repo_metadata.get("type", "unknown").lower()
+
+    if not expected_name:
+        return ProjectIdentityResult(
+            valid=True,
+            expected_name="",
+            expected_type=expected_type,
+            name_found=True,
+            type_correct=True,
+        )
+
+    response_lower = response.lower()
+    name_found = expected_name in response_lower
+
+    type_correct = True
+    error = None
+
+    if expected_type == "cli":
+        web_indicators = [
+            "web framework",
+            "web application",
+            "http server",
+            "rest api",
+            "web server",
+        ]
+        cli_indicators = [
+            "cli",
+            "command-line",
+            "command line",
+            "terminal",
+        ]
+
+        has_web = any(ind in response_lower for ind in web_indicators)
+        has_cli = any(ind in response_lower for ind in cli_indicators)
+
+        if has_web:
+            type_correct = False
+            error = f"Response describes CLI project '{expected_name}' as a web framework"
+        elif not has_cli:
+            type_correct = False
+            error = f"Response does not identify '{expected_name}' as a CLI tool"
+
+    elif expected_type == "web":
+        cli_indicators = [
+            "cli tool",
+            "command-line interface",
+            "terminal application",
+            "cli framework",
+        ]
+        web_indicators = ["web", "http", "server", "api", "routes"]
+
+        has_cli = any(ind in response_lower for ind in cli_indicators)
+        has_web = any(ind in response_lower for ind in web_indicators)
+
+        if has_cli:
+            type_correct = False
+            error = f"Response describes web project '{expected_name}' as a CLI tool"
+        elif not has_web:
+            type_correct = False
+            error = f"Response does not identify '{expected_name}' as a web framework"
+
+    if not name_found and error is None:
+        error = f"Response does not mention project name '{expected_name}'"
+
+    return ProjectIdentityResult(
+        valid=name_found and type_correct,
+        expected_name=expected_name,
+        expected_type=expected_type,
+        name_found=name_found,
+        type_correct=type_correct,
+        error=error,
+    )

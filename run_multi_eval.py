@@ -1270,6 +1270,9 @@ def main():
         "total_claims": 0,
         "cited_claims": 0,
         "grounded_claims": 0,
+        # Hallucination tracking
+        "hallucination_count": 0,
+        "responses_checked": 0,
     }
 
     for i, repo in enumerate(repos_to_test, 1):
@@ -1377,6 +1380,12 @@ def main():
                         test_result.get("verified_citations", 0),
                         test_result.get("claims", 0),
                     )
+            # Track hallucinations
+            if isinstance(test_result, dict):
+                summary["responses_checked"] += 1
+                hallucinations = test_result.get("hallucinations", [])
+                if hallucinations:
+                    summary["hallucination_count"] += 1
 
         if failed_count == 0:
             summary["repos_passed"] += 1
@@ -1441,6 +1450,17 @@ def main():
         grounded_claims=summary["grounded_claims"],
     )
     print(format_metrics_summary(quality_metrics))
+
+    # Hallucination Rate
+    responses_checked = summary.get("responses_checked", 0)
+    hallucination_count = summary.get("hallucination_count", 0)
+    if responses_checked > 0:
+        hallucination_rate = (hallucination_count / responses_checked) * 100
+        indicator = "🟢" if hallucination_rate < 5 else "🟡" if hallucination_rate < 10 else "🔴"
+        print(f"\n📊 Hallucination Rate: {indicator} {hallucination_rate:.1f}% ({hallucination_count}/{responses_checked} responses)")
+        quality_metrics["hallucination_rate"] = round(hallucination_rate, 2)
+        quality_metrics["hallucination_count"] = hallucination_count
+        quality_metrics["responses_checked"] = responses_checked
 
     # Add quality metrics to summary dict for JSON output
     summary["quality_metrics"] = quality_metrics
