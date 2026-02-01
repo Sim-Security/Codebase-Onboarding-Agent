@@ -4,11 +4,13 @@ Uses tools + context + model intelligence (no RAG).
 Supports multiple LLM providers: OpenRouter (default), Groq.
 """
 
+import asyncio
 import logging
 import os
 from pathlib import Path
 from typing import (
     Annotated,
+    Any,
     AsyncIterator,
     Callable,
     Protocol,
@@ -183,6 +185,62 @@ from .tools import (
 )
 from .tools.smart_discovery import get_important_files
 
+# =============================================================================
+# PERF-001: Tool Parallelization Analysis
+# =============================================================================
+#
+# All 9 tools are stateless and independent - they don't call each other
+# or depend on outputs from other tools. This enables parallel execution.
+#
+# INDEPENDENT TOOLS (can run in parallel with any other tool):
+# ┌─────────────────────────────────┬────────────────────────────────────────┐
+# │ Tool Name                       │ Inputs                                 │
+# ├─────────────────────────────────┼────────────────────────────────────────┤
+# │ list_directory_structure        │ repo_path                              │
+# │ read_file                       │ file_path                              │
+# │ search_code                     │ repo_path, pattern                     │
+# │ find_files_by_pattern           │ repo_path, pattern                     │
+# │ get_imports                     │ file_path                              │
+# │ find_entry_points               │ repo_path                              │
+# │ analyze_dependencies            │ repo_path                              │
+# │ get_function_signatures         │ file_path                              │
+# │ get_important_files             │ repo_path                              │
+# └─────────────────────────────────┴────────────────────────────────────────┘
+#
+# PARALLEL EXECUTION OPPORTUNITIES:
+# 1. Initial exploration (can run all in parallel):
+#    - find_entry_points(repo_path) + analyze_dependencies(repo_path)
+#    - list_directory_structure(repo_path) + get_important_files(repo_path)
+#
+# 2. Multiple file reads (can batch):
+#    - Multiple read_file() calls for different files
+#    - Multiple get_imports() calls for different files
+#    - Multiple get_function_signatures() calls for different files
+#
+# 3. Search operations (can run concurrently):
+#    - Multiple search_code() with different patterns
+#    - Multiple find_files_by_pattern() with different patterns
+#
+# FUTURE IMPLEMENTATION (using asyncio.gather):
+# ```python
+# async def parallel_explore(repo_path: str) -> dict:
+#     results = await asyncio.gather(
+#         asyncio.to_thread(find_entry_points.invoke, {"repo_path": repo_path}),
+#         asyncio.to_thread(analyze_dependencies.invoke, {"repo_path": repo_path}),
+#         asyncio.to_thread(get_important_files.invoke, {"repo_path": repo_path}),
+#         return_exceptions=True
+#     )
+#     return {
+#         "entry_points": results[0],
+#         "dependencies": results[1],
+#         "important_files": results[2]
+#     }
+# ```
+#
+# Note: LangGraph's ToolNode executes tools sequentially. Parallel execution
+# would require a custom ToolNode or pre-executing tools before agent calls.
+# =============================================================================
+
 # All available tools
 TOOLS = [
     list_directory_structure,
@@ -201,6 +259,104 @@ DEFAULT_MODELS = {
     "openrouter": "x-ai/grok-4.1-fast",  # Fast, affordable, excellent for code
     "groq": "llama-3.1-8b-instant",  # Free tier
 }
+
+
+# =============================================================================
+# PERF-001: Parallel Tool Execution Utilities
+# =============================================================================
+
+
+async def parallel_initial_explore(repo_path: str) -> dict[str, Any]:
+    """
+    Execute initial exploration tools in parallel.
+
+    PERF-001: Runs find_entry_points, analyze_dependencies, and get_important_files
+    concurrently to reduce initial exploration latency.
+
+    Args:
+        repo_path: Path to the repository root
+
+    Returns:
+        Dictionary with results from all three tools:
+        {
+            "entry_points": str,  # Result from find_entry_points
+            "dependencies": str,  # Result from analyze_dependencies
+            "important_files": str  # Result from get_important_files
+        }
+    """
+    results = await asyncio.gather(
+        asyncio.to_thread(find_entry_points.invoke, {"repo_path": repo_path}),
+        asyncio.to_thread(analyze_dependencies.invoke, {"repo_path": repo_path}),
+        asyncio.to_thread(get_important_files.invoke, {"repo_path": repo_path}),
+        return_exceptions=True,
+    )
+
+    return {
+        "entry_points": results[0]
+        if not isinstance(results[0], Exception)
+        else f"Error: {results[0]}",
+        "dependencies": results[1]
+        if not isinstance(results[1], Exception)
+        else f"Error: {results[1]}",
+        "important_files": results[2]
+        if not isinstance(results[2], Exception)
+        else f"Error: {results[2]}",
+    }
+
+
+async def parallel_read_files(file_paths: list[str]) -> dict[str, str]:
+    """
+    Read multiple files in parallel.
+
+    PERF-001: Batch multiple read_file calls for reduced latency when
+    reading several files at once.
+
+    Args:
+        file_paths: List of file paths to read
+
+    Returns:
+        Dictionary mapping file path to file contents
+    """
+    if not file_paths:
+        return {}
+
+    tasks = [
+        asyncio.to_thread(read_file.invoke, {"file_path": fp}) for fp in file_paths
+    ]
+    results = await asyncio.gather(*tasks, return_exceptions=True)
+
+    return {
+        fp: (result if not isinstance(result, Exception) else f"Error: {result}")
+        for fp, result in zip(file_paths, results)
+    }
+
+
+async def parallel_get_imports(file_paths: list[str]) -> dict[str, str]:
+    """
+    Get imports from multiple files in parallel.
+
+    PERF-001: Batch multiple get_imports calls for analyzing imports
+    across several files simultaneously.
+
+    Args:
+        file_paths: List of file paths to analyze
+
+    Returns:
+        Dictionary mapping file path to import analysis
+    """
+    if not file_paths:
+        return {}
+
+    tasks = [
+        asyncio.to_thread(get_imports.invoke, {"file_path": fp}) for fp in file_paths
+    ]
+    results = await asyncio.gather(*tasks, return_exceptions=True)
+
+    return {
+        fp: (result if not isinstance(result, Exception) else f"Error: {result}")
+        for fp, result in zip(file_paths, results)
+    }
+
 
 # UX-006: Maximum conversation history to prevent context overflow
 MAX_HISTORY_MESSAGES = int(os.getenv("MAX_HISTORY_MESSAGES", "20"))

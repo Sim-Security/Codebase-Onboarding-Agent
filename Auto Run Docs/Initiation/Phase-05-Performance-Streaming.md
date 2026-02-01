@@ -112,12 +112,29 @@ This phase addresses Priority 5 from the improvement plan: performance improveme
     - `TestProgressCallbackErrorHandling`: 1 test for error handling
     - `TestProgressCallbackWithCache`: 2 tests for cache interaction
 
-- [ ] Optimize tool execution where possible:
+- [x] Optimize tool execution where possible:
   - In `src/agent.py`, identify opportunities for parallel tool calls:
     - `find_entry_points` + `analyze_dependencies` can run in parallel
     - Multiple `get_imports` calls can be parallelized
   - Document which tools are independent vs dependent
   - Consider using `asyncio.gather` for parallel execution in future iteration
+
+  **COMPLETED (2026-01-31):**
+  - Added comprehensive PERF-001 documentation block in `src/agent.py` with:
+    - Complete tool dependency analysis table showing all 9 tools are independent
+    - Parallel execution opportunities matrix for initial exploration, file reads, and searches
+    - Future implementation example using `asyncio.gather` with `asyncio.to_thread`
+    - Note about LangGraph ToolNode sequential execution limitation
+  - Implemented three async parallel execution utility functions:
+    - `parallel_initial_explore(repo_path)`: Runs find_entry_points, analyze_dependencies, and get_important_files concurrently
+    - `parallel_read_files(file_paths)`: Batch reads multiple files in parallel
+    - `parallel_get_imports(file_paths)`: Batch analyzes imports from multiple files in parallel
+  - Added comprehensive tests in `tests/test_parallel_tools.py` (12 tests, all passing):
+    - `TestToolIndependence`: 2 tests verifying tools have no shared state
+    - `TestParallelInitialExplore`: 3 tests for initial exploration function
+    - `TestParallelReadFiles`: 3 tests for parallel file reading
+    - `TestParallelGetImports`: 2 tests for parallel import analysis
+    - `TestToolParallelizationDocumentation`: 2 tests verifying documentation and exports
 
 - [ ] Test streaming and caching:
   - Run the Gradio app locally: `python app.py`
