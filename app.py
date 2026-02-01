@@ -19,6 +19,60 @@ import gradio as gr
 from src.agent import CodebaseOnboardingAgent
 from src.errors import get_friendly_error
 
+
+def _get_tool_status_indicator(tool_name: str, tool_input: dict) -> str:
+    """
+    Generate contextual status indicator based on tool type.
+
+    UX-002: Provides user-friendly status messages during tool execution.
+
+    Args:
+        tool_name: Name of the tool being called
+        tool_input: Input arguments to the tool
+
+    Returns:
+        Formatted status string with appropriate emoji
+    """
+    if tool_name == "read_file":
+        file_path = tool_input.get("file_path", "file")
+        # Extract just the filename for cleaner display
+        filename = Path(file_path).name if file_path else "file"
+        return f"\n\n`📖 Reading {filename}...`"
+
+    elif tool_name == "search_code":
+        pattern = tool_input.get("pattern", "")
+        return f"\n\n`🔎 Searching for '{pattern}'...`"
+
+    elif tool_name == "find_files_by_pattern":
+        pattern = tool_input.get("pattern", "")
+        return f"\n\n`🔎 Finding files matching '{pattern}'...`"
+
+    elif tool_name == "list_directory_structure":
+        return "\n\n`📂 Exploring directory structure...`"
+
+    elif tool_name == "get_imports":
+        file_path = tool_input.get("file_path", "file")
+        filename = Path(file_path).name if file_path else "file"
+        return f"\n\n`📦 Analyzing imports in {filename}...`"
+
+    elif tool_name == "find_entry_points":
+        return "\n\n`🚀 Finding entry points...`"
+
+    elif tool_name == "analyze_dependencies":
+        return "\n\n`🔗 Analyzing dependencies...`"
+
+    elif tool_name == "get_function_signatures":
+        file_path = tool_input.get("file_path", "file")
+        filename = Path(file_path).name if file_path else "file"
+        return f"\n\n`📝 Getting function signatures from {filename}...`"
+
+    elif tool_name == "get_important_files":
+        return "\n\n`⭐ Identifying important files...`"
+
+    else:
+        return f"\n\n`🔍 {tool_name}...`"
+
+
 # Available models - users can also type any OpenRouter model ID
 MODEL_OPTIONS = [
     # Default - fast and affordable
@@ -244,8 +298,9 @@ async def chat_stream(message: str, history: list, state: dict):
 
             elif event["type"] == "tool_start":
                 tool_name = event.get("name", "tool")
-                # Show tool status with emoji
-                tool_status = f"\n\n`🔍 Using: {tool_name}...`"
+                tool_input = event.get("input", {})
+                # Show contextual tool status based on tool type
+                tool_status = _get_tool_status_indicator(tool_name, tool_input)
                 history[-1]["content"] = current_response + tool_status
                 yield history
 
@@ -293,7 +348,8 @@ async def overview_stream(state: dict):
 
             elif event["type"] == "tool_start":
                 tool_name = event.get("name", "tool")
-                tool_status = f"\n\n`🔍 Using: {tool_name}...`"
+                tool_input = event.get("input", {})
+                tool_status = _get_tool_status_indicator(tool_name, tool_input)
                 yield current_content + tool_status
 
             elif event["type"] == "tool_end":
