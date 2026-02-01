@@ -1,0 +1,122 @@
+Phase 05: Performance and Streaming - Testing Notes
+===================================================
+Date: 2026-01-31
+Tester: MAESTRO Automated Testing
+
+SUMMARY
+-------
+All streaming and caching functionality has been validated through both automated
+tests and manual verification. The implementation is complete and working correctly.
+
+AUTOMATED TEST RESULTS
+----------------------
+Test File: tests/test_streaming.py
+  - 14 tests, all PASSED
+  - Validates tool status indicators for all 9 tools
+  - Confirms correct emoji and message formatting
+  - Tests edge cases (empty paths, missing patterns)
+
+Test File: tests/test_cache.py
+  - 30 tests, all PASSED
+  - TestGetRepoHash: 5 tests for hash generation (git, file mtimes)
+  - TestCacheKey: 6 tests for key creation and normalization
+  - TestCacheEntry: 3 tests for expiration handling
+  - TestResponseCache: 9 tests for cache operations (get/set/invalidate/clear)
+  - TestAgentCacheIntegration: 7 tests for agent integration
+
+Test File: tests/test_progress.py
+  - 34 tests, all PASSED
+  - TestProgressCallbackProtocol: 5 tests for protocol compliance
+  - TestFormatToolDetail: 14 tests for tool detail formatting
+  - TestAgentProgressIntegration: 5 tests for method signature validation
+  - TestGradioProgressBridge: 7 tests for Gradio integration
+  - TestProgressCallbackErrorHandling: 1 test for error handling
+  - TestProgressCallbackWithCache: 2 tests for cache interaction
+
+Total: 78 tests passed in 2.85s
+
+MANUAL VERIFICATION
+-------------------
+1. Streaming Functions Import: VERIFIED
+   - chat_stream(), overview_stream() available in app.py
+   - _create_gradio_progress_callback() properly bridges protocols
+   - _get_tool_status_indicator() returns contextual messages
+
+2. Caching Module Import: VERIFIED
+   - ResponseCache, CacheKey, CacheEntry, get_repo_hash all available
+   - File-based cache in .cache/ directory
+   - Auto-created .gitignore in cache directory
+
+3. Agent Cache Integration: VERIFIED
+   - use_cache parameter in CodebaseOnboardingAgent.__init__
+   - was_cache_hit() method for checking cache status
+   - invalidate_cache() method for manual invalidation
+   - get_cache_stats() method for cache statistics
+
+4. Tool Status Indicators: VERIFIED
+   - All 9 tools have contextual status messages
+   - Proper emoji indicators (📖 📂 🔎 🚀 🔗 📝 ⭐ 📦)
+   - Unknown tools get generic "🔍 {tool_name}..." fallback
+
+5. Cache Key Creation: VERIFIED
+   - Combines repo hash, question hash, and model
+   - Question normalization (strip + lowercase) for consistency
+   - Safe filename generation (replaces / with _)
+
+6. Response Cache Operations: VERIFIED
+   - set() stores response with tool calls and timestamp
+   - get() retrieves cached response with expiration check
+   - get_with_tool_calls() retrieves response and tool calls
+   - 7-day default expiration
+   - Automatic cleanup of expired/corrupted entries
+
+7. Cache Invalidation: VERIFIED
+   - Removes entries when repo hash changes
+   - clear() removes all entries
+   - get_stats() returns entry count and size
+
+STREAMING BEHAVIOR
+------------------
+The Gradio UI uses async streaming functions:
+- chat_stream() yields history updates with tool status indicators
+- overview_stream() yields markdown content with tool status
+- Status indicators appear during tool execution and clear on completion
+
+Event types handled:
+- "token": Appends content to response
+- "tool_start": Shows contextual status message (e.g., "📖 Reading app.py...")
+- "tool_end": Clears status message
+- "error": Shows error message
+- "done": Final response update
+
+CACHING BEHAVIOR
+----------------
+Cache key components:
+1. repo_hash: SHA256 of git HEAD + key file mtimes
+2. question_hash: SHA256 of normalized question
+3. model: Model identifier (with / replaced by _)
+
+Cache location: {repo_path}/.cache/{repo_hash}_{question_hash}_{model}.json
+
+Cache entry structure:
+{
+  "response": "...",
+  "tool_calls": [...],
+  "created_at": "ISO timestamp",
+  "repo_path": "..."
+}
+
+KNOWN ISSUES
+------------
+None identified during testing.
+
+RECOMMENDATIONS
+---------------
+1. Consider adding cache hit/miss metrics to the UI
+2. Consider adding a "clear cache" button in the Gradio UI
+3. Monitor cache size on disk for very active repositories
+
+CONCLUSION
+----------
+All Phase 05 streaming and caching functionality is working correctly.
+The implementation follows the design specifications and all tests pass.
