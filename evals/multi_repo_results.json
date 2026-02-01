@@ -1,179 +1,272 @@
 {
-  "timestamp": "2026-01-31T17:28:53.530913",
+  "timestamp": "2026-01-31T19:16:49.122158",
   "model": "x-ai/grok-4.1-fast",
   "summary": {
-    "total_repos": 5,
-    "repos_passed": 3,
-    "repos_failed": 2,
-    "total_tests": 30,
-    "tests_passed": 26,
-    "tests_failed": 4,
+    "total_repos": 11,
+    "repos_passed": 2,
+    "repos_failed": 9,
+    "total_tests": 99,
+    "tests_passed": 79,
+    "tests_failed": 20,
     "by_language": {
       "Python": {
-        "passed": 5,
-        "failed": 1
+        "passed": 13,
+        "failed": 2
+      },
+      "TypeScript": {
+        "passed": 3,
+        "failed": 0
       },
       "JavaScript": {
         "passed": 3,
         "failed": 0
       },
       "Go": {
-        "passed": 3,
+        "passed": 6,
         "failed": 0
       },
       "Rust": {
-        "passed": 3,
-        "failed": 0
-      }
-    },
-    "by_category": {
-      "framework": {
-        "passed": 9,
-        "failed": 0
-      },
-      "cli": {
         "passed": 5,
         "failed": 1
       }
     },
-    "total_citations": 83,
-    "valid_citations": 78,
-    "total_claims": 6,
+    "by_category": {
+      "framework": {
+        "passed": 12,
+        "failed": 0
+      },
+      "library": {
+        "passed": 8,
+        "failed": 1
+      },
+      "cli": {
+        "passed": 10,
+        "failed": 2
+      }
+    },
+    "total_citations": 217,
+    "valid_citations": 205,
+    "total_claims": 25,
     "cited_claims": 0,
     "grounded_claims": 0,
+    "hallucination_count": 0,
+    "responses_checked": 33,
     "quality_metrics": {
-      "precision": 93.97590361445783,
+      "precision": 94.47004608294931,
       "recall": 0.0,
       "f1_score": 0.0,
       "grounding_rate": 0.0,
-      "total_citations": 83,
-      "valid_citations": 78,
-      "total_claims": 6,
+      "total_citations": 217,
+      "valid_citations": 205,
+      "total_claims": 25,
       "cited_claims": 0,
-      "grounded_claims": 0
+      "grounded_claims": 0,
+      "hallucination_rate": 0.0,
+      "hallucination_count": 0,
+      "responses_checked": 33
     },
-    "pass_rate": 86.66666666666667,
+    "pass_rate": 79.7979797979798,
     "tool_metrics": {
-      "total_questions": 20,
-      "questions_with_read_file": 20,
-      "questions_with_citations": 17,
+      "total_questions": 77,
+      "questions_with_read_file": 76,
+      "questions_with_citations": 58,
       "questions_with_ungrounded_citations": 0,
-      "total_read_file_calls": 254,
-      "total_search_code_calls": 91,
-      "total_tool_calls": 466,
-      "total_citations": 298,
+      "total_read_file_calls": 674,
+      "total_search_code_calls": 310,
+      "total_tool_calls": 1410,
+      "total_citations": 1220,
       "grounding_violation_count": 0,
-      "read_file_rate": 100.0,
+      "read_file_rate": 98.7012987012987,
       "grounding_rate": 100.0,
-      "avg_read_file_per_question": 12.7,
-      "avg_search_code_per_question": 4.55
+      "avg_read_file_per_question": 8.753246753246753,
+      "avg_search_code_per_question": 4.025974025974026
     },
     "by_question_category": {
       "architecture": {
         "category": "architecture",
-        "total": 10,
-        "passed": 8,
-        "failed": 2,
-        "pass_rate": 80.0,
-        "total_citations": 202,
-        "verified_citations": 197,
-        "avg_citations": 20.2,
-        "citation_accuracy": 97.52475247524752
+        "total": 22,
+        "passed": 18,
+        "failed": 4,
+        "pass_rate": 81.81818181818183,
+        "total_citations": 391,
+        "verified_citations": 382,
+        "avg_citations": 17.772727272727273,
+        "citation_accuracy": 97.69820971867009
       },
       "dependencies": {
         "category": "dependencies",
-        "total": 5,
-        "passed": 3,
-        "failed": 2,
-        "pass_rate": 60.0,
-        "total_citations": 58,
-        "verified_citations": 53,
-        "avg_citations": 11.6,
-        "citation_accuracy": 91.37931034482759
+        "total": 11,
+        "passed": 8,
+        "failed": 3,
+        "pass_rate": 72.72727272727273,
+        "total_citations": 253,
+        "verified_citations": 250,
+        "avg_citations": 23.0,
+        "citation_accuracy": 98.81422924901186
       },
       "code_flow": {
         "category": "code_flow",
-        "total": 5,
+        "total": 11,
+        "passed": 7,
+        "failed": 4,
+        "pass_rate": 63.63636363636363,
+        "total_citations": 72,
+        "verified_citations": 71,
+        "avg_citations": 6.545454545454546,
+        "citation_accuracy": 98.61111111111111
+      },
+      "debugging": {
+        "category": "debugging",
+        "total": 11,
         "passed": 5,
-        "failed": 0,
-        "pass_rate": 100.0,
-        "total_citations": 38,
-        "verified_citations": 38,
-        "avg_citations": 7.6,
-        "citation_accuracy": 100.0
+        "failed": 6,
+        "pass_rate": 45.45454545454545,
+        "total_citations": 102,
+        "verified_citations": 101,
+        "avg_citations": 9.272727272727273,
+        "citation_accuracy": 99.01960784313727
+      },
+      "specific_file": {
+        "category": "specific_file",
+        "total": 11,
+        "passed": 9,
+        "failed": 2,
+        "pass_rate": 81.81818181818183,
+        "total_citations": 330,
+        "verified_citations": 329,
+        "avg_citations": 30.0,
+        "citation_accuracy": 99.69696969696969
       },
       "overview": {
         "category": "overview",
-        "total": 5,
-        "passed": 5,
+        "total": 11,
+        "passed": 11,
         "failed": 0,
         "pass_rate": 100.0,
-        "total_citations": 42,
-        "verified_citations": 42,
-        "avg_citations": 8.4,
-        "citation_accuracy": 100.0
+        "total_citations": 146,
+        "verified_citations": 142,
+        "avg_citations": 13.272727272727273,
+        "citation_accuracy": 97.26027397260275
       },
       "language_detection": {
         "category": "language_detection",
-        "total": 5,
-        "passed": 5,
+        "total": 11,
+        "passed": 11,
         "failed": 0,
         "pass_rate": 100.0,
         "total_citations": 0,
         "verified_citations": 0,
         "avg_citations": 0.0,
         "citation_accuracy": 0.0
+      },
+      "identity": {
+        "category": "identity",
+        "total": 11,
+        "passed": 10,
+        "failed": 1,
+        "pass_rate": 90.9090909090909,
+        "total_citations": 72,
+        "verified_citations": 72,
+        "avg_citations": 6.545454545454546,
+        "citation_accuracy": 100.0
       }
     },
     "difficulty_analysis": {
       "template_stats": {
+        "identity_check": {
+          "expected_difficulty": "easy",
+          "pass_count": 10,
+          "total": 11,
+          "pass_rate": 90.9090909090909,
+          "actual_difficulty": "easy"
+        },
         "arch_overview": {
           "expected_difficulty": "medium",
-          "pass_count": 4,
-          "total": 5,
-          "pass_rate": 80.0,
-          "actual_difficulty": "medium"
+          "pass_count": 10,
+          "total": 11,
+          "pass_rate": 90.9090909090909,
+          "actual_difficulty": "easy"
         },
         "dep_external": {
           "expected_difficulty": "easy",
-          "pass_count": 3,
-          "total": 5,
-          "pass_rate": 60.0,
-          "actual_difficulty": "hard"
+          "pass_count": 8,
+          "total": 11,
+          "pass_rate": 72.72727272727273,
+          "actual_difficulty": "medium"
         },
         "flow_request": {
           "expected_difficulty": "hard",
+          "pass_count": 7,
+          "total": 11,
+          "pass_rate": 63.63636363636363,
+          "actual_difficulty": "hard"
+        },
+        "debug_where": {
+          "expected_difficulty": "medium",
           "pass_count": 5,
-          "total": 5,
-          "pass_rate": 100.0,
-          "actual_difficulty": "easy"
+          "total": 11,
+          "pass_rate": 45.45454545454545,
+          "actual_difficulty": "hard"
+        },
+        "specific_main": {
+          "expected_difficulty": "easy",
+          "pass_count": 9,
+          "total": 11,
+          "pass_rate": 81.81818181818183,
+          "actual_difficulty": "medium"
         }
       },
       "mismatches": [
         {
-          "template_id": "dep_external",
-          "expected_difficulty": "easy",
+          "template_id": "debug_where",
+          "expected_difficulty": "medium",
           "actual_difficulty": "hard",
-          "pass_rate": 60.0,
-          "total_runs": 5,
+          "pass_rate": 45.45454545454545,
+          "total_runs": 11,
           "direction": "harder_than_expected"
         },
         {
-          "template_id": "flow_request",
-          "expected_difficulty": "hard",
+          "template_id": "dep_external",
+          "expected_difficulty": "easy",
+          "actual_difficulty": "medium",
+          "pass_rate": 72.72727272727273,
+          "total_runs": 11,
+          "direction": "harder_than_expected"
+        },
+        {
+          "template_id": "specific_main",
+          "expected_difficulty": "easy",
+          "actual_difficulty": "medium",
+          "pass_rate": 81.81818181818183,
+          "total_runs": 11,
+          "direction": "harder_than_expected"
+        },
+        {
+          "template_id": "arch_overview",
+          "expected_difficulty": "medium",
           "actual_difficulty": "easy",
-          "pass_rate": 100.0,
-          "total_runs": 5,
+          "pass_rate": 90.9090909090909,
+          "total_runs": 11,
           "direction": "easier_than_expected"
         }
       ],
       "summary": {
-        "total_templates": 3,
-        "total_mismatches": 2,
-        "harder_than_expected": 1,
+        "total_templates": 6,
+        "total_mismatches": 4,
+        "harder_than_expected": 3,
         "easier_than_expected": 1
       }
-    }
+    },
+    "regression_warnings": [
+      {
+        "level": "category",
+        "name": "code_flow",
+        "current_value": 63.63636363636363,
+        "baseline_value": 81.81818181818181,
+        "drop_percent": 22.22222222222222,
+        "message": "Category 'code_flow' dropped 22.2% (from avg 81.8% to 63.6%)"
+      }
+    ]
   },
   "results": [
     {
@@ -192,45 +285,49 @@
           "tech_missing": [],
           "tech_accuracy": 100.0,
           "hallucinations": [],
-          "citations": 0,
-          "verified_citations": 0,
-          "claims": 1,
-          "precision": 0.0,
+          "citations": 12,
+          "verified_citations": 12,
+          "claims": 2,
+          "precision": 1.0,
           "recall": 0.0,
           "f1": 0.0,
-          "tool_calls": 17,
+          "tool_calls": 10,
           "tools_used": [
-            "analyze_dependencies",
-            "read_file",
             "list_directory_structure",
-            "get_important_files",
-            "find_entry_points"
+            "analyze_dependencies",
+            "find_entry_points",
+            "read_file",
+            "get_important_files"
           ]
         },
         "deep_dive": {
           "passed": true,
-          "citations": 4,
-          "verified_citations": 4,
+          "citations": 7,
+          "verified_citations": 7,
           "precision": 1.0,
-          "recall": 0.25,
-          "f1": 0.4,
-          "tool_calls": 16,
+          "recall": 0.125,
+          "f1": 0.222,
+          "tool_calls": 35,
           "file_refs_found": [
             "app.py",
             "flask/__init__.py",
             "pyproject.toml"
           ],
-          "answer_length": 2060,
-          "read_file_calls": 8,
-          "search_code_calls": 1,
+          "answer_length": 2205,
+          "read_file_calls": 17,
+          "search_code_calls": 4,
           "has_citations_without_read": false,
           "grounding_valid": true,
           "files_read": [
+            "src/flask/app.py",
+            "/tmp/eval-flask/src/flask/__main__.py",
             "/tmp/eval-flask/pyproject.toml",
-            "/tmp/eval-flask/src/flask/cli.py",
-            "/tmp/eval-flask/src/flask/app.py",
+            "pyproject.toml",
+            "src/flask/cli.py",
+            "src/flask/__main__.py",
             "/tmp/eval-flask/src/flask/__init__.py",
-            "/tmp/eval-flask/src/flask/__main__.py"
+            "/tmp/eval-flask/src/flask/app.py",
+            "/tmp/eval-flask/src/flask/cli.py"
           ],
           "ungrounded_files": []
         },
@@ -242,7 +339,7 @@
       },
       "passed": 3,
       "failed": 0,
-      "overview_length": 1387,
+      "overview_length": 1237,
       "adversarial_tests": {
         "binary_file": {
           "passed": true,
@@ -259,28 +356,49 @@
       },
       "diverse_questions": {
         "repo": "flask",
-        "num_questions": 3,
+        "num_questions": 6,
         "questions": [
+          {
+            "id": "identity_check",
+            "category": "identity",
+            "difficulty": "easy",
+            "passed": true,
+            "citations": 10,
+            "verified_citations": 10,
+            "min_citations_required": 1,
+            "precision": 1.0,
+            "recall": 0.0,
+            "f1": 0.0,
+            "tool_calls": 12,
+            "expected_tools": [
+              "read_file"
+            ],
+            "answer_length": 1587,
+            "read_file_calls": 3,
+            "search_code_calls": 3,
+            "has_citations_without_read": false,
+            "grounding_valid": true
+          },
           {
             "id": "arch_overview",
             "category": "architecture",
             "difficulty": "medium",
             "passed": true,
-            "citations": 25,
-            "verified_citations": 25,
+            "citations": 33,
+            "verified_citations": 33,
             "min_citations_required": 3,
             "precision": 1.0,
-            "recall": 0.0,
-            "f1": 0.0,
-            "tool_calls": 20,
+            "recall": 0.333,
+            "f1": 0.5,
+            "tool_calls": 13,
             "expected_tools": [
               "list_directory_structure",
               "read_file",
               "get_important_files"
             ],
-            "answer_length": 3242,
-            "read_file_calls": 13,
-            "search_code_calls": 4,
+            "answer_length": 3360,
+            "read_file_calls": 6,
+            "search_code_calls": 3,
             "has_citations_without_read": false,
             "grounding_valid": true
           },
@@ -289,20 +407,252 @@
             "category": "dependencies",
             "difficulty": "easy",
             "passed": true,
-            "citations": 3,
+            "citations": 28,
+            "verified_citations": 28,
+            "min_citations_required": 2,
+            "precision": 1.0,
+            "recall": 0.0,
+            "f1": 0.0,
+            "tool_calls": 18,
+            "expected_tools": [
+              "analyze_dependencies",
+              "read_file"
+            ],
+            "answer_length": 3689,
+            "read_file_calls": 8,
+            "search_code_calls": 3,
+            "has_citations_without_read": false,
+            "grounding_valid": true
+          },
+          {
+            "id": "flow_request",
+            "category": "code_flow",
+            "difficulty": "hard",
+            "passed": false,
+            "citations": 0,
+            "verified_citations": 0,
+            "min_citations_required": 4,
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0,
+            "tool_calls": 29,
+            "expected_tools": [
+              "find_entry_points",
+              "read_file",
+              "get_imports"
+            ],
+            "answer_length": 2055,
+            "read_file_calls": 12,
+            "search_code_calls": 9,
+            "has_citations_without_read": false,
+            "grounding_valid": true
+          },
+          {
+            "id": "debug_where",
+            "category": "debugging",
+            "difficulty": "medium",
+            "passed": false,
+            "citations": 0,
             "verified_citations": 0,
             "min_citations_required": 2,
             "precision": 0.0,
             "recall": 0.333,
             "f1": 0.0,
-            "tool_calls": 32,
+            "tool_calls": 26,
+            "expected_tools": [
+              "search_code",
+              "read_file"
+            ],
+            "answer_length": 2148,
+            "read_file_calls": 17,
+            "search_code_calls": 5,
+            "has_citations_without_read": false,
+            "grounding_valid": true
+          },
+          {
+            "id": "specific_main",
+            "category": "specific_file",
+            "difficulty": "easy",
+            "passed": true,
+            "citations": 19,
+            "verified_citations": 19,
+            "min_citations_required": 3,
+            "precision": 1.0,
+            "recall": 0.375,
+            "f1": 0.545,
+            "tool_calls": 15,
+            "expected_tools": [
+              "get_important_files",
+              "read_file",
+              "get_function_signatures"
+            ],
+            "answer_length": 3844,
+            "read_file_calls": 9,
+            "search_code_calls": 3,
+            "has_citations_without_read": false,
+            "grounding_valid": true
+          }
+        ],
+        "pass_at_k_results": null,
+        "passed": 4,
+        "failed": 2,
+        "pass_rate": 66.66666666666666
+      },
+      "total_passed": 7,
+      "total_failed": 2
+    },
+    {
+      "repo": "httpx",
+      "language": "Python",
+      "category": "library",
+      "tests": {
+        "overview": {
+          "passed": true,
+          "tech_found": [
+            "httpx",
+            "Python",
+            "HTTP",
+            "async"
+          ],
+          "tech_missing": [],
+          "tech_accuracy": 100.0,
+          "hallucinations": [],
+          "citations": 18,
+          "verified_citations": 18,
+          "claims": 2,
+          "precision": 1.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "tool_calls": 15,
+          "tools_used": [
+            "list_directory_structure",
+            "analyze_dependencies",
+            "find_entry_points",
+            "read_file",
+            "get_important_files"
+          ]
+        },
+        "deep_dive": {
+          "passed": true,
+          "citations": 8,
+          "verified_citations": 8,
+          "precision": 1.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "tool_calls": 23,
+          "file_refs_found": [
+            "httpx/__init__.py",
+            "pyproject.toml"
+          ],
+          "answer_length": 2322,
+          "read_file_calls": 12,
+          "search_code_calls": 3,
+          "has_citations_without_read": false,
+          "grounding_valid": true,
+          "files_read": [
+            "/tmp/eval-httpx/httpx/_main.py",
+            "httpx/_main.py",
+            "/tmp/eval-httpx/httpx/__version__.py",
+            "pyproject.toml",
+            "httpx/__init__.py",
+            "/tmp/eval-httpx/httpx/_models.py",
+            "/tmp/eval-httpx/httpx/_config.py",
+            "/tmp/eval-httpx/httpx/_client.py",
+            "/tmp/eval-httpx/pyproject.toml",
+            "/tmp/eval-httpx/httpx/__init__.py"
+          ],
+          "ungrounded_files": []
+        },
+        "language_detection": {
+          "passed": true,
+          "expected": "Python",
+          "mentioned": true
+        }
+      },
+      "passed": 3,
+      "failed": 0,
+      "overview_length": 1461,
+      "adversarial_tests": {
+        "binary_file": {
+          "passed": true,
+          "details": "Found 7 binary files"
+        },
+        "injection_filename": {
+          "passed": true,
+          "details": "Injection filter active"
+        },
+        "large_file": {
+          "passed": true,
+          "details": "Largest file: pack-cb92921bde767692d6d4beddeb4f3a3276808b70.pack (2,319,570 bytes)"
+        }
+      },
+      "diverse_questions": {
+        "repo": "httpx",
+        "num_questions": 6,
+        "questions": [
+          {
+            "id": "identity_check",
+            "category": "identity",
+            "difficulty": "easy",
+            "passed": true,
+            "citations": 14,
+            "verified_citations": 14,
+            "min_citations_required": 1,
+            "precision": 1.0,
+            "recall": 0.0,
+            "f1": 0.0,
+            "tool_calls": 7,
+            "expected_tools": [
+              "read_file"
+            ],
+            "answer_length": 1265,
+            "read_file_calls": 3,
+            "search_code_calls": 4,
+            "has_citations_without_read": false,
+            "grounding_valid": true
+          },
+          {
+            "id": "arch_overview",
+            "category": "architecture",
+            "difficulty": "medium",
+            "passed": true,
+            "citations": 15,
+            "verified_citations": 15,
+            "min_citations_required": 3,
+            "precision": 1.0,
+            "recall": 0.125,
+            "f1": 0.222,
+            "tool_calls": 17,
+            "expected_tools": [
+              "list_directory_structure",
+              "read_file",
+              "get_important_files"
+            ],
+            "answer_length": 4435,
+            "read_file_calls": 6,
+            "search_code_calls": 7,
+            "has_citations_without_read": false,
+            "grounding_valid": true
+          },
+          {
+            "id": "dep_external",
+            "category": "dependencies",
+            "difficulty": "easy",
+            "passed": true,
+            "citations": 15,
+            "verified_citations": 15,
+            "min_citations_required": 2,
+            "precision": 1.0,
+            "recall": 0.222,
+            "f1": 0.364,
+            "tool_calls": 16,
             "expected_tools": [
               "analyze_dependencies",
               "read_file"
             ],
-            "answer_length": 2020,
-            "read_file_calls": 16,
-            "search_code_calls": 8,
+            "answer_length": 2775,
+            "read_file_calls": 5,
+            "search_code_calls": 4,
             "has_citations_without_read": false,
             "grounding_valid": true
           },
@@ -311,32 +661,77 @@
             "category": "code_flow",
             "difficulty": "hard",
             "passed": true,
-            "citations": 5,
-            "verified_citations": 5,
+            "citations": 4,
+            "verified_citations": 4,
             "min_citations_required": 4,
             "precision": 1.0,
             "recall": 0.0,
             "f1": 0.0,
-            "tool_calls": 36,
+            "tool_calls": 25,
             "expected_tools": [
               "find_entry_points",
               "read_file",
               "get_imports"
             ],
-            "answer_length": 1409,
+            "answer_length": 2804,
             "read_file_calls": 16,
-            "search_code_calls": 13,
+            "search_code_calls": 3,
+            "has_citations_without_read": false,
+            "grounding_valid": true
+          },
+          {
+            "id": "debug_where",
+            "category": "debugging",
+            "difficulty": "medium",
+            "passed": false,
+            "citations": 0,
+            "verified_citations": 0,
+            "min_citations_required": 2,
+            "precision": 0.0,
+            "recall": 0.5,
+            "f1": 0.0,
+            "tool_calls": 32,
+            "expected_tools": [
+              "search_code",
+              "read_file"
+            ],
+            "answer_length": 2195,
+            "read_file_calls": 21,
+            "search_code_calls": 4,
+            "has_citations_without_read": false,
+            "grounding_valid": true
+          },
+          {
+            "id": "specific_main",
+            "category": "specific_file",
+            "difficulty": "easy",
+            "passed": true,
+            "citations": 26,
+            "verified_citations": 26,
+            "min_citations_required": 3,
+            "precision": 1.0,
+            "recall": 0.0,
+            "f1": 0.0,
+            "tool_calls": 15,
+            "expected_tools": [
+              "get_important_files",
+              "read_file",
+              "get_function_signatures"
+            ],
+            "answer_length": 3568,
+            "read_file_calls": 9,
+            "search_code_calls": 3,
             "has_citations_without_read": false,
             "grounding_valid": true
           }
         ],
         "pass_at_k_results": null,
-        "passed": 3,
-        "failed": 0,
-        "pass_rate": 100.0
+        "passed": 5,
+        "failed": 1,
+        "pass_rate": 83.33333333333334
       },
-      "total_passed": 6,
-      "total_failed": 0
+      "total_passed": 8,
+      "total_failed": 1
     },
     {
       "repo": "click",
@@ -354,19 +749,19 @@
           "tech_missing": [],
           "tech_accuracy": 100.0,
           "hallucinations": [],
-          "citations": 10,
-          "verified_citations": 10,
+          "citations": 14,
+          "verified_citations": 14,
           "claims": 2,
           "precision": 1.0,
-          "recall": 0.5,
-          "f1": 0.667,
-          "tool_calls": 11,
+          "recall": 0.0,
+          "f1": 0.0,
+          "tool_calls": 10,
           "tools_used": [
-            "analyze_dependencies",
-            "read_file",
             "list_directory_structure",
-            "get_important_files",
-            "find_entry_points"
+            "analyze_dependencies",
+            "find_entry_points",
+            "read_file",
+            "get_important_files"
           ]
         },
         "deep_dive": {
@@ -376,25 +771,24 @@
           "precision": 0.0,
           "recall": 0.0,
           "f1": 0.0,
-          "tool_calls": 27,
-          "file_refs_found": [],
-          "answer_length": 1067,
-          "read_file_calls": 16,
-          "search_code_calls": 4,
+          "tool_calls": 17,
+          "file_refs_found": [
+            "click/__init__.py",
+            "pyproject.toml"
+          ],
+          "answer_length": 1119,
+          "read_file_calls": 9,
+          "search_code_calls": 2,
           "has_citations_without_read": false,
           "grounding_valid": true,
           "files_read": [
-            "examples/aliases/aliases.py",
             "examples/colors/colors.py",
-            "examples/complex/complex/cli.py",
-            "examples/complex/pyproject.toml",
             "pyproject.toml",
-            "src/click/__init__.py",
-            "docs/conf.py",
             "examples/repo/repo.py",
-            "src/click/decorators.py",
             "src/click/core.py",
-            "tests/test_basic.py"
+            "README.md",
+            "src/click/__init__.py",
+            "examples/complex/complex/cli.py"
           ],
           "ungrounded_files": []
         },
@@ -406,7 +800,7 @@
       },
       "passed": 2,
       "failed": 1,
-      "overview_length": 1314,
+      "overview_length": 1602,
       "adversarial_tests": {
         "binary_file": {
           "passed": true,
@@ -423,28 +817,49 @@
       },
       "diverse_questions": {
         "repo": "click",
-        "num_questions": 3,
+        "num_questions": 6,
         "questions": [
+          {
+            "id": "identity_check",
+            "category": "identity",
+            "difficulty": "easy",
+            "passed": true,
+            "citations": 8,
+            "verified_citations": 8,
+            "min_citations_required": 1,
+            "precision": 1.0,
+            "recall": 0.75,
+            "f1": 0.857,
+            "tool_calls": 8,
+            "expected_tools": [
+              "read_file"
+            ],
+            "answer_length": 1328,
+            "read_file_calls": 3,
+            "search_code_calls": 4,
+            "has_citations_without_read": false,
+            "grounding_valid": true
+          },
           {
             "id": "arch_overview",
             "category": "architecture",
             "difficulty": "medium",
-            "passed": false,
-            "citations": 0,
-            "verified_citations": 0,
+            "passed": true,
+            "citations": 23,
+            "verified_citations": 23,
             "min_citations_required": 3,
-            "precision": 0.0,
-            "recall": 0.4,
-            "f1": 0.0,
-            "tool_calls": 28,
+            "precision": 1.0,
+            "recall": 0.2,
+            "f1": 0.333,
+            "tool_calls": 15,
             "expected_tools": [
               "list_directory_structure",
               "read_file",
               "get_important_files"
             ],
-            "answer_length": 2252,
-            "read_file_calls": 19,
-            "search_code_calls": 4,
+            "answer_length": 4469,
+            "read_file_calls": 6,
+            "search_code_calls": 5,
             "has_citations_without_read": false,
             "grounding_valid": true
           },
@@ -452,20 +867,20 @@
             "id": "dep_external",
             "category": "dependencies",
             "difficulty": "easy",
-            "passed": false,
-            "citations": 1,
-            "verified_citations": 0,
+            "passed": true,
+            "citations": 11,
+            "verified_citations": 10,
             "min_citations_required": 2,
-            "precision": 0.0,
-            "recall": 1.0,
-            "f1": 0.0,
-            "tool_calls": 31,
+            "precision": 0.909,
+            "recall": 0.4,
+            "f1": 0.556,
+            "tool_calls": 16,
             "expected_tools": [
               "analyze_dependencies",
               "read_file"
             ],
-            "answer_length": 1170,
-            "read_file_calls": 18,
+            "answer_length": 2484,
+            "read_file_calls": 7,
             "search_code_calls": 4,
             "has_citations_without_read": false,
             "grounding_valid": true
@@ -475,32 +890,308 @@
             "category": "code_flow",
             "difficulty": "hard",
             "passed": true,
-            "citations": 9,
-            "verified_citations": 9,
+            "citations": 13,
+            "verified_citations": 13,
             "min_citations_required": 4,
             "precision": 1.0,
             "recall": 0.0,
             "f1": 0.0,
-            "tool_calls": 23,
+            "tool_calls": 16,
             "expected_tools": [
               "find_entry_points",
               "read_file",
               "get_imports"
             ],
-            "answer_length": 2939,
-            "read_file_calls": 14,
-            "search_code_calls": 5,
+            "answer_length": 3267,
+            "read_file_calls": 7,
+            "search_code_calls": 4,
+            "has_citations_without_read": false,
+            "grounding_valid": true
+          },
+          {
+            "id": "debug_where",
+            "category": "debugging",
+            "difficulty": "medium",
+            "passed": true,
+            "citations": 21,
+            "verified_citations": 21,
+            "min_citations_required": 2,
+            "precision": 1.0,
+            "recall": 0.333,
+            "f1": 0.5,
+            "tool_calls": 18,
+            "expected_tools": [
+              "search_code",
+              "read_file"
+            ],
+            "answer_length": 2702,
+            "read_file_calls": 11,
+            "search_code_calls": 4,
+            "has_citations_without_read": false,
+            "grounding_valid": true
+          },
+          {
+            "id": "specific_main",
+            "category": "specific_file",
+            "difficulty": "easy",
+            "passed": true,
+            "citations": 45,
+            "verified_citations": 45,
+            "min_citations_required": 3,
+            "precision": 1.0,
+            "recall": 0.0,
+            "f1": 0.0,
+            "tool_calls": 10,
+            "expected_tools": [
+              "get_important_files",
+              "read_file",
+              "get_function_signatures"
+            ],
+            "answer_length": 4172,
+            "read_file_calls": 5,
+            "search_code_calls": 2,
             "has_citations_without_read": false,
             "grounding_valid": true
           }
         ],
         "pass_at_k_results": null,
-        "passed": 1,
-        "failed": 2,
-        "pass_rate": 33.33333333333333
+        "passed": 6,
+        "failed": 0,
+        "pass_rate": 100.0
       },
-      "total_passed": 3,
-      "total_failed": 3
+      "total_passed": 8,
+      "total_failed": 1
+    },
+    {
+      "repo": "zustand",
+      "language": "TypeScript",
+      "category": "library",
+      "tests": {
+        "overview": {
+          "passed": true,
+          "tech_found": [
+            "Zustand",
+            "React",
+            "state",
+            "TypeScript"
+          ],
+          "tech_missing": [],
+          "tech_accuracy": 100.0,
+          "hallucinations": [],
+          "citations": 17,
+          "verified_citations": 17,
+          "claims": 2,
+          "precision": 1.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "tool_calls": 10,
+          "tools_used": [
+            "list_directory_structure",
+            "analyze_dependencies",
+            "find_entry_points",
+            "read_file",
+            "get_important_files"
+          ]
+        },
+        "deep_dive": {
+          "passed": true,
+          "citations": 14,
+          "verified_citations": 14,
+          "precision": 1.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "tool_calls": 19,
+          "file_refs_found": [
+            "package.json",
+            "src/index.ts"
+          ],
+          "answer_length": 1748,
+          "read_file_calls": 10,
+          "search_code_calls": 0,
+          "has_citations_without_read": false,
+          "grounding_valid": true,
+          "files_read": [
+            "/tmp/eval-zustand/src/vanilla.ts",
+            "/tmp/eval-zustand/examples/starter/src/index.tsx",
+            "/tmp/eval-zustand/src/react.ts",
+            "/tmp/eval-zustand/src/index.ts",
+            "/tmp/eval-zustand/package.json",
+            "src/index.ts",
+            "/tmp/eval-zustand/rollup.config.mjs",
+            "package.json",
+            "src/react.ts"
+          ],
+          "ungrounded_files": []
+        },
+        "language_detection": {
+          "passed": true,
+          "expected": "TypeScript",
+          "mentioned": true
+        }
+      },
+      "passed": 3,
+      "failed": 0,
+      "overview_length": 1282,
+      "adversarial_tests": {
+        "binary_file": {
+          "passed": true,
+          "details": "Found 7 binary files"
+        },
+        "injection_filename": {
+          "passed": true,
+          "details": "Injection filter active"
+        },
+        "large_file": {
+          "passed": true,
+          "details": "Largest file: pack-e7d2f13f89aae41d06cbfceff9adb76c917257da.pack (1,002,315 bytes)"
+        }
+      },
+      "diverse_questions": {
+        "repo": "zustand",
+        "num_questions": 6,
+        "questions": [
+          {
+            "id": "identity_check",
+            "category": "identity",
+            "difficulty": "easy",
+            "passed": true,
+            "citations": 1,
+            "verified_citations": 1,
+            "min_citations_required": 1,
+            "precision": 1.0,
+            "recall": 0.0,
+            "f1": 0.0,
+            "tool_calls": 20,
+            "expected_tools": [
+              "read_file"
+            ],
+            "answer_length": 1636,
+            "read_file_calls": 11,
+            "search_code_calls": 3,
+            "has_citations_without_read": false,
+            "grounding_valid": true
+          },
+          {
+            "id": "arch_overview",
+            "category": "architecture",
+            "difficulty": "medium",
+            "passed": true,
+            "citations": 33,
+            "verified_citations": 33,
+            "min_citations_required": 3,
+            "precision": 1.0,
+            "recall": 0.077,
+            "f1": 0.143,
+            "tool_calls": 15,
+            "expected_tools": [
+              "list_directory_structure",
+              "read_file",
+              "get_important_files"
+            ],
+            "answer_length": 4006,
+            "read_file_calls": 7,
+            "search_code_calls": 3,
+            "has_citations_without_read": false,
+            "grounding_valid": true
+          },
+          {
+            "id": "dep_external",
+            "category": "dependencies",
+            "difficulty": "easy",
+            "passed": true,
+            "citations": 22,
+            "verified_citations": 22,
+            "min_citations_required": 2,
+            "precision": 1.0,
+            "recall": 0.4,
+            "f1": 0.571,
+            "tool_calls": 17,
+            "expected_tools": [
+              "analyze_dependencies",
+              "read_file"
+            ],
+            "answer_length": 2793,
+            "read_file_calls": 8,
+            "search_code_calls": 5,
+            "has_citations_without_read": false,
+            "grounding_valid": true
+          },
+          {
+            "id": "flow_request",
+            "category": "code_flow",
+            "difficulty": "hard",
+            "passed": true,
+            "citations": 12,
+            "verified_citations": 12,
+            "min_citations_required": 4,
+            "precision": 1.0,
+            "recall": 0.091,
+            "f1": 0.167,
+            "tool_calls": 14,
+            "expected_tools": [
+              "find_entry_points",
+              "read_file",
+              "get_imports"
+            ],
+            "answer_length": 3035,
+            "read_file_calls": 8,
+            "search_code_calls": 0,
+            "has_citations_without_read": false,
+            "grounding_valid": true
+          },
+          {
+            "id": "debug_where",
+            "category": "debugging",
+            "difficulty": "medium",
+            "passed": true,
+            "citations": 20,
+            "verified_citations": 20,
+            "min_citations_required": 2,
+            "precision": 1.0,
+            "recall": 0.0,
+            "f1": 0.0,
+            "tool_calls": 13,
+            "expected_tools": [
+              "search_code",
+              "read_file"
+            ],
+            "answer_length": 2551,
+            "read_file_calls": 5,
+            "search_code_calls": 4,
+            "has_citations_without_read": false,
+            "grounding_valid": true
+          },
+          {
+            "id": "specific_main",
+            "category": "specific_file",
+            "difficulty": "easy",
+            "passed": true,
+            "citations": 33,
+            "verified_citations": 33,
+            "min_citations_required": 3,
+            "precision": 1.0,
+            "recall": 0.188,
+            "f1": 0.316,
+            "tool_calls": 15,
+            "expected_tools": [
+              "get_important_files",
+              "read_file",
+              "get_function_signatures"
+            ],
+            "answer_length": 3686,
+            "read_file_calls": 6,
+            "search_code_calls": 4,
+            "has_citations_without_read": false,
+            "grounding_valid": true
+          }
+        ],
+        "pass_at_k_results": null,
+        "passed": 6,
+        "failed": 0,
+        "pass_rate": 100.0
+      },
+      "total_passed": 9,
+      "total_failed": 0
     },
     {
       "repo": "express",
@@ -518,51 +1209,43 @@
           "tech_missing": [],
           "tech_accuracy": 100.0,
           "hallucinations": [],
-          "citations": 8,
-          "verified_citations": 8,
+          "citations": 19,
+          "verified_citations": 18,
           "claims": 1,
-          "precision": 1.0,
+          "precision": 0.947,
           "recall": 0.0,
           "f1": 0.0,
-          "tool_calls": 13,
+          "tool_calls": 10,
           "tools_used": [
-            "analyze_dependencies",
-            "read_file",
             "list_directory_structure",
-            "get_important_files",
-            "find_entry_points"
+            "analyze_dependencies",
+            "find_entry_points",
+            "read_file",
+            "get_important_files"
           ]
         },
         "deep_dive": {
           "passed": true,
-          "citations": 7,
-          "verified_citations": 7,
+          "citations": 10,
+          "verified_citations": 10,
           "precision": 1.0,
           "recall": 0.0,
           "f1": 0.0,
-          "tool_calls": 35,
+          "tool_calls": 13,
           "file_refs_found": [
             "package.json",
             "lib/express.js"
           ],
-          "answer_length": 1649,
-          "read_file_calls": 22,
-          "search_code_calls": 3,
+          "answer_length": 2130,
+          "read_file_calls": 5,
+          "search_code_calls": 1,
           "has_citations_without_read": false,
           "grounding_valid": true,
           "files_read": [
+            "/tmp/eval-express/lib/application.js",
             "/tmp/eval-express/index.js",
-            "package.json",
-            "test/app.js",
-            "lib/request.js",
-            "lib/response.js",
-            "examples/hello-world/index.js",
-            "/tmp/eval-express/lib/express.js",
-            "examples/mvc/index.js",
             "/tmp/eval-express/package.json",
-            "index.js",
-            "lib/application.js",
-            "lib/express.js"
+            "/tmp/eval-express/lib/express.js"
           ],
           "ungrounded_files": []
         },
@@ -574,7 +1257,7 @@
       },
       "passed": 3,
       "failed": 0,
-      "overview_length": 1442,
+      "overview_length": 1528,
       "adversarial_tests": {
         "binary_file": {
           "passed": true,
@@ -591,8 +1274,29 @@
       },
       "diverse_questions": {
         "repo": "express",
-        "num_questions": 3,
+        "num_questions": 6,
         "questions": [
+          {
+            "id": "identity_check",
+            "category": "identity",
+            "difficulty": "easy",
+            "passed": false,
+            "citations": 0,
+            "verified_citations": 0,
+            "min_citations_required": 1,
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0,
+            "tool_calls": 23,
+            "expected_tools": [
+              "read_file"
+            ],
+            "answer_length": 1051,
+            "read_file_calls": 12,
+            "search_code_calls": 3,
+            "has_citations_without_read": false,
+            "grounding_valid": true
+          },
           {
             "id": "arch_overview",
             "category": "architecture",
@@ -604,15 +1308,15 @@
             "precision": 1.0,
             "recall": 0.0,
             "f1": 0.0,
-            "tool_calls": 14,
+            "tool_calls": 13,
             "expected_tools": [
               "list_directory_structure",
               "read_file",
               "get_important_files"
             ],
-            "answer_length": 5289,
-            "read_file_calls": 7,
-            "search_code_calls": 3,
+            "answer_length": 4817,
+            "read_file_calls": 4,
+            "search_code_calls": 5,
             "has_citations_without_read": false,
             "grounding_valid": true
           },
@@ -621,19 +1325,19 @@
             "category": "dependencies",
             "difficulty": "easy",
             "passed": true,
-            "citations": 29,
-            "verified_citations": 29,
+            "citations": 76,
+            "verified_citations": 76,
             "min_citations_required": 2,
             "precision": 1.0,
-            "recall": 0.857,
-            "f1": 0.923,
-            "tool_calls": 10,
+            "recall": 0.143,
+            "f1": 0.25,
+            "tool_calls": 12,
             "expected_tools": [
               "analyze_dependencies",
               "read_file"
             ],
-            "answer_length": 4020,
-            "read_file_calls": 4,
+            "answer_length": 5022,
+            "read_file_calls": 6,
             "search_code_calls": 3,
             "has_citations_without_read": false,
             "grounding_valid": true
@@ -643,32 +1347,77 @@
             "category": "code_flow",
             "difficulty": "hard",
             "passed": true,
-            "citations": 8,
-            "verified_citations": 8,
+            "citations": 11,
+            "verified_citations": 11,
             "min_citations_required": 4,
             "precision": 1.0,
             "recall": 0.0,
             "f1": 0.0,
-            "tool_calls": 25,
+            "tool_calls": 17,
             "expected_tools": [
               "find_entry_points",
               "read_file",
               "get_imports"
             ],
-            "answer_length": 1597,
-            "read_file_calls": 15,
+            "answer_length": 2389,
+            "read_file_calls": 7,
+            "search_code_calls": 3,
+            "has_citations_without_read": false,
+            "grounding_valid": true
+          },
+          {
+            "id": "debug_where",
+            "category": "debugging",
+            "difficulty": "medium",
+            "passed": true,
+            "citations": 20,
+            "verified_citations": 20,
+            "min_citations_required": 2,
+            "precision": 1.0,
+            "recall": 0.0,
+            "f1": 0.0,
+            "tool_calls": 17,
+            "expected_tools": [
+              "search_code",
+              "read_file"
+            ],
+            "answer_length": 2841,
+            "read_file_calls": 7,
+            "search_code_calls": 6,
+            "has_citations_without_read": false,
+            "grounding_valid": true
+          },
+          {
+            "id": "specific_main",
+            "category": "specific_file",
+            "difficulty": "easy",
+            "passed": true,
+            "citations": 40,
+            "verified_citations": 39,
+            "min_citations_required": 3,
+            "precision": 0.975,
+            "recall": 0.118,
+            "f1": 0.21,
+            "tool_calls": 13,
+            "expected_tools": [
+              "get_important_files",
+              "read_file",
+              "get_function_signatures"
+            ],
+            "answer_length": 5340,
+            "read_file_calls": 5,
             "search_code_calls": 4,
             "has_citations_without_read": false,
             "grounding_valid": true
           }
         ],
         "pass_at_k_results": null,
-        "passed": 3,
-        "failed": 0,
-        "pass_rate": 100.0
+        "passed": 5,
+        "failed": 1,
+        "pass_rate": 83.33333333333334
       },
-      "total_passed": 6,
-      "total_failed": 0
+      "total_passed": 8,
+      "total_failed": 1
     },
     {
       "repo": "gin",
@@ -686,42 +1435,43 @@
           "tech_missing": [],
           "tech_accuracy": 100.0,
           "hallucinations": [],
-          "citations": 9,
-          "verified_citations": 9,
-          "claims": 1,
+          "citations": 18,
+          "verified_citations": 18,
+          "claims": 3,
           "precision": 1.0,
           "recall": 0.0,
           "f1": 0.0,
-          "tool_calls": 7,
+          "tool_calls": 10,
           "tools_used": [
-            "read_file",
+            "list_directory_structure",
             "analyze_dependencies",
             "find_entry_points",
-            "list_directory_structure"
+            "read_file",
+            "get_important_files"
           ]
         },
         "deep_dive": {
           "passed": true,
-          "citations": 22,
-          "verified_citations": 17,
-          "precision": 0.773,
-          "recall": 0.2,
-          "f1": 0.318,
-          "tool_calls": 20,
+          "citations": 13,
+          "verified_citations": 5,
+          "precision": 0.385,
+          "recall": 0.0,
+          "f1": 0.0,
+          "tool_calls": 15,
           "file_refs_found": [
             "go.mod",
             "gin.go"
           ],
-          "answer_length": 2409,
-          "read_file_calls": 6,
-          "search_code_calls": 7,
+          "answer_length": 2290,
+          "read_file_calls": 5,
+          "search_code_calls": 4,
           "has_citations_without_read": false,
           "grounding_valid": true,
           "files_read": [
-            "/tmp/eval-gin/go.mod",
-            "/tmp/eval-gin/doc.go",
+            "/tmp/eval-gin/ginS/gins.go",
             "/tmp/eval-gin/gin.go",
-            "/tmp/eval-gin/ginS/gins.go"
+            "/tmp/eval-gin/doc.go",
+            "/tmp/eval-gin/go.mod"
           ],
           "ungrounded_files": []
         },
@@ -733,7 +1483,7 @@
       },
       "passed": 3,
       "failed": 0,
-      "overview_length": 1470,
+      "overview_length": 1906,
       "adversarial_tests": {
         "binary_file": {
           "passed": true,
@@ -750,28 +1500,49 @@
       },
       "diverse_questions": {
         "repo": "gin",
-        "num_questions": 3,
+        "num_questions": 6,
         "questions": [
+          {
+            "id": "identity_check",
+            "category": "identity",
+            "difficulty": "easy",
+            "passed": true,
+            "citations": 14,
+            "verified_citations": 14,
+            "min_citations_required": 1,
+            "precision": 1.0,
+            "recall": 0.0,
+            "f1": 0.0,
+            "tool_calls": 12,
+            "expected_tools": [
+              "read_file"
+            ],
+            "answer_length": 1434,
+            "read_file_calls": 5,
+            "search_code_calls": 3,
+            "has_citations_without_read": false,
+            "grounding_valid": true
+          },
           {
             "id": "arch_overview",
             "category": "architecture",
             "difficulty": "medium",
             "passed": true,
-            "citations": 49,
-            "verified_citations": 49,
+            "citations": 54,
+            "verified_citations": 54,
             "min_citations_required": 3,
             "precision": 1.0,
-            "recall": 0.333,
-            "f1": 0.5,
-            "tool_calls": 16,
+            "recall": 0.0,
+            "f1": 0.0,
+            "tool_calls": 14,
             "expected_tools": [
               "list_directory_structure",
               "read_file",
               "get_important_files"
             ],
-            "answer_length": 4034,
-            "read_file_calls": 3,
-            "search_code_calls": 9,
+            "answer_length": 5802,
+            "read_file_calls": 7,
+            "search_code_calls": 3,
             "has_citations_without_read": false,
             "grounding_valid": true
           },
@@ -780,20 +1551,20 @@
             "category": "dependencies",
             "difficulty": "easy",
             "passed": true,
-            "citations": 25,
-            "verified_citations": 24,
+            "citations": 30,
+            "verified_citations": 30,
             "min_citations_required": 2,
-            "precision": 0.96,
-            "recall": 0.714,
-            "f1": 0.819,
-            "tool_calls": 11,
+            "precision": 1.0,
+            "recall": 0.111,
+            "f1": 0.2,
+            "tool_calls": 19,
             "expected_tools": [
               "analyze_dependencies",
               "read_file"
             ],
-            "answer_length": 3812,
-            "read_file_calls": 7,
-            "search_code_calls": 2,
+            "answer_length": 3319,
+            "read_file_calls": 11,
+            "search_code_calls": 3,
             "has_citations_without_read": false,
             "grounding_valid": true
           },
@@ -802,32 +1573,303 @@
             "category": "code_flow",
             "difficulty": "hard",
             "passed": true,
-            "citations": 5,
-            "verified_citations": 5,
+            "citations": 6,
+            "verified_citations": 6,
             "min_citations_required": 4,
             "precision": 1.0,
-            "recall": 0.333,
-            "f1": 0.5,
-            "tool_calls": 16,
+            "recall": 0.143,
+            "f1": 0.25,
+            "tool_calls": 15,
             "expected_tools": [
               "find_entry_points",
               "read_file",
               "get_imports"
             ],
-            "answer_length": 2316,
-            "read_file_calls": 7,
+            "answer_length": 2972,
+            "read_file_calls": 8,
+            "search_code_calls": 2,
+            "has_citations_without_read": false,
+            "grounding_valid": true
+          },
+          {
+            "id": "debug_where",
+            "category": "debugging",
+            "difficulty": "medium",
+            "passed": true,
+            "citations": 27,
+            "verified_citations": 26,
+            "min_citations_required": 2,
+            "precision": 0.963,
+            "recall": 0.0,
+            "f1": 0.0,
+            "tool_calls": 15,
+            "expected_tools": [
+              "search_code",
+              "read_file"
+            ],
+            "answer_length": 3022,
+            "read_file_calls": 5,
+            "search_code_calls": 7,
+            "has_citations_without_read": false,
+            "grounding_valid": true
+          },
+          {
+            "id": "specific_main",
+            "category": "specific_file",
+            "difficulty": "easy",
+            "passed": true,
+            "citations": 53,
+            "verified_citations": 53,
+            "min_citations_required": 3,
+            "precision": 1.0,
+            "recall": 0.125,
+            "f1": 0.222,
+            "tool_calls": 15,
+            "expected_tools": [
+              "get_important_files",
+              "read_file",
+              "get_function_signatures"
+            ],
+            "answer_length": 3909,
+            "read_file_calls": 6,
             "search_code_calls": 4,
             "has_citations_without_read": false,
             "grounding_valid": true
           }
         ],
         "pass_at_k_results": null,
-        "passed": 3,
+        "passed": 6,
         "failed": 0,
         "pass_rate": 100.0
       },
-      "total_passed": 6,
+      "total_passed": 9,
       "total_failed": 0
+    },
+    {
+      "repo": "cobra",
+      "language": "Go",
+      "category": "cli",
+      "tests": {
+        "overview": {
+          "passed": true,
+          "tech_found": [
+            "Cobra",
+            "Go",
+            "CLI",
+            "command"
+          ],
+          "tech_missing": [],
+          "tech_accuracy": 100.0,
+          "hallucinations": [],
+          "citations": 23,
+          "verified_citations": 23,
+          "claims": 5,
+          "precision": 1.0,
+          "recall": 0.4,
+          "f1": 0.571,
+          "tool_calls": 9,
+          "tools_used": [
+            "list_directory_structure",
+            "analyze_dependencies",
+            "find_entry_points",
+            "read_file",
+            "get_important_files"
+          ]
+        },
+        "deep_dive": {
+          "passed": true,
+          "citations": 2,
+          "verified_citations": 2,
+          "precision": 1.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "tool_calls": 17,
+          "file_refs_found": [
+            "cobra.go",
+            "command.go"
+          ],
+          "answer_length": 2149,
+          "read_file_calls": 6,
+          "search_code_calls": 4,
+          "has_citations_without_read": false,
+          "grounding_valid": true,
+          "files_read": [
+            "/tmp/eval-cobra/cobra_test.go",
+            "/tmp/eval-cobra/command.go",
+            "/tmp/eval-cobra/cobra.go",
+            "/tmp/eval-cobra/doc/cmd_test.go"
+          ],
+          "ungrounded_files": []
+        },
+        "language_detection": {
+          "passed": true,
+          "expected": "Go",
+          "mentioned": true
+        }
+      },
+      "passed": 3,
+      "failed": 0,
+      "overview_length": 2121,
+      "adversarial_tests": {
+        "binary_file": {
+          "passed": true,
+          "details": "Found 1 binary files"
+        },
+        "injection_filename": {
+          "passed": true,
+          "details": "Injection filter active"
+        },
+        "large_file": {
+          "passed": true,
+          "details": "Largest file: pack-e65388c0203fc61dbb8edcbb59c5a551e3ac7844.pack (222,887 bytes)"
+        }
+      },
+      "diverse_questions": {
+        "repo": "cobra",
+        "num_questions": 6,
+        "questions": [
+          {
+            "id": "identity_check",
+            "category": "identity",
+            "difficulty": "easy",
+            "passed": true,
+            "citations": 7,
+            "verified_citations": 7,
+            "min_citations_required": 1,
+            "precision": 1.0,
+            "recall": 0.0,
+            "f1": 0.0,
+            "tool_calls": 10,
+            "expected_tools": [
+              "read_file"
+            ],
+            "answer_length": 1055,
+            "read_file_calls": 2,
+            "search_code_calls": 3,
+            "has_citations_without_read": false,
+            "grounding_valid": true
+          },
+          {
+            "id": "arch_overview",
+            "category": "architecture",
+            "difficulty": "medium",
+            "passed": true,
+            "citations": 38,
+            "verified_citations": 38,
+            "min_citations_required": 3,
+            "precision": 1.0,
+            "recall": 0.0,
+            "f1": 0.0,
+            "tool_calls": 14,
+            "expected_tools": [
+              "list_directory_structure",
+              "read_file",
+              "get_important_files"
+            ],
+            "answer_length": 4292,
+            "read_file_calls": 5,
+            "search_code_calls": 4,
+            "has_citations_without_read": false,
+            "grounding_valid": true
+          },
+          {
+            "id": "dep_external",
+            "category": "dependencies",
+            "difficulty": "easy",
+            "passed": true,
+            "citations": 23,
+            "verified_citations": 22,
+            "min_citations_required": 2,
+            "precision": 0.957,
+            "recall": 0.333,
+            "f1": 0.494,
+            "tool_calls": 14,
+            "expected_tools": [
+              "analyze_dependencies",
+              "read_file"
+            ],
+            "answer_length": 2497,
+            "read_file_calls": 6,
+            "search_code_calls": 3,
+            "has_citations_without_read": false,
+            "grounding_valid": true
+          },
+          {
+            "id": "flow_request",
+            "category": "code_flow",
+            "difficulty": "hard",
+            "passed": false,
+            "citations": 2,
+            "verified_citations": 2,
+            "min_citations_required": 4,
+            "precision": 1.0,
+            "recall": 0.333,
+            "f1": 0.5,
+            "tool_calls": 15,
+            "expected_tools": [
+              "find_entry_points",
+              "read_file",
+              "get_imports"
+            ],
+            "answer_length": 2741,
+            "read_file_calls": 5,
+            "search_code_calls": 3,
+            "has_citations_without_read": false,
+            "grounding_valid": true
+          },
+          {
+            "id": "debug_where",
+            "category": "debugging",
+            "difficulty": "medium",
+            "passed": true,
+            "citations": 14,
+            "verified_citations": 14,
+            "min_citations_required": 2,
+            "precision": 1.0,
+            "recall": 0.0,
+            "f1": 0.0,
+            "tool_calls": 14,
+            "expected_tools": [
+              "search_code",
+              "read_file"
+            ],
+            "answer_length": 2036,
+            "read_file_calls": 3,
+            "search_code_calls": 7,
+            "has_citations_without_read": false,
+            "grounding_valid": true
+          },
+          {
+            "id": "specific_main",
+            "category": "specific_file",
+            "difficulty": "easy",
+            "passed": true,
+            "citations": 55,
+            "verified_citations": 55,
+            "min_citations_required": 3,
+            "precision": 1.0,
+            "recall": 0.0,
+            "f1": 0.0,
+            "tool_calls": 11,
+            "expected_tools": [
+              "get_important_files",
+              "read_file",
+              "get_function_signatures"
+            ],
+            "answer_length": 3908,
+            "read_file_calls": 4,
+            "search_code_calls": 4,
+            "has_citations_without_read": false,
+            "grounding_valid": true
+          }
+        ],
+        "pass_at_k_results": null,
+        "passed": 5,
+        "failed": 1,
+        "pass_rate": 83.33333333333334
+      },
+      "total_passed": 8,
+      "total_failed": 1
     },
     {
       "repo": "ripgrep",
@@ -845,50 +1887,48 @@
           "tech_missing": [],
           "tech_accuracy": 100.0,
           "hallucinations": [],
-          "citations": 15,
-          "verified_citations": 15,
+          "citations": 0,
+          "verified_citations": 0,
           "claims": 1,
-          "precision": 1.0,
+          "precision": 0.0,
           "recall": 0.0,
           "f1": 0.0,
-          "tool_calls": 14,
+          "tool_calls": 31,
           "tools_used": [
-            "analyze_dependencies",
-            "read_file",
             "list_directory_structure",
+            "analyze_dependencies",
+            "find_files_by_pattern",
+            "find_entry_points",
+            "read_file",
             "get_important_files",
-            "find_entry_points"
+            "search_code"
           ]
         },
         "deep_dive": {
           "passed": true,
-          "citations": 8,
-          "verified_citations": 8,
+          "citations": 7,
+          "verified_citations": 7,
           "precision": 1.0,
           "recall": 0.0,
           "f1": 0.0,
-          "tool_calls": 18,
+          "tool_calls": 17,
           "file_refs_found": [
-            "Cargo.toml",
             "main.rs"
           ],
-          "answer_length": 2463,
-          "read_file_calls": 12,
+          "answer_length": 2343,
+          "read_file_calls": 9,
           "search_code_calls": 1,
           "has_citations_without_read": false,
           "grounding_valid": true,
           "files_read": [
-            "crates/core/flags/mod.rs",
-            "/tmp/eval-ripgrep/Cargo.toml",
             "crates/core/main.rs",
-            "/tmp/eval-ripgrep/crates/core/flags/mod.rs",
-            "/tmp/eval-ripgrep/crates/core/flags/parse.rs",
-            "/tmp/eval-ripgrep/crates/core/main.rs",
+            "crates/core/search.rs",
             "crates/core/flags/parse.rs",
-            "crates/core/flags/lowargs.rs",
-            "/tmp/eval-ripgrep/crates/core/flags/hiargs.rs",
+            "crates/core/flags/mod.rs",
             "Cargo.toml",
-            "/tmp/eval-ripgrep/crates/core/search.rs"
+            "crates/core/Cargo.toml",
+            "/tmp/eval-ripgrep/crates/core/main.rs",
+            "crates/core/flags/hiargs.rs"
           ],
           "ungrounded_files": []
         },
@@ -900,7 +1940,7 @@
       },
       "passed": 3,
       "failed": 0,
-      "overview_length": 1492,
+      "overview_length": 1603,
       "adversarial_tests": {
         "binary_file": {
           "passed": true,
@@ -917,28 +1957,49 @@
       },
       "diverse_questions": {
         "repo": "ripgrep",
-        "num_questions": 3,
+        "num_questions": 6,
         "questions": [
+          {
+            "id": "identity_check",
+            "category": "identity",
+            "difficulty": "easy",
+            "passed": true,
+            "citations": 2,
+            "verified_citations": 2,
+            "min_citations_required": 1,
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0,
+            "tool_calls": 23,
+            "expected_tools": [
+              "read_file"
+            ],
+            "answer_length": 1564,
+            "read_file_calls": 12,
+            "search_code_calls": 3,
+            "has_citations_without_read": false,
+            "grounding_valid": true
+          },
           {
             "id": "arch_overview",
             "category": "architecture",
             "difficulty": "medium",
             "passed": true,
-            "citations": 47,
-            "verified_citations": 47,
+            "citations": 27,
+            "verified_citations": 26,
             "min_citations_required": 3,
-            "precision": 1.0,
-            "recall": 0.0,
-            "f1": 0.0,
-            "tool_calls": 32,
+            "precision": 0.963,
+            "recall": 0.333,
+            "f1": 0.495,
+            "tool_calls": 25,
             "expected_tools": [
               "list_directory_structure",
               "read_file",
               "get_important_files"
             ],
-            "answer_length": 5170,
-            "read_file_calls": 20,
-            "search_code_calls": 4,
+            "answer_length": 4122,
+            "read_file_calls": 14,
+            "search_code_calls": 6,
             "has_citations_without_read": false,
             "grounding_valid": true
           },
@@ -953,14 +2014,242 @@
             "precision": 0.0,
             "recall": 0.0,
             "f1": 0.0,
-            "tool_calls": 28,
+            "tool_calls": 26,
             "expected_tools": [
               "analyze_dependencies",
               "read_file"
             ],
-            "answer_length": 1541,
-            "read_file_calls": 15,
-            "search_code_calls": 6,
+            "answer_length": 1008,
+            "read_file_calls": 14,
+            "search_code_calls": 4,
+            "has_citations_without_read": false,
+            "grounding_valid": true
+          },
+          {
+            "id": "flow_request",
+            "category": "code_flow",
+            "difficulty": "hard",
+            "passed": false,
+            "citations": 0,
+            "verified_citations": 0,
+            "min_citations_required": 4,
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0,
+            "tool_calls": 27,
+            "expected_tools": [
+              "find_entry_points",
+              "read_file",
+              "get_imports"
+            ],
+            "answer_length": 1529,
+            "read_file_calls": 9,
+            "search_code_calls": 10,
+            "has_citations_without_read": false,
+            "grounding_valid": true
+          },
+          {
+            "id": "debug_where",
+            "category": "debugging",
+            "difficulty": "medium",
+            "passed": false,
+            "citations": 0,
+            "verified_citations": 0,
+            "min_citations_required": 2,
+            "precision": 0.0,
+            "recall": 0.5,
+            "f1": 0.0,
+            "tool_calls": 40,
+            "expected_tools": [
+              "search_code",
+              "read_file"
+            ],
+            "answer_length": 2310,
+            "read_file_calls": 17,
+            "search_code_calls": 12,
+            "has_citations_without_read": false,
+            "grounding_valid": true
+          },
+          {
+            "id": "specific_main",
+            "category": "specific_file",
+            "difficulty": "easy",
+            "passed": true,
+            "citations": 30,
+            "verified_citations": 30,
+            "min_citations_required": 3,
+            "precision": 1.0,
+            "recall": 0.1,
+            "f1": 0.182,
+            "tool_calls": 16,
+            "expected_tools": [
+              "get_important_files",
+              "read_file",
+              "get_function_signatures"
+            ],
+            "answer_length": 4064,
+            "read_file_calls": 7,
+            "search_code_calls": 5,
+            "has_citations_without_read": false,
+            "grounding_valid": true
+          }
+        ],
+        "pass_at_k_results": null,
+        "passed": 3,
+        "failed": 3,
+        "pass_rate": 50.0
+      },
+      "total_passed": 6,
+      "total_failed": 3
+    },
+    {
+      "repo": "langchain",
+      "language": "Python",
+      "category": "library",
+      "tests": {
+        "overview": {
+          "passed": true,
+          "tech_found": [
+            "LangChain",
+            "Python",
+            "LLM",
+            "agent"
+          ],
+          "tech_missing": [],
+          "tech_accuracy": 100.0,
+          "hallucinations": [],
+          "citations": 12,
+          "verified_citations": 11,
+          "claims": 3,
+          "precision": 0.917,
+          "recall": 0.333,
+          "f1": 0.489,
+          "tool_calls": 10,
+          "tools_used": [
+            "list_directory_structure",
+            "analyze_dependencies",
+            "find_entry_points",
+            "read_file",
+            "get_important_files"
+          ]
+        },
+        "deep_dive": {
+          "passed": false,
+          "citations": 0,
+          "verified_citations": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "tool_calls": 24,
+          "file_refs_found": [
+            "pyproject.toml"
+          ],
+          "answer_length": 1107,
+          "read_file_calls": 12,
+          "search_code_calls": 3,
+          "has_citations_without_read": false,
+          "grounding_valid": true,
+          "files_read": [
+            "libs/core/pyproject.toml",
+            "libs/model-profiles/pyproject.toml",
+            "libs/langchain/langchain_classic/tools/ainetwork/app.py",
+            "libs/model-profiles/langchain_model_profiles/cli.py",
+            "libs/langchain/tests/mock_servers/robot/server.py",
+            "README.md",
+            "libs/langchain/pyproject.toml"
+          ],
+          "ungrounded_files": []
+        },
+        "language_detection": {
+          "passed": true,
+          "expected": "Python",
+          "mentioned": true
+        }
+      },
+      "passed": 2,
+      "failed": 1,
+      "overview_length": 1848,
+      "adversarial_tests": {
+        "binary_file": {
+          "passed": true,
+          "details": "No binary files to test"
+        },
+        "injection_filename": {
+          "passed": true,
+          "details": "Injection filter active"
+        },
+        "large_file": {
+          "passed": true,
+          "details": "Largest file: pack-94cb4992ffc1f59f3a88c46150cfd97b9b08e700.pack (14,730,369 bytes)"
+        }
+      },
+      "diverse_questions": {
+        "repo": "langchain",
+        "num_questions": 6,
+        "questions": [
+          {
+            "id": "identity_check",
+            "category": "identity",
+            "difficulty": "easy",
+            "passed": true,
+            "citations": 2,
+            "verified_citations": 2,
+            "min_citations_required": 1,
+            "precision": 1.0,
+            "recall": 0.0,
+            "f1": 0.0,
+            "tool_calls": 26,
+            "expected_tools": [
+              "read_file"
+            ],
+            "answer_length": 1634,
+            "read_file_calls": 16,
+            "search_code_calls": 5,
+            "has_citations_without_read": false,
+            "grounding_valid": true
+          },
+          {
+            "id": "arch_overview",
+            "category": "architecture",
+            "difficulty": "medium",
+            "passed": true,
+            "citations": 15,
+            "verified_citations": 15,
+            "min_citations_required": 3,
+            "precision": 1.0,
+            "recall": 0.25,
+            "f1": 0.4,
+            "tool_calls": 21,
+            "expected_tools": [
+              "list_directory_structure",
+              "read_file",
+              "get_important_files"
+            ],
+            "answer_length": 4256,
+            "read_file_calls": 9,
+            "search_code_calls": 7,
+            "has_citations_without_read": false,
+            "grounding_valid": true
+          },
+          {
+            "id": "dep_external",
+            "category": "dependencies",
+            "difficulty": "easy",
+            "passed": false,
+            "citations": 0,
+            "verified_citations": 0,
+            "min_citations_required": 2,
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0,
+            "tool_calls": 22,
+            "expected_tools": [
+              "analyze_dependencies",
+              "read_file"
+            ],
+            "answer_length": 1166,
+            "read_file_calls": 11,
+            "search_code_calls": 3,
             "has_citations_without_read": false,
             "grounding_valid": true
           },
@@ -969,32 +2258,532 @@
             "category": "code_flow",
             "difficulty": "hard",
             "passed": true,
-            "citations": 11,
-            "verified_citations": 11,
+            "citations": 8,
+            "verified_citations": 8,
             "min_citations_required": 4,
             "precision": 1.0,
             "recall": 0.0,
             "f1": 0.0,
-            "tool_calls": 28,
+            "tool_calls": 34,
             "expected_tools": [
               "find_entry_points",
               "read_file",
               "get_imports"
             ],
-            "answer_length": 2547,
+            "answer_length": 2582,
+            "read_file_calls": 14,
+            "search_code_calls": 6,
+            "has_citations_without_read": false,
+            "grounding_valid": true
+          },
+          {
+            "id": "debug_where",
+            "category": "debugging",
+            "difficulty": "medium",
+            "passed": false,
+            "citations": 0,
+            "verified_citations": 0,
+            "min_citations_required": 2,
+            "precision": 0.0,
+            "recall": 0.4,
+            "f1": 0.0,
+            "tool_calls": 27,
+            "expected_tools": [
+              "search_code",
+              "read_file"
+            ],
+            "answer_length": 3101,
+            "read_file_calls": 14,
+            "search_code_calls": 8,
+            "has_citations_without_read": false,
+            "grounding_valid": true
+          },
+          {
+            "id": "specific_main",
+            "category": "specific_file",
+            "difficulty": "easy",
+            "passed": false,
+            "citations": 0,
+            "verified_citations": 0,
+            "min_citations_required": 3,
+            "precision": 0.0,
+            "recall": 0.25,
+            "f1": 0.0,
+            "tool_calls": 25,
+            "expected_tools": [
+              "get_important_files",
+              "read_file",
+              "get_function_signatures"
+            ],
+            "answer_length": 2944,
+            "read_file_calls": 14,
+            "search_code_calls": 5,
+            "has_citations_without_read": false,
+            "grounding_valid": true
+          }
+        ],
+        "pass_at_k_results": null,
+        "passed": 3,
+        "failed": 3,
+        "pass_rate": 50.0
+      },
+      "total_passed": 5,
+      "total_failed": 4
+    },
+    {
+      "repo": "fastapi",
+      "language": "Python",
+      "category": "framework",
+      "tests": {
+        "overview": {
+          "passed": true,
+          "tech_found": [
+            "FastAPI",
+            "Python",
+            "Starlette",
+            "Pydantic"
+          ],
+          "tech_missing": [
+            "async"
+          ],
+          "tech_accuracy": 80.0,
+          "hallucinations": [],
+          "citations": 13,
+          "verified_citations": 11,
+          "claims": 2,
+          "precision": 0.846,
+          "recall": 0.0,
+          "f1": 0.0,
+          "tool_calls": 30,
+          "tools_used": [
+            "list_directory_structure",
+            "analyze_dependencies",
+            "find_entry_points",
+            "read_file",
+            "get_important_files"
+          ]
+        },
+        "deep_dive": {
+          "passed": true,
+          "citations": 10,
+          "verified_citations": 10,
+          "precision": 1.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "tool_calls": 13,
+          "file_refs_found": [
+            "pyproject.toml",
+            "fastapi/__init__.py"
+          ],
+          "answer_length": 1591,
+          "read_file_calls": 8,
+          "search_code_calls": 0,
+          "has_citations_without_read": false,
+          "grounding_valid": true,
+          "files_read": [
+            "/tmp/eval-fastapi/fastapi/__main__.py",
+            "/tmp/eval-fastapi/pyproject.toml",
+            "/tmp/eval-fastapi/fastapi/__init__.py",
+            "/tmp/eval-fastapi/fastapi/cli.py",
+            "/tmp/eval-fastapi/scripts/docs.py",
+            "/tmp/eval-fastapi/tests/main.py",
+            "/tmp/eval-fastapi/scripts/translate.py"
+          ],
+          "ungrounded_files": []
+        },
+        "language_detection": {
+          "passed": true,
+          "expected": "Python",
+          "mentioned": true
+        }
+      },
+      "passed": 3,
+      "failed": 0,
+      "overview_length": 1251,
+      "adversarial_tests": {
+        "binary_file": {
+          "passed": true,
+          "details": "Found 179 binary files"
+        },
+        "injection_filename": {
+          "passed": true,
+          "details": "Injection filter active"
+        },
+        "large_file": {
+          "passed": true,
+          "details": "Largest file: pack-2d4ee80a6d8a6d1d550f37991d4dd67e726a8f9e.pack (14,749,991 bytes)"
+        }
+      },
+      "diverse_questions": {
+        "repo": "fastapi",
+        "num_questions": 6,
+        "questions": [
+          {
+            "id": "identity_check",
+            "category": "identity",
+            "difficulty": "easy",
+            "passed": true,
+            "citations": 1,
+            "verified_citations": 1,
+            "min_citations_required": 1,
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0,
+            "tool_calls": 22,
+            "expected_tools": [
+              "read_file"
+            ],
+            "answer_length": 1274,
+            "read_file_calls": 9,
+            "search_code_calls": 4,
+            "has_citations_without_read": false,
+            "grounding_valid": true
+          },
+          {
+            "id": "arch_overview",
+            "category": "architecture",
+            "difficulty": "medium",
+            "passed": true,
+            "citations": 42,
+            "verified_citations": 42,
+            "min_citations_required": 3,
+            "precision": 1.0,
+            "recall": 0.0,
+            "f1": 0.0,
+            "tool_calls": 14,
+            "expected_tools": [
+              "list_directory_structure",
+              "read_file",
+              "get_important_files"
+            ],
+            "answer_length": 4301,
+            "read_file_calls": 7,
+            "search_code_calls": 3,
+            "has_citations_without_read": false,
+            "grounding_valid": true
+          },
+          {
+            "id": "dep_external",
+            "category": "dependencies",
+            "difficulty": "easy",
+            "passed": false,
+            "citations": 0,
+            "verified_citations": 0,
+            "min_citations_required": 2,
+            "precision": 0.0,
+            "recall": 0.8,
+            "f1": 0.0,
+            "tool_calls": 20,
+            "expected_tools": [
+              "analyze_dependencies",
+              "read_file"
+            ],
+            "answer_length": 2185,
+            "read_file_calls": 6,
+            "search_code_calls": 8,
+            "has_citations_without_read": false,
+            "grounding_valid": true
+          },
+          {
+            "id": "flow_request",
+            "category": "code_flow",
+            "difficulty": "hard",
+            "passed": true,
+            "citations": 16,
+            "verified_citations": 15,
+            "min_citations_required": 4,
+            "precision": 0.938,
+            "recall": 0.0,
+            "f1": 0.0,
+            "tool_calls": 17,
+            "expected_tools": [
+              "find_entry_points",
+              "read_file",
+              "get_imports"
+            ],
+            "answer_length": 2941,
+            "read_file_calls": 8,
+            "search_code_calls": 3,
+            "has_citations_without_read": false,
+            "grounding_valid": true
+          },
+          {
+            "id": "debug_where",
+            "category": "debugging",
+            "difficulty": "medium",
+            "passed": false,
+            "citations": 0,
+            "verified_citations": 0,
+            "min_citations_required": 2,
+            "precision": 0.0,
+            "recall": 0.333,
+            "f1": 0.0,
+            "tool_calls": 27,
+            "expected_tools": [
+              "search_code",
+              "read_file"
+            ],
+            "answer_length": 2173,
+            "read_file_calls": 13,
+            "search_code_calls": 9,
+            "has_citations_without_read": false,
+            "grounding_valid": true
+          },
+          {
+            "id": "specific_main",
+            "category": "specific_file",
+            "difficulty": "easy",
+            "passed": true,
+            "citations": 29,
+            "verified_citations": 29,
+            "min_citations_required": 3,
+            "precision": 1.0,
+            "recall": 0.333,
+            "f1": 0.5,
+            "tool_calls": 24,
+            "expected_tools": [
+              "get_important_files",
+              "read_file",
+              "get_function_signatures"
+            ],
+            "answer_length": 3134,
             "read_file_calls": 16,
-            "search_code_calls": 2,
+            "search_code_calls": 3,
+            "has_citations_without_read": false,
+            "grounding_valid": true
+          }
+        ],
+        "pass_at_k_results": null,
+        "passed": 4,
+        "failed": 2,
+        "pass_rate": 66.66666666666666
+      },
+      "total_passed": 7,
+      "total_failed": 2
+    },
+    {
+      "repo": "turborepo",
+      "language": "Rust",
+      "category": "cli",
+      "tests": {
+        "overview": {
+          "passed": true,
+          "tech_found": [
+            "Turborepo",
+            "Rust",
+            "monorepo",
+            "build"
+          ],
+          "tech_missing": [],
+          "tech_accuracy": 100.0,
+          "hallucinations": [],
+          "citations": 0,
+          "verified_citations": 0,
+          "claims": 2,
+          "precision": 0.0,
+          "recall": 0.5,
+          "f1": 0.0,
+          "tool_calls": 16,
+          "tools_used": [
+            "list_directory_structure",
+            "analyze_dependencies",
+            "find_entry_points",
+            "read_file",
+            "get_important_files"
+          ]
+        },
+        "deep_dive": {
+          "passed": false,
+          "citations": 0,
+          "verified_citations": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "tool_calls": 20,
+          "file_refs_found": [],
+          "answer_length": 1165,
+          "read_file_calls": 9,
+          "search_code_calls": 2,
+          "has_citations_without_read": false,
+          "grounding_valid": true,
+          "files_read": [
+            "crates/turborepo/Cargo.toml",
+            "crates/turborepo-lib/src/lib.rs",
+            "crates/turborepo/src/main.rs",
+            "crates/turborepo-lib/src/cli/mod.rs",
+            "crates/turborepo-lib/Cargo.toml"
+          ],
+          "ungrounded_files": []
+        },
+        "language_detection": {
+          "passed": true,
+          "expected": "Rust",
+          "mentioned": true
+        }
+      },
+      "passed": 2,
+      "failed": 1,
+      "overview_length": 2063,
+      "adversarial_tests": {
+        "binary_file": {
+          "passed": true,
+          "details": "Found 103 binary files"
+        },
+        "injection_filename": {
+          "passed": true,
+          "details": "Injection filter active"
+        },
+        "large_file": {
+          "passed": true,
+          "details": "Largest file: pack-5dc44cb7f605b270ca9f0e14e55f84ceae5df9c1.pack (61,644,921 bytes)"
+        }
+      },
+      "diverse_questions": {
+        "repo": "turborepo",
+        "num_questions": 6,
+        "questions": [
+          {
+            "id": "identity_check",
+            "category": "identity",
+            "difficulty": "easy",
+            "passed": true,
+            "citations": 13,
+            "verified_citations": 13,
+            "min_citations_required": 1,
+            "precision": 1.0,
+            "recall": 0.0,
+            "f1": 0.0,
+            "tool_calls": 11,
+            "expected_tools": [
+              "read_file"
+            ],
+            "answer_length": 1559,
+            "read_file_calls": 5,
+            "search_code_calls": 3,
+            "has_citations_without_read": false,
+            "grounding_valid": true
+          },
+          {
+            "id": "arch_overview",
+            "category": "architecture",
+            "difficulty": "medium",
+            "passed": false,
+            "citations": 0,
+            "verified_citations": 0,
+            "min_citations_required": 3,
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0,
+            "tool_calls": 21,
+            "expected_tools": [
+              "list_directory_structure",
+              "read_file",
+              "get_important_files"
+            ],
+            "answer_length": 3207,
+            "read_file_calls": 13,
+            "search_code_calls": 3,
+            "has_citations_without_read": false,
+            "grounding_valid": true
+          },
+          {
+            "id": "dep_external",
+            "category": "dependencies",
+            "difficulty": "easy",
+            "passed": true,
+            "citations": 48,
+            "verified_citations": 47,
+            "min_citations_required": 2,
+            "precision": 0.979,
+            "recall": 0.0,
+            "f1": 0.0,
+            "tool_calls": 11,
+            "expected_tools": [
+              "analyze_dependencies",
+              "read_file"
+            ],
+            "answer_length": 4595,
+            "read_file_calls": 6,
+            "search_code_calls": 3,
+            "has_citations_without_read": false,
+            "grounding_valid": true
+          },
+          {
+            "id": "flow_request",
+            "category": "code_flow",
+            "difficulty": "hard",
+            "passed": false,
+            "citations": 0,
+            "verified_citations": 0,
+            "min_citations_required": 4,
+            "precision": 0.0,
+            "recall": 0.167,
+            "f1": 0.0,
+            "tool_calls": 31,
+            "expected_tools": [
+              "find_entry_points",
+              "read_file",
+              "get_imports"
+            ],
+            "answer_length": 1629,
+            "read_file_calls": 17,
+            "search_code_calls": 5,
+            "has_citations_without_read": false,
+            "grounding_valid": true
+          },
+          {
+            "id": "debug_where",
+            "category": "debugging",
+            "difficulty": "medium",
+            "passed": false,
+            "citations": 0,
+            "verified_citations": 0,
+            "min_citations_required": 2,
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0,
+            "tool_calls": 0,
+            "expected_tools": [
+              "search_code",
+              "read_file"
+            ],
+            "answer_length": 159,
+            "read_file_calls": 0,
+            "search_code_calls": 0,
+            "has_citations_without_read": false,
+            "grounding_valid": true
+          },
+          {
+            "id": "specific_main",
+            "category": "specific_file",
+            "difficulty": "easy",
+            "passed": false,
+            "citations": 0,
+            "verified_citations": 0,
+            "min_citations_required": 3,
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0,
+            "tool_calls": 22,
+            "expected_tools": [
+              "get_important_files",
+              "read_file",
+              "get_function_signatures"
+            ],
+            "answer_length": 2356,
+            "read_file_calls": 14,
+            "search_code_calls": 5,
             "has_citations_without_read": false,
             "grounding_valid": true
           }
         ],
         "pass_at_k_results": null,
         "passed": 2,
-        "failed": 1,
-        "pass_rate": 66.66666666666666
+        "failed": 4,
+        "pass_rate": 33.33333333333333
       },
-      "total_passed": 5,
-      "total_failed": 1
+      "total_passed": 4,
+      "total_failed": 5
     }
   ]
 }

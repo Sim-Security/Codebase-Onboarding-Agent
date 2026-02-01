@@ -1,0 +1,398 @@
+WARNING:root:Injection pattern detected in /tmp/eval-flask/src/flask/app.py: act\s+as\s+(?:if\s+you\s+are|a|an)\s+
+WARNING:root:Injection pattern detected in /tmp/eval-flask/src/flask/app.py: act\s+as\s+(?:if\s+you\s+are|a|an)\s+
+WARNING:root:Injection pattern detected in /tmp/eval-flask/src/flask/app.py: act\s+as\s+(?:if\s+you\s+are|a|an)\s+
+WARNING:root:Injection pattern detected in : ignore\s+(all\s+)?previous\s+instructions
+WARNING:root:Injection pattern detected in /tmp/eval-flask/src/flask/app.py: act\s+as\s+(?:if\s+you\s+are|a|an)\s+
+WARNING:root:Injection pattern detected in /tmp/eval-flask/src/flask/app.py: act\s+as\s+(?:if\s+you\s+are|a|an)\s+
+WARNING:root:Injection pattern detected in /tmp/eval-flask/src/flask/app.py: act\s+as\s+(?:if\s+you\s+are|a|an)\s+
+WARNING:root:Injection pattern detected in /tmp/eval-flask/src/flask/app.py: act\s+as\s+(?:if\s+you\s+are|a|an)\s+
+WARNING:root:Injection pattern detected in /tmp/eval-flask/src/flask/app.py: act\s+as\s+(?:if\s+you\s+are|a|an)\s+
+WARNING:root:Injection pattern detected in : ignore\s+(all\s+)?previous\s+instructions
+WARNING:root:Injection pattern detected in : ignore\s+(all\s+)?previous\s+instructions
+WARNING:root:Injection pattern detected in : ignore\s+(all\s+)?previous\s+instructions
+WARNING:src.agent:VALIDATION FAILURE: Citations reference unread files: ['src/middleware/combine.ts']
+WARNING:root:Injection pattern detected in : ignore\s+(all\s+)?previous\s+instructions
+WARNING:root:Injection pattern detected in : ignore\s+(all\s+)?previous\s+instructions
+WARNING:root:Injection pattern detected in : ignore\s+(all\s+)?previous\s+instructions
+WARNING:src.agent:VALIDATION FAILURE: Citations reference unread files: ['cobra_test.go']
+WARNING:root:Injection pattern detected in : ignore\s+(all\s+)?previous\s+instructions
+WARNING:src.agent:VALIDATION FAILURE: Citations reference unread files: ['libs/core/scripts/check_version.py', 'libs/langchain/scripts/check_imports.py']
+WARNING:root:Injection pattern detected in : ignore\s+(all\s+)?previous\s+instructions
+WARNING:src.agent:VALIDATION FAILURE: Citations reference unread files: ['libs/text-splitters/scripts/check_imports.py']
+WARNING:root:Injection pattern detected in : ignore\s+(all\s+)?previous\s+instructions
+WARNING:src.agent:VALIDATION FAILURE: Citations reference unread files: ['fastapi/params.py', 'docs_src/path_operation_advanced_configuration/tutorial004_py39.py', 'fastapi/routing.py', 'docs_src/handling_errors/tutorial004_py39.py', 'fastapi/background.py', 'fastapi/datastructures.py', 'scripts/notify_translations.py', 'scripts/translate.py', 'fastapi/param_functions.py', 'fastapi/utils.py', 'tests/test_exception_handlers.py', 'fastapi/_compat/v2.py']
+WARNING:root:Injection pattern detected in : ignore\s+(all\s+)?previous\s+instructions
+ERROR:src.errors:Original error: Invalid pattern: '**' can only be an entire path component
+============================================================
+🧪 Codebase Onboarding Agent - Multi-Repo Eval Suite
+============================================================
+
+Testing 11 repositories | Diverse questions: 6 per repo
+
+
+[1/11] 📦 flask (Python, framework)
+--------------------------------------------------
+  Cloning https://github.com/pallets/flask...
+  ✓ Cloned successfully
+  ✓ Agent initialized
+    Testing overview generation...
+    Testing deep-dive question...
+    Testing language detection...
+    Testing adversarial cases...
+    Testing diverse questions...
+      [1/6] identity/identity_check: easy
+      [2/6] architecture/arch_overview: medium
+      [3/6] dependencies/dep_external: easy
+      [4/6] code_flow/flow_request: hard
+      [5/6] debugging/debug_where: medium
+      [6/6] specific_file/specific_main: easy
+  ⚠️  7/9 tests passed
+
+[2/11] 📦 httpx (Python, library)
+--------------------------------------------------
+  Cloning https://github.com/encode/httpx...
+  ✓ Cloned successfully
+  ✓ Agent initialized
+    Testing overview generation...
+    Testing deep-dive question...
+    Testing language detection...
+    Testing adversarial cases...
+    Testing diverse questions...
+      [1/6] identity/identity_check: easy
+      [2/6] architecture/arch_overview: medium
+      [3/6] dependencies/dep_external: easy
+      [4/6] code_flow/flow_request: hard
+      [5/6] debugging/debug_where: medium
+      [6/6] specific_file/specific_main: easy
+  ⚠️  8/9 tests passed
+
+[3/11] 📦 click (Python, cli)
+--------------------------------------------------
+  Cloning https://github.com/pallets/click...
+  ✓ Cloned successfully
+  ✓ Agent initialized
+    Testing overview generation...
+    Testing deep-dive question...
+    Testing language detection...
+    Testing adversarial cases...
+    Testing diverse questions...
+      [1/6] identity/identity_check: easy
+      [2/6] architecture/arch_overview: medium
+      [3/6] dependencies/dep_external: easy
+      [4/6] code_flow/flow_request: hard
+      [5/6] debugging/debug_where: medium
+      [6/6] specific_file/specific_main: easy
+  ⚠️  8/9 tests passed
+
+[4/11] 📦 zustand (TypeScript, library)
+--------------------------------------------------
+  Cloning https://github.com/pmndrs/zustand...
+  ✓ Cloned successfully
+  ✓ Agent initialized
+    Testing overview generation...
+    Testing deep-dive question...
+    Testing language detection...
+    Testing adversarial cases...
+    Testing diverse questions...
+      [1/6] identity/identity_check: easy
+      [2/6] architecture/arch_overview: medium
+      [3/6] dependencies/dep_external: easy
+      [4/6] code_flow/flow_request: hard
+      [5/6] debugging/debug_where: medium
+      [6/6] specific_file/specific_main: easy
+  ✅ All tests passed (9/9)
+
+[5/11] 📦 express (JavaScript, framework)
+--------------------------------------------------
+  Cloning https://github.com/expressjs/express...
+  ✓ Cloned successfully
+  ✓ Agent initialized
+    Testing overview generation...
+    Testing deep-dive question...
+    Testing language detection...
+    Testing adversarial cases...
+    Testing diverse questions...
+      [1/6] identity/identity_check: easy
+      [2/6] architecture/arch_overview: medium
+      [3/6] dependencies/dep_external: easy
+      [4/6] code_flow/flow_request: hard
+      [5/6] debugging/debug_where: medium
+      [6/6] specific_file/specific_main: easy
+  ⚠️  8/9 tests passed
+
+[6/11] 📦 gin (Go, framework)
+--------------------------------------------------
+  Cloning https://github.com/gin-gonic/gin...
+  ✓ Cloned successfully
+  ✓ Agent initialized
+    Testing overview generation...
+    Testing deep-dive question...
+    Testing language detection...
+    Testing adversarial cases...
+    Testing diverse questions...
+      [1/6] identity/identity_check: easy
+      [2/6] architecture/arch_overview: medium
+      [3/6] dependencies/dep_external: easy
+      [4/6] code_flow/flow_request: hard
+      [5/6] debugging/debug_where: medium
+      [6/6] specific_file/specific_main: easy
+  ✅ All tests passed (9/9)
+
+[7/11] 📦 cobra (Go, cli)
+--------------------------------------------------
+  Cloning https://github.com/spf13/cobra...
+  ✓ Cloned successfully
+  ✓ Agent initialized
+    Testing overview generation...
+    Testing deep-dive question...
+    Testing language detection...
+    Testing adversarial cases...
+    Testing diverse questions...
+      [1/6] identity/identity_check: easy
+      [2/6] architecture/arch_overview: medium
+      [3/6] dependencies/dep_external: easy
+      [4/6] code_flow/flow_request: hard
+      [5/6] debugging/debug_where: medium
+      [6/6] specific_file/specific_main: easy
+  ⚠️  8/9 tests passed
+
+[8/11] 📦 ripgrep (Rust, cli)
+--------------------------------------------------
+  Cloning https://github.com/BurntSushi/ripgrep...
+  ✓ Cloned successfully
+  ✓ Agent initialized
+    Testing overview generation...
+    Testing deep-dive question...
+    Testing language detection...
+    Testing adversarial cases...
+    Testing diverse questions...
+      [1/6] identity/identity_check: easy
+      [2/6] architecture/arch_overview: medium
+      [3/6] dependencies/dep_external: easy
+      [4/6] code_flow/flow_request: hard
+      [5/6] debugging/debug_where: medium
+      [6/6] specific_file/specific_main: easy
+  ⚠️  6/9 tests passed
+
+[9/11] 📦 langchain (Python, library)
+--------------------------------------------------
+  Cloning https://github.com/langchain-ai/langchain...
+  ✓ Cloned successfully
+  ✓ Agent initialized
+    Testing overview generation...
+    Testing deep-dive question...
+    Testing language detection...
+    Testing adversarial cases...
+    Testing diverse questions...
+      [1/6] identity/identity_check: easy
+      [2/6] architecture/arch_overview: medium
+      [3/6] dependencies/dep_external: easy
+      [4/6] code_flow/flow_request: hard
+      [5/6] debugging/debug_where: medium
+      [6/6] specific_file/specific_main: easy
+  ⚠️  5/9 tests passed
+
+[10/11] 📦 fastapi (Python, framework)
+--------------------------------------------------
+  Cloning https://github.com/fastapi/fastapi...
+  ✓ Cloned successfully
+  ✓ Agent initialized
+    Testing overview generation...
+    Testing deep-dive question...
+    Testing language detection...
+    Testing adversarial cases...
+    Testing diverse questions...
+      [1/6] identity/identity_check: easy
+      [2/6] architecture/arch_overview: medium
+      [3/6] dependencies/dep_external: easy
+      [4/6] code_flow/flow_request: hard
+      [5/6] debugging/debug_where: medium
+      [6/6] specific_file/specific_main: easy
+  ⚠️  7/9 tests passed
+
+[11/11] 📦 turborepo (Rust, cli)
+--------------------------------------------------
+  Cloning https://github.com/vercel/turborepo...
+  ✓ Cloned successfully
+  ✓ Agent initialized
+    Testing overview generation...
+    Testing deep-dive question...
+    Testing language detection...
+    Testing adversarial cases...
+    Testing diverse questions...
+      [1/6] identity/identity_check: easy
+      [2/6] architecture/arch_overview: medium
+      [3/6] dependencies/dep_external: easy
+      [4/6] code_flow/flow_request: hard
+      [5/6] debugging/debug_where: medium
+      [6/6] specific_file/specific_main: easy
+  ⚠️  4/9 tests passed
+
+============================================================
+📈 EVAL SUMMARY
+============================================================
+
+📊 Overall Results:
+   Repositories: 2/11 passed
+   Tests: 79/99 passed (79.8%)
+
+📊 By Language:
+   ⚠️ Python: 13/15 (86.7%)
+   ✅ TypeScript: 3/3 (100.0%)
+   ✅ JavaScript: 3/3 (100.0%)
+   ✅ Go: 6/6 (100.0%)
+   ⚠️ Rust: 5/6 (83.3%)
+
+📊 By Category:
+   ✅ framework: 12/12 (100.0%)
+   ⚠️ library: 8/9 (88.9%)
+   ⚠️ cli: 10/12 (83.3%)
+
+Quality Metrics:
+  Precision (valid citations / total): 94.5%
+  Recall (cited claims / total claims): 0.0%
+  F1 Score: 0.0%
+  Grounding Rate: 0.0%
+
+Details:
+  Citations: 205/217 valid
+  Claims: 0/25 cited, 0 grounded
+
+
+📊 Hallucination Rate: 🟢 0.0% (0/33 responses)
+
+┌──────────────────────────────────────────────────────────┐
+│                    TOOL USAGE METRICS                    │
+├──────────────────────────────────────────────────────────┤
+│  read_file Usage: 🟢 98.7%                                │
+│  Grounding Rate: 🟢 100.0%                                │
+├──────────────────────────────────────────────────────────┤
+│  Total Questions: 77                                     │
+│  Questions with read_file: 76                            │
+│  Questions with Citations: 58                            │
+│  Grounding Violations: 0                                 │
+├──────────────────────────────────────────────────────────┤
+│  Avg read_file/question: 8.75                            │
+│  Avg search_code/question: 4.03                          │
+│  Total Tool Calls: 1410                                  │
+└──────────────────────────────────────────────────────────┘
+
+┌──────────────────────────────────────────────────────────────────────┐
+│                         PER-CATEGORY METRICS                         │
+├────────────────────┬────────────┬────────────┬────────────┬────────────┤
+│ Category           │  Pass Rate │   Passed   │   Failed   │  Avg Cites │
+├────────────────────┼────────────┼────────────┼────────────┼────────────┤
+│ 🔴 debugging        │   45.5%    │     5      │     6      │    9.3     │
+│ 🟡 code_flow        │   63.6%    │     7      │     4      │    6.5     │
+│ 🟡 dependencies     │   72.7%    │     8      │     3      │    23.0    │
+│ 🟢 architecture     │   81.8%    │     18     │     4      │    17.8    │
+│ 🟢 specific_file    │   81.8%    │     9      │     2      │    30.0    │
+│ 🟢 identity         │   90.9%    │     10     │     1      │    6.5     │
+│ 🟢 overview         │   100.0%   │     11     │     0      │    13.3    │
+│ 🟢 language_detectio│   100.0%   │     11     │     0      │    0.0     │
+└────────────────────┴────────────┴────────────┴────────────┴────────────┘
+
+⚠️  Problem Categories (pass rate < 70%):
+   • debugging: 45.5%
+   • code_flow: 63.6%
+
+┌──────────────────────────────────────────────────────────┐
+│                    DIFFICULTY ANALYSIS                   │
+├──────────────────────────────────────────────────────────┤
+│  Expected Difficulty Summary:                            │
+│    🟢 Easy: 81.8% avg pass rate (n=3)                     │
+│    🟡 Medium: 68.2% avg pass rate (n=2)                   │
+│    🟡 Hard: 63.6% avg pass rate (n=1)                     │
+├──────────────────────────────────────────────────────────┤
+│  ⚠️  Difficulty Mismatches:                              │
+│    ⬆️ debug_where: expected 'medium' → actual 'hard' (pass rate: 45.5%, n=11)│
+│    ⬆️ dep_external: expected 'easy' → actual 'medium' (pass rate: 72.7%, n=11)│
+│    ⬆️ specific_main: expected 'easy' → actual 'medium' (pass rate: 81.8%, n=11)│
+│    ⬇️ arch_overview: expected 'medium' → actual 'easy' (pass rate: 90.9%, n=11)│
+└──────────────────────────────────────────────────────────┘
+
+⚠️  3 question(s) are harder than expected
+ℹ️  1 question(s) are easier than expected
+
+📊 Comparison with Previous Run:
+────────────────────────────────────────
+  Pass Rate: 79.8% 🔴 ↓ (was 100.0%, diff: -20.2)
+  Precision: 94.5% 🔴 ↓ (was 100.0%, diff: -5.5)
+  Recall: 0.0% ⚪ → (was 0.0%, diff: +0.0)
+  F1 Score: 0.0% ⚪ → (was 0.0%, diff: +0.0)
+  Grounding Rate: 0.0% ⚪ → (was 0.0%, diff: +0.0)
+
+  Tests: 79 passed, 20 failed
+  Previous: 12 passed, 0 failed
+
+  Previous run: 2026-01-31T18:02:30.021713
+
+🔴 REGRESSION WARNINGS DETECTED
+──────────────────────────────────────────────────
+
+📊 Category Regressions (>10% drop from 3-run average):
+  ⚠️  Category 'code_flow' dropped 22.2% (from avg 81.8% to 63.6%)
+
+Total: 1 regression(s) detected
+
+⚠️  Failures Detail:
+
+   click (Python):
+      - deep_dive: Failed (citations: 0, tools: 17)
+
+   langchain (Python):
+      - deep_dive: Failed (citations: 0, tools: 24)
+
+   turborepo (Rust):
+      - deep_dive: Failed (citations: 0, tools: 20)
+============================================================
+📊 CODEBASE ONBOARDING AGENT - EVALUATION REPORT
+============================================================
+Generated: 2026-01-31 19:16:49
+
+┌──────────────────────────────────────────────────────────┐
+│                      OVERALL SUMMARY                     │
+├──────────────────────────────────────────────────────────┤
+│  Pass Rate: 🟡 79.8%                                      │
+│  Tests Passed: 79/99                                     │
+│  Repos Tested: 0                                         │
+└──────────────────────────────────────────────────────────┘
+
+┌──────────────────────────────────────────────────────────┐
+│                      QUALITY METRICS                     │
+├──────────────────────────────────────────────────────────┤
+│  Citation Precision: 🟢 94.5%                             │
+│  Claim Recall: 🔴 0.0%                                    │
+│  F1 Score: 🔴 0.0%                                        │
+│  Grounding Rate: 🔴 0.0%                                  │
+└──────────────────────────────────────────────────────────┘
+
+┌──────────────────────────────────────────────────────────┐
+│                  PER-REPOSITORY RESULTS                  │
+├─────────────────────────────┬──────────────┬─────────────┤
+│ Repository                  │   Pass Rate  │    Status   │
+├─────────────────────────────┼──────────────┼─────────────┤
+│ flask                       │     100%     │    ✅ PASS   │
+│ httpx                       │     100%     │    ✅ PASS   │
+│ click                       │     67%      │   ⚠️ WARN   │
+│ zustand                     │     100%     │    ✅ PASS   │
+│ express                     │     100%     │    ✅ PASS   │
+│ gin                         │     100%     │    ✅ PASS   │
+│ cobra                       │     100%     │    ✅ PASS   │
+│ ripgrep                     │     100%     │    ✅ PASS   │
+│ langchain                   │     67%      │   ⚠️ WARN   │
+│ fastapi                     │     100%     │    ✅ PASS   │
+│ turborepo                   │     67%      │   ⚠️ WARN   │
+└─────────────────────────────┴──────────────┴─────────────┘
+
+────────────────────────────────────────────────────────────
+Report generated by Codebase Onboarding Agent V3
+============================================================
+
+Results saved to:
+  JSON: evals/eval_results_20260131_191649.json
+  Text: evals/eval_report_20260131_191649.txt
+
+📁 Results saved to: /home/ranomis/Projects/Codebase-Onboarding-Agent/evals/multi_repo_results.json
+
+✅ Multi-repo eval complete!

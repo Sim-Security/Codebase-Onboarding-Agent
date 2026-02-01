@@ -1,0 +1,485 @@
+{
+  "summary": {
+    "total_repos": 2,
+    "repos_passed": 2,
+    "repos_failed": 0,
+    "total_tests": 12,
+    "tests_passed": 12,
+    "tests_failed": 0,
+    "by_language": {
+      "Python": {
+        "passed": 6,
+        "failed": 0
+      }
+    },
+    "by_category": {
+      "framework": {
+        "passed": 3,
+        "failed": 0
+      },
+      "cli": {
+        "passed": 3,
+        "failed": 0
+      }
+    },
+    "total_citations": 34,
+    "valid_citations": 34,
+    "total_claims": 7,
+    "cited_claims": 0,
+    "grounded_claims": 0,
+    "hallucination_count": 0,
+    "responses_checked": 6,
+    "quality_metrics": {
+      "precision": 100.0,
+      "recall": 0.0,
+      "f1_score": 0.0,
+      "grounding_rate": 0.0,
+      "total_citations": 34,
+      "valid_citations": 34,
+      "total_claims": 7,
+      "cited_claims": 0,
+      "grounded_claims": 0,
+      "hallucination_rate": 0.0,
+      "hallucination_count": 0,
+      "responses_checked": 6
+    },
+    "pass_rate": 100.0,
+    "tool_metrics": {
+      "total_questions": 8,
+      "questions_with_read_file": 8,
+      "questions_with_citations": 8,
+      "questions_with_ungrounded_citations": 0,
+      "total_read_file_calls": 52,
+      "total_search_code_calls": 30,
+      "total_tool_calls": 129,
+      "total_citations": 119,
+      "grounding_violation_count": 0,
+      "read_file_rate": 100.0,
+      "grounding_rate": 100.0,
+      "avg_read_file_per_question": 6.5,
+      "avg_search_code_per_question": 3.75
+    },
+    "by_question_category": {
+      "architecture": {
+        "category": "architecture",
+        "total": 4,
+        "passed": 4,
+        "failed": 0,
+        "pass_rate": 100.0,
+        "total_citations": 85,
+        "verified_citations": 85,
+        "avg_citations": 21.25,
+        "citation_accuracy": 100.0
+      },
+      "dependencies": {
+        "category": "dependencies",
+        "total": 2,
+        "passed": 2,
+        "failed": 0,
+        "pass_rate": 100.0,
+        "total_citations": 10,
+        "verified_citations": 8,
+        "avg_citations": 5.0,
+        "citation_accuracy": 80.0
+      },
+      "overview": {
+        "category": "overview",
+        "total": 2,
+        "passed": 2,
+        "failed": 0,
+        "pass_rate": 100.0,
+        "total_citations": 21,
+        "verified_citations": 21,
+        "avg_citations": 10.5,
+        "citation_accuracy": 100.0
+      },
+      "language_detection": {
+        "category": "language_detection",
+        "total": 2,
+        "passed": 2,
+        "failed": 0,
+        "pass_rate": 100.0,
+        "total_citations": 0,
+        "verified_citations": 0,
+        "avg_citations": 0.0,
+        "citation_accuracy": 0.0
+      },
+      "identity": {
+        "category": "identity",
+        "total": 2,
+        "passed": 2,
+        "failed": 0,
+        "pass_rate": 100.0,
+        "total_citations": 24,
+        "verified_citations": 23,
+        "avg_citations": 12.0,
+        "citation_accuracy": 95.83333333333334
+      }
+    },
+    "difficulty_analysis": {
+      "template_stats": {
+        "identity_check": {
+          "expected_difficulty": "easy",
+          "pass_count": 2,
+          "total": 2,
+          "pass_rate": 100.0,
+          "actual_difficulty": "easy"
+        },
+        "arch_overview": {
+          "expected_difficulty": "medium",
+          "pass_count": 2,
+          "total": 2,
+          "pass_rate": 100.0,
+          "actual_difficulty": "easy"
+        },
+        "dep_external": {
+          "expected_difficulty": "easy",
+          "pass_count": 2,
+          "total": 2,
+          "pass_rate": 100.0,
+          "actual_difficulty": "easy"
+        }
+      },
+      "mismatches": [
+        {
+          "template_id": "arch_overview",
+          "expected_difficulty": "medium",
+          "actual_difficulty": "easy",
+          "pass_rate": 100.0,
+          "total_runs": 2,
+          "direction": "easier_than_expected"
+        }
+      ],
+      "summary": {
+        "total_templates": 3,
+        "total_mismatches": 1,
+        "harder_than_expected": 0,
+        "easier_than_expected": 1
+      }
+    }
+  },
+  "results": [
+    {
+      "repo": "flask",
+      "language": "Python",
+      "category": "framework",
+      "tests": {
+        "overview": {
+          "passed": true,
+          "tech_found": [
+            "Flask",
+            "Python",
+            "Werkzeug",
+            "Jinja"
+          ],
+          "tech_missing": [],
+          "tech_accuracy": 100.0,
+          "hallucinations": [],
+          "citations": 11,
+          "verified_citations": 11,
+          "claims": 3,
+          "precision": 1.0,
+          "recall": 0.333,
+          "f1": 0.5,
+          "tool_calls": 8,
+          "tools_used": [
+            "find_entry_points",
+            "list_directory_structure",
+            "analyze_dependencies",
+            "read_file"
+          ]
+        },
+        "deep_dive": {
+          "passed": true,
+          "citations": 3,
+          "verified_citations": 3,
+          "precision": 1.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "tool_calls": 16,
+          "file_refs_found": [
+            "app.py",
+            "pyproject.toml"
+          ],
+          "answer_length": 1678,
+          "read_file_calls": 6,
+          "search_code_calls": 2,
+          "has_citations_without_read": false,
+          "grounding_valid": true,
+          "files_read": [
+            "/tmp/eval-flask/src/flask/cli.py",
+            "/tmp/eval-flask/src/flask/app.py",
+            "/tmp/eval-flask/src/flask/__main__.py",
+            "/tmp/eval-flask/pyproject.toml"
+          ],
+          "ungrounded_files": []
+        },
+        "language_detection": {
+          "passed": true,
+          "expected": "Python",
+          "mentioned": true
+        }
+      },
+      "passed": 3,
+      "failed": 0,
+      "overview_length": 1157,
+      "adversarial_tests": {
+        "binary_file": {
+          "passed": true,
+          "details": "Found 5 binary files"
+        },
+        "injection_filename": {
+          "passed": true,
+          "details": "Injection filter active"
+        },
+        "large_file": {
+          "passed": true,
+          "details": "Largest file: pack-c0a590b8834bedfac48d7990f7dd3d0be25f6725.pack (790,315 bytes)"
+        }
+      },
+      "diverse_questions": {
+        "repo": "flask",
+        "num_questions": 3,
+        "questions": [
+          {
+            "id": "identity_check",
+            "category": "identity",
+            "difficulty": "easy",
+            "passed": true,
+            "citations": 14,
+            "verified_citations": 14,
+            "min_citations_required": 1,
+            "precision": 1.0,
+            "recall": 0.0,
+            "f1": 0.0,
+            "tool_calls": 11,
+            "expected_tools": [
+              "read_file"
+            ],
+            "answer_length": 1319,
+            "read_file_calls": 4,
+            "search_code_calls": 2,
+            "has_citations_without_read": false,
+            "grounding_valid": true
+          },
+          {
+            "id": "arch_overview",
+            "category": "architecture",
+            "difficulty": "medium",
+            "passed": true,
+            "citations": 39,
+            "verified_citations": 39,
+            "min_citations_required": 3,
+            "precision": 1.0,
+            "recall": 0.111,
+            "f1": 0.2,
+            "tool_calls": 14,
+            "expected_tools": [
+              "list_directory_structure",
+              "read_file",
+              "get_important_files"
+            ],
+            "answer_length": 5082,
+            "read_file_calls": 7,
+            "search_code_calls": 3,
+            "has_citations_without_read": false,
+            "grounding_valid": true
+          },
+          {
+            "id": "dep_external",
+            "category": "dependencies",
+            "difficulty": "easy",
+            "passed": true,
+            "citations": 2,
+            "verified_citations": 0,
+            "min_citations_required": 2,
+            "precision": 0.0,
+            "recall": 0.25,
+            "f1": 0.0,
+            "tool_calls": 26,
+            "expected_tools": [
+              "analyze_dependencies",
+              "read_file"
+            ],
+            "answer_length": 2522,
+            "read_file_calls": 9,
+            "search_code_calls": 9,
+            "has_citations_without_read": false,
+            "grounding_valid": false
+          }
+        ],
+        "pass_at_k_results": null,
+        "passed": 3,
+        "failed": 0,
+        "pass_rate": 100.0
+      },
+      "total_passed": 6,
+      "total_failed": 0
+    },
+    {
+      "repo": "click",
+      "language": "Python",
+      "category": "cli",
+      "tests": {
+        "overview": {
+          "passed": true,
+          "tech_found": [
+            "Click",
+            "Python",
+            "CLI",
+            "command"
+          ],
+          "tech_missing": [],
+          "tech_accuracy": 100.0,
+          "hallucinations": [],
+          "citations": 10,
+          "verified_citations": 10,
+          "claims": 4,
+          "precision": 1.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "tool_calls": 15,
+          "tools_used": [
+            "read_file",
+            "list_directory_structure",
+            "analyze_dependencies",
+            "get_important_files",
+            "find_entry_points"
+          ]
+        },
+        "deep_dive": {
+          "passed": true,
+          "citations": 10,
+          "verified_citations": 10,
+          "precision": 1.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "tool_calls": 20,
+          "file_refs_found": [
+            "click/__init__.py",
+            "pyproject.toml"
+          ],
+          "answer_length": 2782,
+          "read_file_calls": 10,
+          "search_code_calls": 4,
+          "has_citations_without_read": false,
+          "grounding_valid": true,
+          "files_read": [
+            "/tmp/eval-click/pyproject.toml",
+            "/tmp/eval-click/docs/entry-points.md",
+            "/tmp/eval-click/examples/complex/complex/commands/cmd_init.py",
+            "/tmp/eval-click/src/click/core.py",
+            "/tmp/eval-click/src/click/_utils.py",
+            "/tmp/eval-click/examples/complex/complex/commands/cmd_status.py",
+            "/tmp/eval-click/src/click/__init__.py",
+            "/tmp/eval-click/src/click/decorators.py",
+            "/tmp/eval-click/examples/complex/complex/cli.py"
+          ],
+          "ungrounded_files": []
+        },
+        "language_detection": {
+          "passed": true,
+          "expected": "Python",
+          "mentioned": true
+        }
+      },
+      "passed": 3,
+      "failed": 0,
+      "overview_length": 1499,
+      "adversarial_tests": {
+        "binary_file": {
+          "passed": true,
+          "details": "Found 2 binary files"
+        },
+        "injection_filename": {
+          "passed": true,
+          "details": "Injection filter active"
+        },
+        "large_file": {
+          "passed": true,
+          "details": "Largest file: pack-92458d03315007e711747c9509cd987fcb975cb2.pack (444,650 bytes)"
+        }
+      },
+      "diverse_questions": {
+        "repo": "click",
+        "num_questions": 3,
+        "questions": [
+          {
+            "id": "identity_check",
+            "category": "identity",
+            "difficulty": "easy",
+            "passed": true,
+            "citations": 10,
+            "verified_citations": 9,
+            "min_citations_required": 1,
+            "precision": 0.9,
+            "recall": 0.5,
+            "f1": 0.643,
+            "tool_calls": 14,
+            "expected_tools": [
+              "read_file"
+            ],
+            "answer_length": 1602,
+            "read_file_calls": 4,
+            "search_code_calls": 3,
+            "has_citations_without_read": false,
+            "grounding_valid": true
+          },
+          {
+            "id": "arch_overview",
+            "category": "architecture",
+            "difficulty": "medium",
+            "passed": true,
+            "citations": 33,
+            "verified_citations": 33,
+            "min_citations_required": 3,
+            "precision": 1.0,
+            "recall": 0.0,
+            "f1": 0.0,
+            "tool_calls": 14,
+            "expected_tools": [
+              "list_directory_structure",
+              "read_file",
+              "get_important_files"
+            ],
+            "answer_length": 4253,
+            "read_file_calls": 7,
+            "search_code_calls": 3,
+            "has_citations_without_read": false,
+            "grounding_valid": true
+          },
+          {
+            "id": "dep_external",
+            "category": "dependencies",
+            "difficulty": "easy",
+            "passed": true,
+            "citations": 8,
+            "verified_citations": 8,
+            "min_citations_required": 2,
+            "precision": 1.0,
+            "recall": 0.0,
+            "f1": 0.0,
+            "tool_calls": 14,
+            "expected_tools": [
+              "analyze_dependencies",
+              "read_file"
+            ],
+            "answer_length": 1486,
+            "read_file_calls": 5,
+            "search_code_calls": 4,
+            "has_citations_without_read": false,
+            "grounding_valid": true
+          }
+        ],
+        "pass_at_k_results": null,
+        "passed": 3,
+        "failed": 0,
+        "pass_rate": 100.0
+      },
+      "total_passed": 6,
+      "total_failed": 0
+    }
+  ],
+  "timestamp": "2026-01-31T18:02:30.023273",
+  "version": "v3"
+}

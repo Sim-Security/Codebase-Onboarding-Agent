@@ -503,5 +503,425 @@
     },
     "timestamp": "2026-01-31T17:28:53.530023",
     "version": "v3"
+  },
+  {
+    "total_repos": 2,
+    "repos_passed": 2,
+    "repos_failed": 0,
+    "total_tests": 12,
+    "tests_passed": 12,
+    "tests_failed": 0,
+    "by_language": {
+      "Python": {
+        "passed": 6,
+        "failed": 0
+      }
+    },
+    "by_category": {
+      "framework": {
+        "passed": 3,
+        "failed": 0
+      },
+      "cli": {
+        "passed": 3,
+        "failed": 0
+      }
+    },
+    "total_citations": 34,
+    "valid_citations": 34,
+    "total_claims": 7,
+    "cited_claims": 0,
+    "grounded_claims": 0,
+    "hallucination_count": 0,
+    "responses_checked": 6,
+    "quality_metrics": {
+      "precision": 100.0,
+      "recall": 0.0,
+      "f1_score": 0.0,
+      "grounding_rate": 0.0,
+      "total_citations": 34,
+      "valid_citations": 34,
+      "total_claims": 7,
+      "cited_claims": 0,
+      "grounded_claims": 0,
+      "hallucination_rate": 0.0,
+      "hallucination_count": 0,
+      "responses_checked": 6
+    },
+    "pass_rate": 100.0,
+    "tool_metrics": {
+      "total_questions": 8,
+      "questions_with_read_file": 8,
+      "questions_with_citations": 8,
+      "questions_with_ungrounded_citations": 0,
+      "total_read_file_calls": 52,
+      "total_search_code_calls": 30,
+      "total_tool_calls": 129,
+      "total_citations": 119,
+      "grounding_violation_count": 0,
+      "read_file_rate": 100.0,
+      "grounding_rate": 100.0,
+      "avg_read_file_per_question": 6.5,
+      "avg_search_code_per_question": 3.75
+    },
+    "by_question_category": {
+      "architecture": {
+        "category": "architecture",
+        "total": 4,
+        "passed": 4,
+        "failed": 0,
+        "pass_rate": 100.0,
+        "total_citations": 85,
+        "verified_citations": 85,
+        "avg_citations": 21.25,
+        "citation_accuracy": 100.0
+      },
+      "dependencies": {
+        "category": "dependencies",
+        "total": 2,
+        "passed": 2,
+        "failed": 0,
+        "pass_rate": 100.0,
+        "total_citations": 10,
+        "verified_citations": 8,
+        "avg_citations": 5.0,
+        "citation_accuracy": 80.0
+      },
+      "overview": {
+        "category": "overview",
+        "total": 2,
+        "passed": 2,
+        "failed": 0,
+        "pass_rate": 100.0,
+        "total_citations": 21,
+        "verified_citations": 21,
+        "avg_citations": 10.5,
+        "citation_accuracy": 100.0
+      },
+      "language_detection": {
+        "category": "language_detection",
+        "total": 2,
+        "passed": 2,
+        "failed": 0,
+        "pass_rate": 100.0,
+        "total_citations": 0,
+        "verified_citations": 0,
+        "avg_citations": 0.0,
+        "citation_accuracy": 0.0
+      },
+      "identity": {
+        "category": "identity",
+        "total": 2,
+        "passed": 2,
+        "failed": 0,
+        "pass_rate": 100.0,
+        "total_citations": 24,
+        "verified_citations": 23,
+        "avg_citations": 12.0,
+        "citation_accuracy": 95.83333333333334
+      }
+    },
+    "difficulty_analysis": {
+      "template_stats": {
+        "identity_check": {
+          "expected_difficulty": "easy",
+          "pass_count": 2,
+          "total": 2,
+          "pass_rate": 100.0,
+          "actual_difficulty": "easy"
+        },
+        "arch_overview": {
+          "expected_difficulty": "medium",
+          "pass_count": 2,
+          "total": 2,
+          "pass_rate": 100.0,
+          "actual_difficulty": "easy"
+        },
+        "dep_external": {
+          "expected_difficulty": "easy",
+          "pass_count": 2,
+          "total": 2,
+          "pass_rate": 100.0,
+          "actual_difficulty": "easy"
+        }
+      },
+      "mismatches": [
+        {
+          "template_id": "arch_overview",
+          "expected_difficulty": "medium",
+          "actual_difficulty": "easy",
+          "pass_rate": 100.0,
+          "total_runs": 2,
+          "direction": "easier_than_expected"
+        }
+      ],
+      "summary": {
+        "total_templates": 3,
+        "total_mismatches": 1,
+        "harder_than_expected": 0,
+        "easier_than_expected": 1
+      }
+    },
+    "timestamp": "2026-01-31T18:02:30.021713",
+    "version": "v3"
+  },
+  {
+    "total_repos": 11,
+    "repos_passed": 2,
+    "repos_failed": 9,
+    "total_tests": 99,
+    "tests_passed": 79,
+    "tests_failed": 20,
+    "by_language": {
+      "Python": {
+        "passed": 13,
+        "failed": 2
+      },
+      "TypeScript": {
+        "passed": 3,
+        "failed": 0
+      },
+      "JavaScript": {
+        "passed": 3,
+        "failed": 0
+      },
+      "Go": {
+        "passed": 6,
+        "failed": 0
+      },
+      "Rust": {
+        "passed": 5,
+        "failed": 1
+      }
+    },
+    "by_category": {
+      "framework": {
+        "passed": 12,
+        "failed": 0
+      },
+      "library": {
+        "passed": 8,
+        "failed": 1
+      },
+      "cli": {
+        "passed": 10,
+        "failed": 2
+      }
+    },
+    "total_citations": 217,
+    "valid_citations": 205,
+    "total_claims": 25,
+    "cited_claims": 0,
+    "grounded_claims": 0,
+    "hallucination_count": 0,
+    "responses_checked": 33,
+    "quality_metrics": {
+      "precision": 94.47004608294931,
+      "recall": 0.0,
+      "f1_score": 0.0,
+      "grounding_rate": 0.0,
+      "total_citations": 217,
+      "valid_citations": 205,
+      "total_claims": 25,
+      "cited_claims": 0,
+      "grounded_claims": 0,
+      "hallucination_rate": 0.0,
+      "hallucination_count": 0,
+      "responses_checked": 33
+    },
+    "pass_rate": 79.7979797979798,
+    "tool_metrics": {
+      "total_questions": 77,
+      "questions_with_read_file": 76,
+      "questions_with_citations": 58,
+      "questions_with_ungrounded_citations": 0,
+      "total_read_file_calls": 674,
+      "total_search_code_calls": 310,
+      "total_tool_calls": 1410,
+      "total_citations": 1220,
+      "grounding_violation_count": 0,
+      "read_file_rate": 98.7012987012987,
+      "grounding_rate": 100.0,
+      "avg_read_file_per_question": 8.753246753246753,
+      "avg_search_code_per_question": 4.025974025974026
+    },
+    "by_question_category": {
+      "architecture": {
+        "category": "architecture",
+        "total": 22,
+        "passed": 18,
+        "failed": 4,
+        "pass_rate": 81.81818181818183,
+        "total_citations": 391,
+        "verified_citations": 382,
+        "avg_citations": 17.772727272727273,
+        "citation_accuracy": 97.69820971867009
+      },
+      "dependencies": {
+        "category": "dependencies",
+        "total": 11,
+        "passed": 8,
+        "failed": 3,
+        "pass_rate": 72.72727272727273,
+        "total_citations": 253,
+        "verified_citations": 250,
+        "avg_citations": 23.0,
+        "citation_accuracy": 98.81422924901186
+      },
+      "code_flow": {
+        "category": "code_flow",
+        "total": 11,
+        "passed": 7,
+        "failed": 4,
+        "pass_rate": 63.63636363636363,
+        "total_citations": 72,
+        "verified_citations": 71,
+        "avg_citations": 6.545454545454546,
+        "citation_accuracy": 98.61111111111111
+      },
+      "debugging": {
+        "category": "debugging",
+        "total": 11,
+        "passed": 5,
+        "failed": 6,
+        "pass_rate": 45.45454545454545,
+        "total_citations": 102,
+        "verified_citations": 101,
+        "avg_citations": 9.272727272727273,
+        "citation_accuracy": 99.01960784313727
+      },
+      "specific_file": {
+        "category": "specific_file",
+        "total": 11,
+        "passed": 9,
+        "failed": 2,
+        "pass_rate": 81.81818181818183,
+        "total_citations": 330,
+        "verified_citations": 329,
+        "avg_citations": 30.0,
+        "citation_accuracy": 99.69696969696969
+      },
+      "overview": {
+        "category": "overview",
+        "total": 11,
+        "passed": 11,
+        "failed": 0,
+        "pass_rate": 100.0,
+        "total_citations": 146,
+        "verified_citations": 142,
+        "avg_citations": 13.272727272727273,
+        "citation_accuracy": 97.26027397260275
+      },
+      "language_detection": {
+        "category": "language_detection",
+        "total": 11,
+        "passed": 11,
+        "failed": 0,
+        "pass_rate": 100.0,
+        "total_citations": 0,
+        "verified_citations": 0,
+        "avg_citations": 0.0,
+        "citation_accuracy": 0.0
+      },
+      "identity": {
+        "category": "identity",
+        "total": 11,
+        "passed": 10,
+        "failed": 1,
+        "pass_rate": 90.9090909090909,
+        "total_citations": 72,
+        "verified_citations": 72,
+        "avg_citations": 6.545454545454546,
+        "citation_accuracy": 100.0
+      }
+    },
+    "difficulty_analysis": {
+      "template_stats": {
+        "identity_check": {
+          "expected_difficulty": "easy",
+          "pass_count": 10,
+          "total": 11,
+          "pass_rate": 90.9090909090909,
+          "actual_difficulty": "easy"
+        },
+        "arch_overview": {
+          "expected_difficulty": "medium",
+          "pass_count": 10,
+          "total": 11,
+          "pass_rate": 90.9090909090909,
+          "actual_difficulty": "easy"
+        },
+        "dep_external": {
+          "expected_difficulty": "easy",
+          "pass_count": 8,
+          "total": 11,
+          "pass_rate": 72.72727272727273,
+          "actual_difficulty": "medium"
+        },
+        "flow_request": {
+          "expected_difficulty": "hard",
+          "pass_count": 7,
+          "total": 11,
+          "pass_rate": 63.63636363636363,
+          "actual_difficulty": "hard"
+        },
+        "debug_where": {
+          "expected_difficulty": "medium",
+          "pass_count": 5,
+          "total": 11,
+          "pass_rate": 45.45454545454545,
+          "actual_difficulty": "hard"
+        },
+        "specific_main": {
+          "expected_difficulty": "easy",
+          "pass_count": 9,
+          "total": 11,
+          "pass_rate": 81.81818181818183,
+          "actual_difficulty": "medium"
+        }
+      },
+      "mismatches": [
+        {
+          "template_id": "debug_where",
+          "expected_difficulty": "medium",
+          "actual_difficulty": "hard",
+          "pass_rate": 45.45454545454545,
+          "total_runs": 11,
+          "direction": "harder_than_expected"
+        },
+        {
+          "template_id": "dep_external",
+          "expected_difficulty": "easy",
+          "actual_difficulty": "medium",
+          "pass_rate": 72.72727272727273,
+          "total_runs": 11,
+          "direction": "harder_than_expected"
+        },
+        {
+          "template_id": "specific_main",
+          "expected_difficulty": "easy",
+          "actual_difficulty": "medium",
+          "pass_rate": 81.81818181818183,
+          "total_runs": 11,
+          "direction": "harder_than_expected"
+        },
+        {
+          "template_id": "arch_overview",
+          "expected_difficulty": "medium",
+          "actual_difficulty": "easy",
+          "pass_rate": 90.9090909090909,
+          "total_runs": 11,
+          "direction": "easier_than_expected"
+        }
+      ],
+      "summary": {
+        "total_templates": 6,
+        "total_mismatches": 4,
+        "harder_than_expected": 3,
+        "easier_than_expected": 1
+      }
+    },
+    "timestamp": "2026-01-31T19:16:49.120670",
+    "version": "v3"
   }
 ]
